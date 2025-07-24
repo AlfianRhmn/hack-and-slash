@@ -30,24 +30,11 @@ public class PlayerMovement : MonoBehaviour
             moveDirection.x = Input.GetAxis("Horizontal");
             moveDirection.y = Input.GetAxis("Vertical");
 
-            rb.AddForce(new Vector3(moveDirection.x, 0, moveDirection.y) * moveSpeed, ForceMode.Force);
-            if (rb.linearVelocity.x > maxSpeed)
+            if (rb.linearDamping == 5)
             {
-                rb.linearVelocity = new Vector3(maxSpeed, rb.linearVelocity.y, rb.linearVelocity.z);
-            }
-            if (rb.linearVelocity.x < -maxSpeed)
-            {
-                rb.linearVelocity = new Vector3(-maxSpeed, rb.linearVelocity.y, rb.linearVelocity.z);
-            }
-            if (rb.linearVelocity.y > maxSpeed)
-            {
-                rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y, maxSpeed);
-            }
-            if (rb.linearVelocity.y < -maxSpeed)
-            {
-                rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y, -maxSpeed);
-            }
 
+                rb.AddForce(new Vector3(moveDirection.x, 0, moveDirection.y) * moveSpeed, ForceMode.Force);
+            }
             if (Input.GetKeyDown(KeyCode.LeftShift) && dodgeReady)
             {
                 rb.linearDamping = 2;
@@ -59,7 +46,29 @@ public class PlayerMovement : MonoBehaviour
                 Vector2 changedDirection = new Vector2();
                 if (moveDirection ==  Vector2.zero)
                 {
-                    changedDirection = playerBody.forward;
+                    changedDirection = new Vector2(playerBody.forward.x, playerBody.forward.z);
+                    if (changedDirection.x != 0)
+                    {
+                        if (changedDirection.x > 0)
+                        {
+                            changedDirection = new Vector2(1, changedDirection.y);
+                        }
+                        else
+                        {
+                            changedDirection = new Vector2(-1, changedDirection.y);
+                        }
+                    }
+                    if (changedDirection.y != 0)
+                    {
+                        if (changedDirection.y > 0)
+                        {
+                            changedDirection = new Vector2(changedDirection.x, 1);
+                        }
+                        else
+                        {
+                            changedDirection = new Vector2(changedDirection.x, -1);
+                        }
+                    }
                 } else
                 {
                     if (moveDirection.x != 0)
@@ -85,7 +94,7 @@ public class PlayerMovement : MonoBehaviour
                         }
                     }
                 }
-                rb.AddForce(new Vector3(changedDirection.x, 0, changedDirection.y) * dodgeDistance, ForceMode.Impulse);
+                rb.AddForce((new Vector3(changedDirection.x, 0, changedDirection.y) * dodgeDistance), ForceMode.Impulse);
             }
 
             if (anim.GetCurrentAnimatorStateInfo(0).IsTag("Dodge") && anim.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.9f)
