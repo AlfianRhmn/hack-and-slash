@@ -540,7 +540,7 @@ MonoBehaviour:
   moveSpeed: 5
   maxSpeed: 10
   dodgeDistance: 10
-  dodgeCooldownTime: 0.4
+  dodgeCooldownTime: 0.6
   rotationSpeed: 720
   playerBody: {fileID: 8261238758709042553}
 --- !u!4 &552603769
@@ -896,13 +896,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2136822933}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.114569135, y: -0.016603481, z: 0.0019151262, w: 0.9932747}
-  m_LocalPosition: {x: 0.2065508, y: 2.15, z: -6.176547}
+  m_LocalRotation: {x: 0.28918892, y: -0.016679658, z: -0.0010647129, w: 0.9571262}
+  m_LocalPosition: {x: 0.2065508, y: 6.13, z: -6.176547}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 552603769}
-  m_LocalEulerAnglesHint: {x: 13.159, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 33.611, y: -2.24, z: -0.804}
 --- !u!114 &2136822937
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6879,7 +6879,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8785960253947299779}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0.016713565, z: -0, w: 0.99986035}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -6888,7 +6888,7 @@ Transform:
   - {fileID: 7599101671419800252}
   - {fileID: 971625423257725609}
   m_Father: {fileID: 552603769}
-  m_LocalEulerAnglesHint: {x: 0, y: -1.915, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &8342864859841732824
 Transform:
   m_ObjectHideFlags: 0
