@@ -22,20 +22,20 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (manager.rb.linearDamping == 5 && manager.readyToAttack)
+        if (manager.rb.linearDamping == 5 && manager.readyToAttack && manager.readyToSpecial)
         {
             manager.rb.AddForce(new Vector3(moveDirection.x, 0, moveDirection.y) * moveSpeed, ForceMode.Force);
         }
     }
 
-    void OnMove(InputValue inputValue)
+    public void OnMove(InputAction.CallbackContext context)
     {
-        moveDirection = inputValue.Get<Vector2>();
+        moveDirection = context.ReadValue<Vector2>();
     }
 
-    void OnDodge(InputValue inputValue)
+    public void OnDodge(InputAction.CallbackContext context)
     {
-        if (inputValue.isPressed && manager.readyToDodge)
+        if (context.performed && manager.readyToDodge && manager.readyToSpecial)
         {
             manager.combat.Reset();
             manager.rb.linearDamping = 2;
@@ -47,53 +47,26 @@ public class PlayerMovement : MonoBehaviour
             Vector2 changedDirection = new Vector2();
             if (moveDirection == Vector2.zero)
             {
-                changedDirection = new Vector2(manager.playerBody.forward.x, manager.playerBody.forward.z);
-                if (changedDirection.x != 0)
-                {
-                    if (changedDirection.x > 0)
-                    {
-                        changedDirection = new Vector2(1, changedDirection.y);
-                    }
-                    else
-                    {
-                        changedDirection = new Vector2(-1, changedDirection.y);
-                    }
-                }
-                if (changedDirection.y != 0)
-                {
-                    if (changedDirection.y > 0)
-                    {
-                        changedDirection = new Vector2(changedDirection.x, 1);
-                    }
-                    else
-                    {
-                        changedDirection = new Vector2(changedDirection.x, -1);
-                    }
-                }
+                changedDirection.x = manager.playerBody.forward.x;
+                changedDirection.y = manager.playerBody.forward.z;
+                changedDirection.Normalize();
             }
             else
             {
-                if (moveDirection.x != 0)
+                if (moveDirection.x > 0.1f)
                 {
-                    if (moveDirection.x > 0)
-                    {
-                        changedDirection = new Vector2(1, moveDirection.y);
-                    }
-                    else
-                    {
-                        changedDirection = new Vector2(-1, moveDirection.y);
-                    }
+                    changedDirection.x = 1f;
+                } else if (moveDirection.x < -0.1f)
+                {
+                    changedDirection.x = -1f;
                 }
-                if (moveDirection.y != 0)
+                if (moveDirection.y > 0.1f)
                 {
-                    if (moveDirection.y > 0)
-                    {
-                        changedDirection = new Vector2(changedDirection.x, 1);
-                    }
-                    else
-                    {
-                        changedDirection = new Vector2(changedDirection.x, -1);
-                    }
+                    changedDirection.y = 1f;
+                }
+                else if (moveDirection.y < -0.1f)
+                {
+                    changedDirection.y = -1f;
                 }
             }
             manager.rb.AddForce((new Vector3(changedDirection.x, 0, changedDirection.y) * dodgeDistance), ForceMode.Impulse);
@@ -114,7 +87,7 @@ public class PlayerMovement : MonoBehaviour
                 manager.readyToDodge = true;
             }
 
-            if (moveDirection != Vector2.zero && manager.readyToAttack)
+            if (moveDirection != Vector2.zero && manager.readyToAttack && manager.readyToSpecial)
             {
                 Quaternion rotation = Quaternion.LookRotation(new Vector3(moveDirection.x, 0, moveDirection.y), Vector3.up);
                 manager.playerBody.rotation = Quaternion.RotateTowards(manager.playerBody.rotation, rotation, rotationSpeed * Time.deltaTime);

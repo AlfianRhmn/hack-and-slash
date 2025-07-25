@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -8,9 +9,12 @@ public class PlayerManager : MonoBehaviour
     public Animator anim;
     public Transform playerBody;
     public Rigidbody rb;
+    public Slider healthBar;
+    public Slider manaBar;
     [Header("Player Restrictions")]
     public bool readyToDodge = true;
     public bool readyToAttack = true;
+    public bool readyToSpecial = true;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {

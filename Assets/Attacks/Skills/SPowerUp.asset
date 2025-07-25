@@ -16,5 +16,20 @@ MonoBehaviour:
   animOV: {fileID: 22100000, guid: 960406bcf676c254f8891679bbf538a2, type: 2}
   damage: 30
   timeToNextAnim: 0
-  status: []
+  skillType:
+  - giveStatus
+  timeBeforeApply: 0.2
+  status:
+  - type: 0
+    statusName: Immense Power
+    statusDescription: Increase attack power by 20%
+    statusIcon: {fileID: 21300000, guid: 96c2c5aff97831040af8e39397acc743, type: 3}
+    severity: 0.2
+    duration: 30
+  - type: 2
+    statusName: Power of Justice
+    statusDescription: Increase Crit DMG by 10%
+    statusIcon: {fileID: 21300000, guid: 96c2c5aff97831040af8e39397acc743, type: 3}
+    severity: 10
+    duration: 30
   heal: 0
