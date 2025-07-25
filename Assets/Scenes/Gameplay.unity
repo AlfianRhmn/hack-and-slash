@@ -537,7 +537,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 462184353676f634e8809bd10a378d3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
+  moveSpeed: 30
   maxSpeed: 10
   dodgeDistance: 10
   dodgeCooldownTime: 0.6
@@ -2014,7 +2014,7 @@ Animator:
   m_GameObject: {fileID: 5704858193009679422}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 9f2cc5ae9005d264a8feac629281b16e, type: 3}
-  m_Controller: {fileID: 9100000, guid: 3a964723aa8854f448b4150b8e5155c2, type: 2}
+  m_Controller: {fileID: 9100000, guid: 4974506df0c314e45be262f69bef86e4, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -4271,8 +4271,8 @@ Transform:
   m_GameObject: {fileID: 5704858193009679422}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0.01, y: 0, z: 18.51}
-  m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
+  m_LocalPosition: {x: 0.01, y: 0.09, z: 12.8}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1109115089366647833}
@@ -4816,35 +4816,16 @@ GameObject:
   m_Component:
   - component: {fileID: 4927055509407778436}
   - component: {fileID: 1333142683544984830}
-  - component: {fileID: 5704858193009679426}
   - component: {fileID: 5704858193009679425}
-  - component: {fileID: 5704858193009679424}
+  - component: {fileID: 5704858193009679426}
+  - component: {fileID: 5704858193009679427}
   m_Layer: 0
   m_Name: Brute
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &5704858193009679424
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5704858193009679422}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1568d96914988245ae691429fd4518e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  HP: 100
-  chaseSpeed: 6
-  stopChasingDistance: 21
-  attackingDistance: 2.5
-  stopAttackingDistance: 2.5
-  idleTime: 0
-  detectionAreaRadius: 10
 --- !u!136 &5704858193009679425
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -4890,6 +4871,19 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &5704858193009679427
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5704858193009679422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5177cb5ee1cfe86489ec077c2dbd49d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HP: 100
 --- !u!1 &5742303211263922392
 GameObject:
   m_ObjectHideFlags: 0
@@ -6880,7 +6874,7 @@ Transform:
   m_GameObject: {fileID: 8785960253947299779}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.01, y: 0.04, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
