@@ -192,6 +192,8 @@ public class PlayerCombat : MonoBehaviour
                         break;
 
                 }
+                StatusEffectUI game = Instantiate(manager.statusDisplay, manager.gridStatus).GetComponent<StatusEffectUI>();
+                game.Initialize(newStatus);
             }
         }
     }

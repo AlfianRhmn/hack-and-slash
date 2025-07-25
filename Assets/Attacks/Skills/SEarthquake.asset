@@ -16,6 +16,7 @@ MonoBehaviour:
   animOV: {fileID: 22100000, guid: ba977db5ce85bc84ba32bef418d143ff, type: 2}
   damage: 30
   timeToNextAnim: 0
+  manaCost: 50
   skillType:
   - projectile
   projectile: {fileID: 0}

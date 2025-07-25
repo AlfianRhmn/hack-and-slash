@@ -87,7 +87,7 @@ public class PlayerMovement : MonoBehaviour
                 manager.readyToDodge = true;
             }
 
-            if (moveDirection != Vector2.zero && manager.readyToAttack && manager.readyToSpecial)
+            if (moveDirection != Vector2.zero && manager.readyToAttack && manager.readyToSpecial && manager.readyToDodge)
             {
                 Quaternion rotation = Quaternion.LookRotation(new Vector3(moveDirection.x, 0, moveDirection.y), Vector3.up);
                 manager.playerBody.rotation = Quaternion.RotateTowards(manager.playerBody.rotation, rotation, rotationSpeed * Time.deltaTime);

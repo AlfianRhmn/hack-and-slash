@@ -11,6 +11,8 @@ public class PlayerManager : MonoBehaviour
     public Rigidbody rb;
     public Slider healthBar;
     public Slider manaBar;
+    public GameObject statusDisplay;
+    public Transform gridStatus;
     [Header("Player Restrictions")]
     public bool readyToDodge = true;
     public bool readyToAttack = true;

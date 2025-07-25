@@ -32,6 +32,7 @@ public class StatusEffects
     public Sprite statusIcon;
     public float severity; // for attack/defense, 1 represents 100% increase and 0.2 represents 20% increase.  --- for critdmg/critrate, 20 means 20% added to the rate --- for poison, severity is the damage given per second
     public float duration;
+    public float maxDuration;
 
     public StatusEffects Copy()
     {
@@ -40,6 +41,7 @@ public class StatusEffects
         copy.statusName = statusName;
         copy.statusDescription = statusDescription;
         copy.duration = duration;
+        copy.maxDuration = maxDuration;
         copy.statusIcon = statusIcon;
         copy.severity = severity;
         return copy;
