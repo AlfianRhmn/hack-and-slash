@@ -23,8 +23,9 @@ public class BruteAttackState : StateMachineBehaviour
 
         if (distanceFromPlayer > stopAttackingDistance)
         {
-            animator.SetBool("Attackk", false);
+            animator.SetBool("ATTACK", false);
         }
+        
     }
 
     private void LookAtPlayer()

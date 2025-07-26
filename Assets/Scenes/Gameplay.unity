@@ -582,7 +582,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 582.7, y: 62.299988}
+  m_AnchoredPosition: {x: 582.69995, y: 62.30005}
   m_SizeDelta: {x: 672.0081, y: 73.520905}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &317473084
@@ -4094,13 +4094,13 @@ Animator:
   m_GameObject: {fileID: 5704858193009679422}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 9f2cc5ae9005d264a8feac629281b16e, type: 3}
-  m_Controller: {fileID: 9100000, guid: 3a964723aa8854f448b4150b8e5155c2, type: 2}
+  m_Controller: {fileID: 9100000, guid: f30336a197160ac40a54f4bbe6a8dd2c, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
+  m_AnimatePhysics: 1
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
@@ -8067,6 +8067,7 @@ GameObject:
   - component: {fileID: 5704858193009679426}
   - component: {fileID: 5704858193009679425}
   - component: {fileID: 5704858193009679424}
+  - component: {fileID: 5704858193009679427}
   m_Layer: 0
   m_Name: Brute
   m_TagString: Enemy
@@ -8133,6 +8134,19 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &5704858193009679427
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5704858193009679422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5177cb5ee1cfe86489ec077c2dbd49d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HP: 100
 --- !u!1 &5742303211263922392
 GameObject:
   m_ObjectHideFlags: 0

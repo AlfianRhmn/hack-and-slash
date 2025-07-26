@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.UI;
 
 public class BruteRunState : StateMachineBehaviour
 {
@@ -10,6 +9,7 @@ public class BruteRunState : StateMachineBehaviour
     public float chaseSpeed = 6f;
     public float stopChasingDistance = 21f;
     public float attackingDistance = 2.5f;
+
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
@@ -34,7 +34,7 @@ public class BruteRunState : StateMachineBehaviour
         // --- Checing if the agent should Attack --- //
         if (distanceFromPlayer < attackingDistance)
         {
-            animator.SetBool("Attackk", true);
+            animator.SetTrigger("TAUNT");
         }
     }
 
