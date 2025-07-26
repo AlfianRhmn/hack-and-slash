@@ -1,9 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Rendering.Universal.Internal;
 
 public class PlayerCombat : MonoBehaviour
 {
@@ -21,9 +19,9 @@ public class PlayerCombat : MonoBehaviour
     public float critChance = 50f;
     public float critDamage = 50f;
     [Header("Combat")]
-    [SerializeField] Weapon weapon;
     public List<AttackSO> combo;
     public List<AttackSO> listOfSpecial;
+    public PlayerInput input;
     float lastClickedTime;
     float lastComboEnd;
     int comboCounter;
@@ -39,11 +37,13 @@ public class PlayerCombat : MonoBehaviour
         manager.manaBar.maxValue = maxMana;
         manager.healthBar.value = currentHealth;
         manager.manaBar.value = currentMana;
+        SetupSpecial();
     }
 
     // Update is called once per frame
     void Update()
     {
+        SetupSpecial();
         EndAttack();
 
         for (int i = 0; i < activeStatusEffect.Count; i++)
@@ -107,6 +107,19 @@ public class PlayerCombat : MonoBehaviour
         manager.manaBar.value = tempX;
     }
 
+    public void SetupSpecial()
+    {
+        manager.specialIcon.sprite = listOfSpecial[specialSelected].skillIcon;
+        manager.specialName.text = listOfSpecial[specialSelected].attackName + "<br><size=15>[" + listOfSpecial[specialSelected].manaCost + " Energy]";
+        string inputText = input.actions.FindAction("Special Attack").GetBindingDisplayString();
+        inputText = inputText.Replace("Tap ", "");
+        inputText = inputText.Replace("Hold ", "");
+        inputText = inputText.Replace("Multi Tap ", "");
+        inputText = inputText.Replace("Press ", "");
+        inputText = inputText.Replace("Slow Tap ", "");
+        manager.specialInput.text = "<sprite name=" + inputText + ">";
+    }
+
     public void OnAttack(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -115,11 +128,13 @@ public class PlayerCombat : MonoBehaviour
             {
                 manager.readyToAttack = false;
                 CancelInvoke("EndCombo");
+                CancelInvoke("EndAttack");
+                manager.weapon.EnableHitbox();
                 if (Time.time - lastClickedTime >= manager.anim.GetCurrentAnimatorClipInfo(0)[0].clip.length * combo[comboCounter].timeToNextAnim)
                 {
                     manager.anim.runtimeAnimatorController = combo[comboCounter].animOV;
                     manager.anim.SetTrigger("Basic Attack");
-                    weapon.damage = combo[comboCounter].damage * attackModifier;
+                    manager.weapon.damage = combo[comboCounter].damage * attackModifier;
                     //Set all variables here...
                     comboCounter++;
                     lastClickedTime = Time.time;
@@ -215,6 +230,7 @@ public class PlayerCombat : MonoBehaviour
 
     public void EndCombo()
     {
+        manager.weapon.DisableHitbox();
         comboCounter = 0;
         lastComboEnd = Time.time;
     }

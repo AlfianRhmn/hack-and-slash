@@ -10,6 +10,7 @@ public class AttackSO : ScriptableObject
     [Tooltip("Preferably around 0.1 to 1, depends on animation")]
     public float timeToNextAnim; // 0 to 1;
     [Header("Skills")]
+    public Sprite skillIcon;
     public float manaCost;
     public string[] skillType; // projectile, giveStatus, heal
     [Header("Skill - Projectile")]

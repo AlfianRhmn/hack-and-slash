@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,6 +14,10 @@ public class PlayerManager : MonoBehaviour
     public Slider manaBar;
     public GameObject statusDisplay;
     public Transform gridStatus;
+    public Weapon weapon;
+    public TextMeshProUGUI specialName;
+    public Image specialIcon;
+    public TextMeshProUGUI specialInput;
     [Header("Player Restrictions")]
     public bool readyToDodge = true;
     public bool readyToAttack = true;

@@ -12,6 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6244e3677caae714aad1f26cfc2683c8, type: 3}
   m_Name: SwordAttack3
   m_EditorClassIdentifier: 
+  attackName: 
   animOV: {fileID: 22100000, guid: a474088f27096334e92d67bfef7ccaab, type: 2}
   damage: 15
-  timeToNextAnim: 0.3
+  timeToNextAnim: 0.5
+  manaCost: 0
+  skillType: []
+  projectile: {fileID: 0}
+  velocity: 0
+  timeBeforeApply: 0
+  status: []
+  heal: 0
