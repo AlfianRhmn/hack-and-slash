@@ -14,17 +14,18 @@ public class PlayerMovement : MonoBehaviour
     public float rotationSpeed = 720;
     float targetRotY;
     Vector2 moveDirection;
+    Vector3 moveDir;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void FixedUpdate()
     {
         if (manager.rb.linearDamping == 5 && manager.readyToAttack && manager.readyToSpecial)
         {
-            manager.rb.AddForce(new Vector3(moveDirection.x, 0, moveDirection.y) * moveSpeed, ForceMode.Force);
+            manager.rb.AddForce(moveDir * moveSpeed, ForceMode.Force);
         }
     }
 
@@ -44,32 +45,29 @@ public class PlayerMovement : MonoBehaviour
                 manager.anim.SetTrigger("Roll");
             }
             StartCoroutine(DodgeCooldown());
-            Vector2 changedDirection = new Vector2();
+            Vector3 dodgeDirection;
+
             if (moveDirection == Vector2.zero)
             {
-                changedDirection.x = manager.playerBody.forward.x;
-                changedDirection.y = manager.playerBody.forward.z;
-                changedDirection.Normalize();
+                // Dodge forward relative to player body when idle
+                dodgeDirection = manager.playerBody.forward;
             }
             else
             {
-                if (moveDirection.x > 0.1f)
-                {
-                    changedDirection.x = 1f;
-                } else if (moveDirection.x < -0.1f)
-                {
-                    changedDirection.x = -1f;
-                }
-                if (moveDirection.y > 0.1f)
-                {
-                    changedDirection.y = 1f;
-                }
-                else if (moveDirection.y < -0.1f)
-                {
-                    changedDirection.y = -1f;
-                }
+                // Get camera's flat forward and right vectors
+                Vector3 camForward = manager.cam.forward;
+                Vector3 camRight = manager.cam.right;
+                camForward.y = 0;
+                camRight.y = 0;
+                camForward.Normalize();
+                camRight.Normalize();
+
+                // Calculate movement direction relative to camera
+                dodgeDirection = (camForward * moveDirection.y + camRight * moveDirection.x).normalized;
             }
-            manager.rb.AddForce((new Vector3(changedDirection.x, 0, changedDirection.y) * dodgeDistance), ForceMode.Impulse);
+
+            // Apply impulse force in the dodge direction
+            manager.rb.AddForce(dodgeDirection * dodgeDistance, ForceMode.Impulse);
         }
     }
 
@@ -77,6 +75,20 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         {
+            Vector3 camForward = manager.cam.forward;
+            Vector3 camRight = manager.cam.right;
+
+            camForward.y = 0;
+            camRight.y = 0;
+
+            camForward.Normalize();
+            camRight.Normalize();
+
+            Vector3 forwardRelative = moveDirection.y * camForward;
+            Vector3 rightRelative = moveDirection.x * camRight;
+
+            moveDir = forwardRelative + rightRelative;
+
             if (manager.anim.GetCurrentAnimatorStateInfo(0).IsTag("Dodge") && manager.anim.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.9f)
             {
                 manager.rb.linearDamping = 5f;
@@ -89,8 +101,13 @@ public class PlayerMovement : MonoBehaviour
 
             if (moveDirection != Vector2.zero && manager.readyToAttack && manager.readyToSpecial && manager.readyToDodge)
             {
-                Quaternion rotation = Quaternion.LookRotation(new Vector3(moveDirection.x, 0, moveDirection.y), Vector3.up);
-                manager.playerBody.rotation = Quaternion.RotateTowards(manager.playerBody.rotation, rotation, rotationSpeed * Time.deltaTime);
+                Vector3 worldDirection = (camForward * moveDirection.y + camRight * moveDirection.x).normalized;
+
+                // Optional: visualize in Scene view
+                Debug.DrawRay(manager.playerBody.position, worldDirection * 2f, Color.red);
+
+                Quaternion targetRotation = Quaternion.LookRotation(worldDirection);
+                manager.playerBody.rotation = Quaternion.RotateTowards(manager.playerBody.rotation, targetRotation, rotationSpeed * Time.deltaTime);
             }
 
             if (manager.anim != null)

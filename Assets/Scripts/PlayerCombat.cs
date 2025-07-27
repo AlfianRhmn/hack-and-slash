@@ -22,12 +22,16 @@ public class PlayerCombat : MonoBehaviour
     public List<AttackSO> combo;
     public List<AttackSO> listOfSpecial;
     public PlayerInput input;
+    public float timeUntilManaRegen = 2;
+    [Range(0f, 1f)]
+    public float percentageManaRegen = 0.1f;
     float lastClickedTime;
     float lastComboEnd;
     int comboCounter;
     int specialSelected;
     float healthVelocity;
     float manaVelocity;
+    float timeLastUsedSpecial = 0;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -92,6 +96,16 @@ public class PlayerCombat : MonoBehaviour
             currentMana = maxMana;
         }
 
+        timeLastUsedSpecial += Time.deltaTime;
+        if (timeLastUsedSpecial > timeUntilManaRegen && currentMana < maxMana)
+        {
+            currentMana += (maxMana * percentageManaRegen) * Time.deltaTime;
+            if (currentMana > maxMana)
+            {
+                currentMana = maxMana; 
+            }
+        }
+
         if (manager.healthBar.maxValue != maxHealth)
         {
             manager.healthBar.maxValue = maxHealth;
@@ -120,6 +134,29 @@ public class PlayerCombat : MonoBehaviour
         manager.specialInput.text = "<sprite name=" + inputText + ">";
     }
 
+    public void OnChangeSpecial(InputAction.CallbackContext context)
+    {
+        float x = context.ReadValue<float>();
+        if (x != 0)
+        {
+            if (x < 0)
+            {
+                specialSelected--;
+                if (specialSelected < 0)
+                {
+                    specialSelected = listOfSpecial.Count - 1;
+                }
+            } else
+            {
+                specialSelected++;
+                if (specialSelected >= listOfSpecial.Count)
+                {
+                    specialSelected = 0;
+                }
+            }
+        }
+    }
+
     public void OnAttack(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -135,6 +172,8 @@ public class PlayerCombat : MonoBehaviour
                     manager.anim.runtimeAnimatorController = combo[comboCounter].animOV;
                     manager.anim.SetTrigger("Basic Attack");
                     manager.weapon.damage = combo[comboCounter].damage * attackModifier;
+                    manager.weapon.critChance = critChance;
+                    manager.weapon.critDamage = critDamage;
                     //Set all variables here...
                     comboCounter++;
                     lastClickedTime = Time.time;
@@ -152,6 +191,7 @@ public class PlayerCombat : MonoBehaviour
     {
         if (context.performed && manager.readyToSpecial && currentMana >= listOfSpecial[specialSelected].manaCost)
         {
+            timeLastUsedSpecial = 0;
             currentMana -= listOfSpecial[specialSelected].manaCost;
             manager.readyToSpecial = false;
             AttackSO specialUsed = listOfSpecial[specialSelected];
@@ -161,18 +201,56 @@ public class PlayerCombat : MonoBehaviour
             {
                 switch (specialUsed.skillType[i])
                 {
-                    case "projectile":
-                        // spawn projectile, not planned
+                    case AttackSO.typeOfSkill.Fireball:
+                        StartCoroutine(SpawnFireball(specialUsed));
                         break;
-                    case "giveStatus":
+                    case AttackSO.typeOfSkill.GiveStatus:
                         StartCoroutine(GiveStatus(specialUsed.status, specialUsed.timeBeforeApply));
                         break;
-                    case "heal":
+                    case AttackSO.typeOfSkill.Heal:
                         currentHealth += specialUsed.heal;
                         break;
                 }
             }
         }
+    }
+
+    IEnumerator SpawnFireball(AttackSO specialUsed)
+    {
+        Vector3 closestEnemy = FindClosestEnemy().transform.position;
+        if (closestEnemy != null)
+        {
+            manager.playerBody.transform.LookAt(new Vector3(closestEnemy.x, manager.playerBody.position.y, closestEnemy.z));
+        }
+        yield return new WaitForSeconds(specialUsed.timeBeforeApply);
+        Projectile fireball = Instantiate(specialUsed.projectile, manager.rightHand.position, Quaternion.identity).GetComponent<Projectile>();
+        fireball.damageNumber = manager.damageNumber;
+        fireball.damage = specialUsed.damage * attackModifier;
+        fireball.critChance = critChance;
+        fireball.critDamage = critDamage;
+        if (closestEnemy == null)
+        {
+            fireball.GetComponent<Rigidbody>().AddForce(manager.playerBody.forward * specialUsed.velocity, ForceMode.Impulse);
+        } else
+        {
+            fireball.GetComponent<Rigidbody>().AddForce((closestEnemy - manager.playerBody.position).normalized * specialUsed.velocity, ForceMode.Impulse);
+        }
+    }
+
+    Transform FindClosestEnemy()
+    {
+        if (manager.enemyList.Count == 0) return null;
+        float closestDistance = Mathf.Infinity;
+        int enemyIndex = 0;
+        foreach (Balmond enemy in manager.enemyList)
+        {
+            if (Vector3.Distance(transform.position, enemy.transform.position) < closestDistance)
+            {
+                closestDistance = Vector3.Distance(transform.position, enemy.transform.position);
+                enemyIndex = manager.enemyList.IndexOf(enemy);
+            }
+        }
+        return manager.enemyList[enemyIndex].transform;
     }
 
     IEnumerator GiveStatus(StatusEffects[] statuses, float time)

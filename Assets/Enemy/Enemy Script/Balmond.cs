@@ -7,7 +7,6 @@ using UnityEngine.UI;
 
 public class Balmond : MonoBehaviour
 {
-    public ObjectPooling damageNumber;
     [SerializeField] private float HP = 100;
     public Slider healthBar;
     private Animator animator;
@@ -17,14 +16,11 @@ public class Balmond : MonoBehaviour
 
     private void Start()
     {
+        PlayerManager.Instance.enemyList.Add(this);
         healthBar.maxValue = HP;
         healthBar.value = HP;
         animator = GetComponent<Animator>();
         navAgent = GetComponent<NavMeshAgent>();
-        if (damageNumber == null)
-        {
-            damageNumber = GameObject.FindWithTag("Damage Number").GetComponent<ObjectPooling>();
-        }
     }
 
     private void Update()
@@ -35,13 +31,6 @@ public class Balmond : MonoBehaviour
     public void TakeDamage(float damageAmount)
     {
         HP -= damageAmount;
-        AlwaysLookAt look = damageNumber.GetObject().GetComponent<AlwaysLookAt>();
-        look.transform.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
-        look.sourceOfPool = damageNumber;
-        look.transform.position = transform.position;
-        look.transform.localScale = new Vector3(0.2445875f, 0.2445875f, 0.2445875f);
-        look.transform.GetComponent<Rigidbody>().AddForce(new Vector3(UnityEngine.Random.Range(-50f, 50f), 400, UnityEngine.Random.Range(-50f, 50f)));
-        look.transform.GetChild(0).GetComponent<TextMeshPro>().text = Mathf.RoundToInt(damageAmount).ToString();
 
         if (HP <= 0)
         {
@@ -58,6 +47,7 @@ public class Balmond : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
         healthBar.gameObject.SetActive(false);
+        PlayerManager.Instance.enemyList.Remove(this);
         Destroy(this);
     }
 
