@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class Weapon : MonoBehaviour
 {
+    public int effectID; // 0 - normal weapon, 1 - quake
     public float damage;
     [UnityEngine.Range(0, 100f)]
     public float critChance = 50f;
@@ -12,6 +13,8 @@ public class Weapon : MonoBehaviour
     public List<GameObject> targets;
     public ObjectPooling damageNumber;
     BoxCollider hitbox;
+    [Header("General - Skills")]
+    public float duration;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -20,6 +23,18 @@ public class Weapon : MonoBehaviour
         if (damageNumber == null)
         {
             damageNumber = GameObject.FindWithTag("Damage Number").GetComponent<ObjectPooling>();
+        }
+    }
+
+    private void Update()
+    {
+        if (effectID != 0)
+        {
+            duration -= Time.deltaTime;
+            if (duration < 0)
+            {
+                Destroy(gameObject);
+            }
         }
     }
 
@@ -49,6 +64,12 @@ public class Weapon : MonoBehaviour
                 }
                 targets.Add(enemy.gameObject);
                 enemy.TakeDamage(totalDamage);
+                switch (effectID)
+                {
+                    case 1:
+                        StartCoroutine(enemy.LaunchEnemy(0.6f, 2.5f));
+                        break;
+                }
             }
         }
     }

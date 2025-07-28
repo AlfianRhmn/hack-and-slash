@@ -210,6 +210,9 @@ public class PlayerCombat : MonoBehaviour
                     case AttackSO.typeOfSkill.Heal:
                         currentHealth += specialUsed.heal;
                         break;
+                    case AttackSO.typeOfSkill.Quake:
+                        StartCoroutine(SpawnFireball(specialUsed));
+                        break;
                 }
             }
         }
@@ -223,17 +226,34 @@ public class PlayerCombat : MonoBehaviour
             manager.playerBody.transform.LookAt(new Vector3(closestEnemy.x, manager.playerBody.position.y, closestEnemy.z));
         }
         yield return new WaitForSeconds(specialUsed.timeBeforeApply);
-        Projectile fireball = Instantiate(specialUsed.projectile, manager.rightHand.position, Quaternion.identity).GetComponent<Projectile>();
-        fireball.damageNumber = manager.damageNumber;
-        fireball.damage = specialUsed.damage * attackModifier;
-        fireball.critChance = critChance;
-        fireball.critDamage = critDamage;
-        if (closestEnemy == null)
+        GameObject obj = Instantiate(specialUsed.projectile, manager.rightHand.position, Quaternion.identity);
+        Projectile fireball = obj.GetComponent<Projectile>();
+        if (fireball != null)
         {
-            fireball.GetComponent<Rigidbody>().AddForce(manager.playerBody.forward * specialUsed.velocity, ForceMode.Impulse);
-        } else
+            fireball.damageNumber = manager.damageNumber;
+            fireball.damage = specialUsed.damage * attackModifier;
+            fireball.critChance = critChance;
+            fireball.critDamage = critDamage;
+            if (closestEnemy == null)
+            {
+                fireball.GetComponent<Rigidbody>().AddForce(manager.playerBody.forward * specialUsed.velocity, ForceMode.Impulse);
+            }
+            else
+            {
+                fireball.GetComponent<Rigidbody>().AddForce((closestEnemy - manager.playerBody.position).normalized * specialUsed.velocity, ForceMode.Impulse);
+            }
+        }
+        Weapon quake = obj.GetComponent<Weapon>();
+        if (quake != null)
         {
-            fireball.GetComponent<Rigidbody>().AddForce((closestEnemy - manager.playerBody.position).normalized * specialUsed.velocity, ForceMode.Impulse);
+            obj.transform.position = transform.position;
+            quake.effectID = 1;
+            quake.damage = specialUsed.damage * attackModifier;
+            quake.critChance = critChance;
+            quake.critDamage = critDamage;
+            quake.damageNumber = manager.damageNumber;
+            yield return new WaitForEndOfFrame();
+            quake.EnableHitbox();
         }
     }
 

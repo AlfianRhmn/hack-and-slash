@@ -43,6 +43,35 @@ public class Balmond : MonoBehaviour
         }
     }
 
+    public IEnumerator LaunchEnemy(float duration, float launchHeight)
+    {
+        navAgent.enabled = false;
+
+        Vector3 originalPosition = transform.position;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+
+            // Create a smooth arc: 0 ¨ 1 ¨ 0 over the duration
+            float yOffset = Mathf.Sin(t * Mathf.PI) * launchHeight;
+
+            transform.position = new Vector3(
+                originalPosition.x,
+                originalPosition.y + yOffset,
+                originalPosition.z
+            );
+
+            yield return null;
+        }
+
+        // Restore exact original position to avoid float drift
+        transform.position = originalPosition;
+        navAgent.enabled = true;
+    }
+
     IEnumerator Dead()
     {
         yield return new WaitForSeconds(1f);

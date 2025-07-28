@@ -12,7 +12,7 @@ public class AttackSO : ScriptableObject
     [Header("Skills")]
     public Sprite skillIcon;
     public float manaCost;
-    public enum typeOfSkill { Fireball, GiveStatus, Heal}
+    public enum typeOfSkill { Fireball, GiveStatus, Heal, Quake}
     public typeOfSkill[] skillType; // fireball, giveStatus, heal
     public float timeBeforeApply;
     [Header("Skill - Fireball")]

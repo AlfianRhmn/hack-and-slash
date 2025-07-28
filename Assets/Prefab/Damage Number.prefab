@@ -79,6 +79,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sourceOfPool: {fileID: 0}
   lookAtWhat: {fileID: 0}
+  enableTimer: 1
 --- !u!1 &6024911844986568488
 GameObject:
   m_ObjectHideFlags: 0
@@ -106,7 +107,7 @@ RectTransform:
   m_GameObject: {fileID: 6024911844986568488}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.62877, y: 0.62877, z: 0.62877}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8736403707088429774}
