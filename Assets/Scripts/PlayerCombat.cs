@@ -12,6 +12,8 @@ public class PlayerCombat : MonoBehaviour
     public float maxHealth = 100;
     public float currentMana;
     public float maxMana = 100;
+    [Range(0, 100)]
+    public int ultimateProgress;
     public List<StatusEffects> activeStatusEffect;
     public float attackModifier = 1;
     public float defenseModifier = 1;
@@ -20,7 +22,8 @@ public class PlayerCombat : MonoBehaviour
     public float critDamage = 50f;
     [Header("Combat")]
     public List<AttackSO> combo;
-    public List<AttackSO> listOfSpecial;
+    public List<SkillSO> listOfSpecial;
+    public UltimateSO ultimate;
     public PlayerInput input;
     public float timeUntilManaRegen = 2;
     [Range(0f, 1f)]
@@ -41,13 +44,13 @@ public class PlayerCombat : MonoBehaviour
         manager.manaBar.maxValue = maxMana;
         manager.healthBar.value = currentHealth;
         manager.manaBar.value = currentMana;
-        SetupSpecial();
     }
 
     // Update is called once per frame
     void Update()
     {
         SetupSpecial();
+        SetupUltimate();
         EndAttack();
 
         for (int i = 0; i < activeStatusEffect.Count; i++)
@@ -84,6 +87,10 @@ public class PlayerCombat : MonoBehaviour
         if (manager.anim.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f && manager.anim.GetCurrentAnimatorStateInfo(0).IsTag("Special Attack"))
         {
             manager.readyToSpecial = true;
+        }
+        if (manager.anim.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f && manager.anim.GetCurrentAnimatorStateInfo(0).IsTag("Ultimate"))
+        {
+            manager.readyToUltimate = true;
         }
 
         if (currentHealth > maxHealth)
@@ -134,6 +141,38 @@ public class PlayerCombat : MonoBehaviour
         manager.specialInput.text = "<sprite name=" + inputText + ">";
     }
 
+    public void SetupUltimate()
+    {
+        manager.ultimateIcon.sprite = ultimate.skillIcon;
+        manager.ultimateName.text = ultimate.attackName;
+        string inputText = input.actions.FindAction("Ultimate").GetBindingDisplayString();
+        inputText = inputText.Replace("Tap ", "");
+        inputText = inputText.Replace("Hold ", "");
+        inputText = inputText.Replace("Multi Tap ", "");
+        inputText = inputText.Replace("Press ", "");
+        inputText = inputText.Replace("Slow Tap ", "");
+        manager.ultimateInput.text = "<sprite name=" + inputText + ">";
+        if (ultimateProgress >= 100)
+        {
+            manager.ultimateProgress.text = "<color=yellow>READY";
+        } else
+        {
+            string progressDisplayed = "";
+            string progressEmptyDisplay = "";
+            int amountOfPoint = ultimateProgress / 10;
+            int amountOfEmpty = 10 - amountOfPoint;
+            for (int i = 0; i < amountOfPoint; i++)
+            {
+                progressDisplayed += "¡";
+            }
+            for (int i = 0; i < amountOfEmpty; i++)
+            {
+                progressEmptyDisplay += "¡";
+            }
+            manager.ultimateProgress.text = "[ <color=yellow>" + progressDisplayed + "</color>" + progressEmptyDisplay + " ]";
+        }
+    }
+
     public void OnChangeSpecial(InputAction.CallbackContext context)
     {
         float x = context.ReadValue<float>();
@@ -163,6 +202,7 @@ public class PlayerCombat : MonoBehaviour
         {
             if (Time.time - lastComboEnd > 0.2f && comboCounter <= combo.Count)
             {
+                manager.weapon.repeatingDamage = true;
                 manager.readyToAttack = false;
                 CancelInvoke("EndCombo");
                 CancelInvoke("EndAttack");
@@ -191,26 +231,27 @@ public class PlayerCombat : MonoBehaviour
     {
         if (context.performed && manager.readyToSpecial && currentMana >= listOfSpecial[specialSelected].manaCost)
         {
+            manager.weapon.repeatingDamage = false;
             timeLastUsedSpecial = 0;
             currentMana -= listOfSpecial[specialSelected].manaCost;
             manager.readyToSpecial = false;
-            AttackSO specialUsed = listOfSpecial[specialSelected];
+            SkillSO specialUsed = listOfSpecial[specialSelected];
             manager.anim.runtimeAnimatorController = specialUsed.animOV;
             manager.anim.SetTrigger("Special Attack");
             for (int i = 0; i < specialUsed.skillType.Length; i++)
             {
                 switch (specialUsed.skillType[i])
                 {
-                    case AttackSO.typeOfSkill.Fireball:
+                    case SkillSO.typeOfSkill.Fireball:
                         StartCoroutine(SpawnFireball(specialUsed));
                         break;
-                    case AttackSO.typeOfSkill.GiveStatus:
+                    case SkillSO.typeOfSkill.GiveStatus:
                         StartCoroutine(GiveStatus(specialUsed.status, specialUsed.timeBeforeApply));
                         break;
-                    case AttackSO.typeOfSkill.Heal:
+                    case SkillSO.typeOfSkill.Heal:
                         currentHealth += specialUsed.heal;
                         break;
-                    case AttackSO.typeOfSkill.Quake:
+                    case SkillSO.typeOfSkill.Quake:
                         StartCoroutine(SpawnFireball(specialUsed));
                         break;
                 }
@@ -218,12 +259,30 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
-    IEnumerator SpawnFireball(AttackSO specialUsed)
+    public void OnUltimate(InputAction.CallbackContext context)
     {
-        Vector3 closestEnemy = FindClosestEnemy().transform.position;
-        if (closestEnemy != null)
+        if (context.performed && manager.readyToUltimate && ultimateProgress >= 100)
         {
-            manager.playerBody.transform.LookAt(new Vector3(closestEnemy.x, manager.playerBody.position.y, closestEnemy.z));
+            manager.weapon.repeatingDamage = true;
+            CancelInvoke("EndCombo");
+            CancelInvoke("EndAttack");
+            manager.readyToUltimate = false;
+            ultimateProgress = 0;
+            manager.anim.runtimeAnimatorController = ultimate.animOV;
+            manager.anim.SetTrigger("Ultimate");
+            manager.weapon.damage = ultimate.damage * attackModifier;
+            manager.weapon.critChance = critChance;
+            manager.weapon.critDamage = critDamage;
+            manager.weapon.EnableHitbox();
+        }
+    }
+
+    IEnumerator SpawnFireball(SkillSO specialUsed)
+    {
+        Transform enemyTransform = FindClosestEnemy();
+        if (enemyTransform != null)
+        {
+            manager.playerBody.transform.LookAt(new Vector3(enemyTransform.position.x, manager.playerBody.position.y, enemyTransform.position.z));
         }
         yield return new WaitForSeconds(specialUsed.timeBeforeApply);
         GameObject obj = Instantiate(specialUsed.projectile, manager.rightHand.position, Quaternion.identity);
@@ -234,13 +293,13 @@ public class PlayerCombat : MonoBehaviour
             fireball.damage = specialUsed.damage * attackModifier;
             fireball.critChance = critChance;
             fireball.critDamage = critDamage;
-            if (closestEnemy == null)
+            if (enemyTransform == null)
             {
                 fireball.GetComponent<Rigidbody>().AddForce(manager.playerBody.forward * specialUsed.velocity, ForceMode.Impulse);
             }
             else
             {
-                fireball.GetComponent<Rigidbody>().AddForce((closestEnemy - manager.playerBody.position).normalized * specialUsed.velocity, ForceMode.Impulse);
+                fireball.GetComponent<Rigidbody>().AddForce((enemyTransform.position - manager.playerBody.position).normalized * specialUsed.velocity, ForceMode.Impulse);
             }
         }
         Weapon quake = obj.GetComponent<Weapon>();
@@ -259,7 +318,10 @@ public class PlayerCombat : MonoBehaviour
 
     Transform FindClosestEnemy()
     {
-        if (manager.enemyList.Count == 0) return null;
+        if (manager.enemyList.Count == 0)
+        {
+            return null;
+        }
         float closestDistance = Mathf.Infinity;
         int enemyIndex = 0;
         foreach (Balmond enemy in manager.enemyList)

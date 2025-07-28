@@ -21,13 +21,18 @@ public class PlayerManager : MonoBehaviour
     public Weapon weapon;
     public TextMeshProUGUI specialName;
     public Image specialIcon;
-    public TextMeshProUGUI specialInput;
+    public TextMeshProUGUI specialInput;    
+    public TextMeshProUGUI ultimateName;
+    public Image ultimateIcon;
+    public TextMeshProUGUI ultimateInput;
+    public TextMeshProUGUI ultimateProgress;
     public ObjectPooling damageNumber;
     public Transform rightHand;
     [Header("Player Restrictions")]
     public bool readyToDodge = true;
     public bool readyToAttack = true;
     public bool readyToSpecial = true;
+    public bool readyToUltimate = true;
     [Header("Enemy List")]
     public List<Balmond> enemyList;
     // Start is called once before the first execution of Update after the MonoBehaviour is created

@@ -51,6 +51,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Ultimate",
+                    "type": "Button",
+                    "id": "5b3947bd-4f05-4f9e-91eb-2c3df2a0fa7f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Dodge",
                     "type": "Button",
                     "id": "641cd816-40e6-41b4-8c3d-04687c349290",
@@ -375,6 +384,28 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Special Attack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "875002df-069b-42bc-b6d4-7fb441ccffcc",
+                    "path": "<Keyboard>/g",
+                    "interactions": "Tap",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Ultimate",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6d83c172-a7f3-4245-aec3-fcecfdb16a02",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "Tap",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Ultimate",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

@@ -23,7 +23,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (manager.rb.linearDamping == 5 && manager.readyToAttack && manager.readyToSpecial)
+        if (manager.rb.linearDamping == 5 && manager.readyToAttack && manager.readyToSpecial && manager.readyToUltimate)
         {
             manager.rb.AddForce(moveDir * moveSpeed, ForceMode.Force);
         }
@@ -36,7 +36,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnDodge(InputAction.CallbackContext context)
     {
-        if (context.performed && manager.readyToDodge && manager.readyToSpecial)
+        if (context.performed && manager.readyToDodge && manager.readyToSpecial && manager.readyToUltimate)
         {
             manager.combat.Reset();
             manager.rb.linearDamping = 2;

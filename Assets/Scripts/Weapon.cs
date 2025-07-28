@@ -7,6 +7,7 @@ public class Weapon : MonoBehaviour
 {
     public int effectID; // 0 - normal weapon, 1 - quake
     public float damage;
+    public bool repeatingDamage;
     [UnityEngine.Range(0, 100f)]
     public float critChance = 50f;
     public float critDamage = 50f;
@@ -44,7 +45,7 @@ public class Weapon : MonoBehaviour
         Balmond enemy = other.GetComponent<Balmond>();
         if (enemy != null)
         {
-            if (!targets.Contains(enemy.gameObject))
+            if (!targets.Contains(enemy.gameObject) || repeatingDamage)
             {
                 float totalDamage = damage;
                 AlwaysLookAt look = damageNumber.GetObject().GetComponent<AlwaysLookAt>();
