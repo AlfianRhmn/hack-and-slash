@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9975e3e0c8081d4d877cf03242e07fc, type: 3}
+  m_Name: Sounds SO
+  m_EditorClassIdentifier: 
+  sounds:
+  - name: PlayerAttack
+    volume: 1
+    mixer: {fileID: 0}
+    sounds:
+    - {fileID: 8300000, guid: 78b4939f7d5fc5b45a28e177b7df765d, type: 3}
+    - {fileID: 8300000, guid: 68d5896163eee824fae65e246b9b8f2f, type: 3}
+    - {fileID: 8300000, guid: 0f07810b1aba7a44db09a5100c22036b, type: 3}
+  - name: EnemyAttack
+    volume: 1
+    mixer: {fileID: 0}
+    sounds: []
+  - name: AttackImpact
+    volume: 1
+    mixer: {fileID: 0}
+    sounds:
+    - {fileID: 8300000, guid: a72eb631a2ee3c641b62902146a6ec4c, type: 3}
+  - name: Dodge
+    volume: 1
+    mixer: {fileID: 0}
+    sounds:
+    - {fileID: 8300000, guid: 21046bd4ca9c252489124fe74341cd17, type: 3}
+    - {fileID: 8300000, guid: cd1a04b8d49283849a296ce792995493, type: 3}
+  - name: Magic
+    volume: 1
+    mixer: {fileID: 0}
+    sounds: []
