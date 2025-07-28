@@ -32,6 +32,11 @@ public class Balmond : MonoBehaviour
     {
         HP -= damageAmount;
 
+        if (HP <= 50)
+        {
+            GetComponent<Animator>().SetBool("ENRAGED", true);
+        }
+     
         if (HP <= 0)
         {
             animator.SetTrigger("DIE");
@@ -55,7 +60,7 @@ public class Balmond : MonoBehaviour
             elapsed += Time.deltaTime;
             float t = elapsed / duration;
 
-            // Create a smooth arc: 0 ¨ 1 ¨ 0 over the duration
+            // Create a smooth arc: 0 ï¿½ï¿½ 1 ï¿½ï¿½ 0 over the duration
             float yOffset = Mathf.Sin(t * Mathf.PI) * launchHeight;
 
             transform.position = new Vector3(

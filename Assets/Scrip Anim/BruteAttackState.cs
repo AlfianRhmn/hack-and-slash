@@ -6,6 +6,7 @@ public class BruteAttackState : StateMachineBehaviour
 {
     Transform player;
     NavMeshAgent agent;
+    //public Enemy manager;
 
     public float stopAttackingDistance = 2.5f;
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -30,6 +31,7 @@ public class BruteAttackState : StateMachineBehaviour
 
     private void LookAtPlayer()
     {
+
         Vector3 direction = player.position - agent.transform.position;
         agent.transform.rotation = Quaternion.LookRotation(direction);
 
