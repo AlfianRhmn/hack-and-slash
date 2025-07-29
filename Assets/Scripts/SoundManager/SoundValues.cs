@@ -9,6 +9,10 @@ namespace SmallHedge.SoundManager
         EnemyAttack,
         AttackImpact,
         Dodge,
-        Magic
+        Quake,
+        Fireball,
+        Buff,
+        Ultimate,
+        Footstep
     }
 }
