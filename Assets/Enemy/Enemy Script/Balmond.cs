@@ -61,7 +61,7 @@ public class Balmond : MonoBehaviour
 
     private void Update()
     {
-        if (isDead)
+        if (isDead && navAgent.enabled)
         {
             {
                 navAgent.isStopped = true;
@@ -158,10 +158,10 @@ public class Balmond : MonoBehaviour
         }
 
         // Cek kematian
-        if (HP <= 0)
+        if (HP <= 0 && !isDead)
         {
             isDead = true; 
-            animator.SetTrigger("Die");
+            animator.SetBool("IsDead", true);
             StartCoroutine(Dead());
         }
     }
@@ -265,7 +265,7 @@ public class Balmond : MonoBehaviour
     IEnumerator Dead()
     {
         isDead = true; 
-        if (navAgent != null && navAgent.isActiveAndEnabled)
+        if (navAgent != null)
         {
             navAgent.isStopped = true; 
             navAgent.enabled = false; 
@@ -290,7 +290,7 @@ public class Balmond : MonoBehaviour
             if (dieAnimLength == 0f) dieAnimLength = 1f; 
         }
         
-        yield return new WaitForSeconds(dieAnimLength);
+        yield return new WaitForSeconds(dieAnimLength + 1);
 
         healthBar.gameObject.SetActive(false); 
 
@@ -300,7 +300,7 @@ public class Balmond : MonoBehaviour
         }
 
         // Hancurkan GameObject Balmond setelah animasi mati selesai dan semua bersih
-        //Destroy(gameObject);
+        Destroy(gameObject);
     }
 
     private void OnDrawGizmos()
