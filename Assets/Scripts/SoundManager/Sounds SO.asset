@@ -35,7 +35,27 @@ MonoBehaviour:
     sounds:
     - {fileID: 8300000, guid: 21046bd4ca9c252489124fe74341cd17, type: 3}
     - {fileID: 8300000, guid: cd1a04b8d49283849a296ce792995493, type: 3}
-  - name: Magic
+  - name: Quake
     volume: 1
     mixer: {fileID: 0}
     sounds: []
+  - name: Fireball
+    volume: 1
+    mixer: {fileID: 0}
+    sounds: []
+  - name: Buff
+    volume: 1
+    mixer: {fileID: 0}
+    sounds: []
+  - name: Ultimate
+    volume: 1
+    mixer: {fileID: 0}
+    sounds:
+    - {fileID: 8300000, guid: ff3182d7fc5f60b49bf14ca1be009adc, type: 3}
+  - name: Footstep
+    volume: 1
+    mixer: {fileID: 0}
+    sounds:
+    - {fileID: 8300000, guid: 21a80e69eb2ec3647a917c8af5230f66, type: 3}
+    - {fileID: 8300000, guid: 1674318e3d132a644b4415e334dbf892, type: 3}
+    - {fileID: 8300000, guid: f085dd77df0fa5c4db2c3b6e64dca846, type: 3}
