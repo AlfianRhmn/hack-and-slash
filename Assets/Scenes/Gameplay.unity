@@ -8283,6 +8283,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HP: 100
   healthBar: {fileID: 706102867}
+  target: {fileID: 0}
+  detectionRange: 40
+  stopChasingRange: 50
+  attackRange: 2.5
+  movementSpeed: 3
+  attackCooldown: 2
+  tauntCooldown: 5
+  tauntChance: 0.3
 --- !u!114 &1418729862
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11152,6 +11160,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HP: 100
   healthBar: {fileID: 542531272}
+  target: {fileID: 0}
+  detectionRange: 40
+  stopChasingRange: 50
+  attackRange: 2.5
+  movementSpeed: 3
+  attackCooldown: 2
+  tauntCooldown: 5
+  tauntChance: 0.3
 --- !u!114 &1759968791
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15266,7 +15282,7 @@ Animator:
   m_GameObject: {fileID: 5704858193009679422}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 9f2cc5ae9005d264a8feac629281b16e, type: 3}
-  m_Controller: {fileID: 9100000, guid: e96cee8f7261bb047bf1399fef9f71a6, type: 2}
+  m_Controller: {fileID: 9100000, guid: 7e99772092fdc1042bd356c62358ca99, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -19322,6 +19338,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HP: 100
   healthBar: {fileID: 1155208202}
+  target: {fileID: 552603769}
+  detectionRange: 40
+  stopChasingRange: 50
+  attackRange: 2.5
+  movementSpeed: 3
+  attackCooldown: 2
+  tauntCooldown: 5
+  tauntChance: 0.3
 --- !u!1 &5742303211263922392
 GameObject:
   m_ObjectHideFlags: 0
