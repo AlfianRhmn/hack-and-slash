@@ -1,6 +1,6 @@
 using System;
 using System.Collections;
-using TMPro; // Pastikan ini tetap ada jika digunakan untuk teks (misalnya nama musuh)
+using TMPro; 
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
@@ -8,18 +8,17 @@ using UnityEngine.UI;
 public class Balmond : MonoBehaviour
 {
     [Header("Health Settings")]
-    [SerializeField] private float HP = 100;
-    public Slider healthBar; // UI Slider untuk health bar
+    [SerializeField] public float HP = 100;
+    public Slider healthBar; 
     private Animator animator;
-    private float smoothDampVelocity; // Untuk Mathf.SmoothDamp pada health bar
+    private float smoothDampVelocity; 
 
     [Header("Movement & Target Settings")]
-    public Transform target; // Target musuh (misalnya Player)
-    public float detectionRange = 40f; // Jarak deteksi untuk mulai mengejar
-    public float stopChasingRange = 50f; // Jarak untuk berhenti mengejar jika target terlalu jauh
-    public float attackRange = 2.5f; // Jarak untuk serangan
-    public float movementSpeed = 3f; // Kecepatan gerakan Balmond
-
+    public Transform target; 
+    public float detectionRange = 40f;
+    public float stopChasingRange = 50f;
+    public float attackRange = 2.5f; 
+    public float movementSpeed = 3f; 
     private NavMeshAgent navAgent;
     private bool isChasing = false; // Status apakah Balmond sedang mengejar
 
@@ -32,10 +31,7 @@ public class Balmond : MonoBehaviour
     private float nextTauntTime;
     [Range(0f, 1f)] public float tauntChance = 0.3f; // Peluang untuk taunt (0.0 - 1.0)
 
-    private bool isEnraged = false; // Ini adalah status Phase 2
-
-    // Contoh sederhana PlayerManager jika belum ada di project Anda.
-    // Sesuaikan ini dengan cara Anda mengelola daftar musuh.
+    private bool isEnraged = false; 
 
     private void Start()
     {
@@ -268,7 +264,7 @@ public class Balmond : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, detectionRange); 
 
         // Jangkauan berhenti mengejar
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, stopChasingRange);
+        //Gizmos.color = Color.green;
+        //Gizmos.DrawWireSphere(transform.position, stopChasingRange);
     }
 }
