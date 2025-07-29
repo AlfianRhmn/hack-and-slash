@@ -47,7 +47,7 @@
                     "id": "852140f2-7766-474d-8707-702459ba45f3",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Tap",
                     "initialStateCheck": false
                 },
                 {
@@ -56,7 +56,7 @@
                     "id": "5b3947bd-4f05-4f9e-91eb-2c3df2a0fa7f",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Tap",
                     "initialStateCheck": false
                 },
                 {
@@ -69,13 +69,22 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Change Special",
-                    "type": "Value",
-                    "id": "96cb5179-e17f-4518-a7b7-8386efefe082",
-                    "expectedControlType": "Axis",
+                    "name": "Change Special - Negative",
+                    "type": "Button",
+                    "id": "2ad299e3-8ba8-485a-a564-a4172adf83d3",
+                    "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
+                    "interactions": "Tap",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Change Special - Positive",
+                    "type": "Button",
+                    "id": "a7831acd-23e7-465b-975f-0482374debb9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Tap",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -312,6 +321,50 @@
                 },
                 {
                     "name": "",
+                    "id": "53de0e5b-f737-4a91-8bb8-2d3b346e1fdc",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Change Special - Negative",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a39ddba2-a860-458f-b479-4e3e6c4d88e2",
+                    "path": "<Gamepad>/dpad/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Change Special - Negative",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4ae0a3e4-7607-4467-9d05-cff2aef4f014",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Change Special - Positive",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3b6d3372-e4cb-4670-aa83-7acb793532f7",
+                    "path": "<Gamepad>/dpad/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Change Special - Positive",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "1c04ea5f-b012-41d1-a6f7-02e963b52893",
                     "path": "<Keyboard>/f",
                     "interactions": "Tap",
@@ -353,61 +406,6 @@
                     "action": "Ultimate",
                     "isComposite": false,
                     "isPartOfComposite": false
-                },
-                {
-                    "name": "1D Axis",
-                    "id": "bb16b218-fc54-436d-976a-b205f9582f95",
-                    "path": "1DAxis",
-                    "interactions": "Tap",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Change Special",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "negative",
-                    "id": "05cb263b-f125-441a-a638-f854a5207753",
-                    "path": "<Keyboard>/q",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "Change Special",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "negative",
-                    "id": "2d07da4e-360b-4bff-b632-e805408f8dd9",
-                    "path": "<Gamepad>/leftShoulder",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "Change Special",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "positive",
-                    "id": "f9ee644a-3c6a-4442-8378-12660f37aa30",
-                    "path": "<Gamepad>/rightShoulder",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "Change Special",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "positive",
-                    "id": "248ff524-d06c-4d30-bda9-e973efc724db",
-                    "path": "<Keyboard>/e",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "Change Special",
-                    "isComposite": false,
-                    "isPartOfComposite": true
                 }
             ]
         },

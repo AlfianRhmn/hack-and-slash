@@ -5,6 +5,7 @@ using Unity.Burst.Intrinsics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Interactions;
+using UnityEngine.UIElements;
 
 public class PlayerCombat : MonoBehaviour
 {
@@ -139,22 +140,46 @@ public class PlayerCombat : MonoBehaviour
 
     public void SetupSpecial()
     {
-        manager.specialIcon.sprite = listOfSpecial[specialSelected].skillIcon;
-        manager.specialName.text = listOfSpecial[specialSelected].attackName + "<br><size=15>[" + listOfSpecial[specialSelected].manaCost + " Energy]";
+        var special = listOfSpecial[specialSelected];
+
+        // Set special icon and name
+        manager.specialIcon.sprite = special.skillIcon;
+        manager.specialName.text = $"{special.attackName}<br><size=15>[{special.manaCost} Energy]";
+
+        // Inputs
         string inputText = input.actions.FindAction("Special Attack").GetBindingDisplayString();
+        inputText = inputText.Replace("Tap;action.interactions ", "");
         inputText = inputText.Replace("Tap ", "");
         inputText = inputText.Replace("Hold ", "");
         inputText = inputText.Replace("Multi Tap ", "");
         inputText = inputText.Replace("Press ", "");
         inputText = inputText.Replace("Slow Tap ", "");
         manager.specialInput.text = "<sprite name=" + inputText + ">";
+        inputText = input.actions.FindAction("Change Special - Negative").GetBindingDisplayString();
+        inputText = inputText.Replace("Tap;action.interactions ", "");
+        inputText = inputText.Replace("Tap ", "");
+        inputText = inputText.Replace("Hold ", "");
+        inputText = inputText.Replace("Multi Tap ", "");
+        inputText = inputText.Replace("Press ", "");
+        inputText = inputText.Replace("Slow Tap ", "");
+        manager.scrollLeftInput.text = "< <sprite name=" + inputText + ">";
+        inputText = input.actions.FindAction("Change Special - Positive").GetBindingDisplayString();
+        inputText = inputText.Replace("Tap;action.interactions ", "");
+        inputText = inputText.Replace("Tap ", "");
+        inputText = inputText.Replace("Hold ", "");
+        inputText = inputText.Replace("Multi Tap ", "");
+        inputText = inputText.Replace("Press ", "");
+        inputText = inputText.Replace("Slow Tap ", "");
+        manager.scrollRightInput.text = "<sprite name=" + inputText + "> >";
     }
+
 
     public void SetupUltimate()
     {
         manager.ultimateIcon.sprite = ultimate.skillIcon;
         manager.ultimateName.text = ultimate.attackName;
         string inputText = input.actions.FindAction("Ultimate").GetBindingDisplayString();
+        inputText = inputText.Replace("Tap;action.interactions ", "");
         inputText = inputText.Replace("Tap ", "");
         inputText = inputText.Replace("Hold ", "");
         inputText = inputText.Replace("Multi Tap ", "");
@@ -183,26 +208,26 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
-    public void OnChangeSpecial(InputAction.CallbackContext context)
+    public void OnChangeSpecialPos(InputAction.CallbackContext context)
     {
-        float x = context.ReadValue<float>();
-        if (x != 0)
+        if (context.performed)
         {
-            if (x < 0)
+            specialSelected++;
+            if (specialSelected >= listOfSpecial.Count)
             {
-                specialSelected--;
-                if (specialSelected < 0)
-                {
-                    specialSelected = listOfSpecial.Count - 1;
-                }
+                specialSelected = 0;
             }
-            else
+        }
+    }
+
+    public void OnChangeSpecialNeg(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            specialSelected--;
+            if (specialSelected < 0)
             {
-                specialSelected++;
-                if (specialSelected >= listOfSpecial.Count)
-                {
-                    specialSelected = 0;
-                }
+                specialSelected = listOfSpecial.Count - 1;
             }
         }
     }
@@ -210,25 +235,31 @@ public class PlayerCombat : MonoBehaviour
 
     public void OnLightAttack(InputAction.CallbackContext context)
     {
-        if (context.performed && context.interaction is TapInteraction)
+        if (manager.readyToSpecial && manager.readyToUltimate && manager.readyToDodge)
         {
-            HandleAttack(Combo.attackTypes.TapLightAttack);
-        }
-        else if (context.performed && context.interaction is HoldInteraction)
-        {
-            HandleAttack(Combo.attackTypes.HoldLightAttack);
+            if (context.performed && context.interaction is TapInteraction)
+            {
+                HandleAttack(Combo.attackTypes.TapLightAttack);
+            }
+            else if (context.performed && context.interaction is HoldInteraction)
+            {
+                HandleAttack(Combo.attackTypes.HoldLightAttack);
+            }
         }
     }
 
     public void OnHeavyAttack(InputAction.CallbackContext context)
     {
-        if (context.performed && context.interaction is TapInteraction)
+        if (manager.readyToSpecial && manager.readyToUltimate && manager.readyToDodge)
         {
-            HandleAttack(Combo.attackTypes.TapHeavyAttack);
-        }
-        else if (context.performed && context.interaction is HoldInteraction)
-        {
-            HandleAttack(Combo.attackTypes.HoldHeavyAttack);
+            if (context.performed && context.interaction is TapInteraction)
+            {
+                HandleAttack(Combo.attackTypes.TapHeavyAttack);
+            }
+            else if (context.performed && context.interaction is HoldInteraction)
+            {
+                HandleAttack(Combo.attackTypes.HoldHeavyAttack);
+            }
         }
     }
 
@@ -278,7 +309,10 @@ public class PlayerCombat : MonoBehaviour
         Transform enemy = FindClosestEnemy();
         if (enemy != null)
         {
-            manager.playerBody.LookAt(new Vector3(enemy.position.x, manager.playerBody.position.y, enemy.position.z));
+            if (Vector3.Distance(enemy.position, manager.playerBody.position) < 7)
+            {
+                manager.playerBody.LookAt(new Vector3(enemy.position.x, manager.playerBody.position.y, enemy.position.z));
+            }
         }
         manager.anim.SetTrigger("Basic Attack");
         manager.anim.Update(0f);
@@ -382,6 +416,11 @@ public class PlayerCombat : MonoBehaviour
         {
             for (int i = 0; i < ultimate.movePlayer.Length; i++)
             {
+                Transform enemy = FindClosestEnemy();
+                if (enemy != null)
+                {
+                    manager.playerBody.LookAt(new Vector3(enemy.position.x, manager.playerBody.position.y, enemy.position.z));
+                }
                 StartCoroutine(PushingPlayerCount(ultimate.movePlayer[i]));
             }
         }

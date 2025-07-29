@@ -1712,7 +1712,7 @@ GameObject:
   - component: {fileID: 469170058}
   - component: {fileID: 469170057}
   m_Layer: 5
-  m_Name: Scroll Button
+  m_Name: Scroll Button Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6384,7 +6384,7 @@ GameObject:
   - component: {fileID: 1825337571}
   - component: {fileID: 1825337570}
   m_Layer: 5
-  m_Name: Scroll Button
+  m_Name: Scroll Button Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7604,22 +7604,6 @@ MonoBehaviour:
     m_ActionId: 641cd816-40e6-41b4-8c3d-04687c349290
     m_ActionName: 'Player/Dodge[/Keyboard/leftShift]'
   - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4838306636344328953}
-        m_TargetAssemblyTypeName: PlayerCombat, Assembly-CSharp
-        m_MethodName: OnChangeSpecial
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 96cb5179-e17f-4518-a7b7-8386efefe082
-    m_ActionName: 'Player/Change Special[/Mouse/scroll/down,/Keyboard/q,/Keyboard/e]'
-  - m_PersistentCalls:
       m_Calls: []
     m_ActionId: c95b2375-e6d9-4b88-9c4c-c5e76515df4b
     m_ActionName: 'UI/Navigate[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]'
@@ -7706,6 +7690,38 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: fbe05aa6-5da2-475f-9400-e0cafd95bdd2
     m_ActionName: 'Player/Heavy Attack[/Mouse/rightButton]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4838306636344328953}
+        m_TargetAssemblyTypeName: PlayerCombat, Assembly-CSharp
+        m_MethodName: OnChangeSpecialNeg
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 2ad299e3-8ba8-485a-a564-a4172adf83d3
+    m_ActionName: 'Player/Change Special - Negative[/Keyboard/q,/DualShock4GamepadHID/dpad/left,/DualShock4GamepadHID1/dpad/left]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4838306636344328953}
+        m_TargetAssemblyTypeName: PlayerCombat, Assembly-CSharp
+        m_MethodName: OnChangeSpecialPos
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: a7831acd-23e7-465b-975f-0482374debb9
+    m_ActionName: 'Player/Change Special - Positive[/Keyboard/e,/DualShock4GamepadHID/dpad/right,/DualShock4GamepadHID1/dpad/right]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -12620,6 +12636,8 @@ MonoBehaviour:
   ultimateIcon: {fileID: 724466902}
   ultimateInput: {fileID: 2021568747}
   ultimateProgress: {fileID: 1813409246}
+  scrollLeftInput: {fileID: 1825337570}
+  scrollRightInput: {fileID: 469170057}
   damageNumber: {fileID: 77206850}
   rightHand: {fileID: 4553753225825892611}
   ultCanvas: {fileID: 1573435198}
