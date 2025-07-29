@@ -47,6 +47,7 @@ public class Weapon : MonoBehaviour
         {
             if (!targets.Contains(enemy.gameObject) || repeatingDamage)
             {
+                PlayerManager.Instance.combat.ultimateProgress += Random.Range(1, 5);
                 float totalDamage = damage;
                 AlwaysLookAt look = damageNumber.GetObject().GetComponent<AlwaysLookAt>();
                 look.transform.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;

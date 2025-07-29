@@ -26,7 +26,6 @@ public class PlayerCombat : MonoBehaviour
     [Header("Combat")]
     public List<MovesetSO> moveset; //usable moveset, preset
     public List<Combo.attackTypes> playerAttacks = new List<Combo.attackTypes>();
-    [SerializeField] List<MovesetSO> availableMoveset; // can be used, depends on playerAttacks
     [SerializeField] int comboCounter;
     public List<SkillSO> listOfSpecial;
     public UltimateSO ultimate;
@@ -276,6 +275,11 @@ public class PlayerCombat : MonoBehaviour
         }
 
         manager.anim.runtimeAnimatorController = attack.animOV;
+        Transform enemy = FindClosestEnemy();
+        if (enemy != null)
+        {
+            manager.playerBody.LookAt(new Vector3(enemy.position.x, manager.playerBody.position.y, enemy.position.z));
+        }
         manager.anim.SetTrigger("Basic Attack");
         manager.anim.Update(0f);
         manager.weapon.damage = attack.damage * attackModifier;

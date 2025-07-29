@@ -13,7 +13,7 @@ public class EnemySpawner : MonoBehaviour
     public float spawnDelayPerEnemy = 0.5f; 
 
     [Header("Spawn Points")]
-    public Transform[] spawnPoints; 
+    public Transform[] spawnPoints;
 
     private List<GameObject> currentEnemies = new List<GameObject>(); 
     private int currentWave = 0; 
