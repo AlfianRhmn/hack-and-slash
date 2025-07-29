@@ -1,7 +1,11 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.Burst.Intrinsics;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Interactions;
+using UnityEngine.UIElements;
 
 public class PlayerCombat : MonoBehaviour
 {
@@ -21,7 +25,9 @@ public class PlayerCombat : MonoBehaviour
     public float critChance = 50f;
     public float critDamage = 50f;
     [Header("Combat")]
-    public List<AttackSO> combo;
+    public List<MovesetSO> moveset; //usable moveset, preset
+    public List<Combo.attackTypes> playerAttacks = new List<Combo.attackTypes>();
+    [SerializeField] int comboCounter;
     public List<SkillSO> listOfSpecial;
     public UltimateSO ultimate;
     public PlayerInput input;
@@ -30,11 +36,15 @@ public class PlayerCombat : MonoBehaviour
     public float percentageManaRegen = 0.1f;
     float lastClickedTime;
     float lastComboEnd;
-    int comboCounter;
     int specialSelected;
     float healthVelocity;
     float manaVelocity;
     float timeLastUsedSpecial = 0;
+    float lightPressTime;
+    bool lightAttackTriggered;
+    float heavyPressTime;
+    bool heavyAttackTriggered;
+    bool alreadyInputReady;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -109,7 +119,7 @@ public class PlayerCombat : MonoBehaviour
             currentMana += (maxMana * percentageManaRegen) * Time.deltaTime;
             if (currentMana > maxMana)
             {
-                currentMana = maxMana; 
+                currentMana = maxMana;
             }
         }
 
@@ -130,22 +140,46 @@ public class PlayerCombat : MonoBehaviour
 
     public void SetupSpecial()
     {
-        manager.specialIcon.sprite = listOfSpecial[specialSelected].skillIcon;
-        manager.specialName.text = listOfSpecial[specialSelected].attackName + "<br><size=15>[" + listOfSpecial[specialSelected].manaCost + " Energy]";
+        var special = listOfSpecial[specialSelected];
+
+        // Set special icon and name
+        manager.specialIcon.sprite = special.skillIcon;
+        manager.specialName.text = $"{special.attackName}<br><size=15>[{special.manaCost} Energy]";
+
+        // Inputs
         string inputText = input.actions.FindAction("Special Attack").GetBindingDisplayString();
+        inputText = inputText.Replace("Tap;action.interactions ", "");
         inputText = inputText.Replace("Tap ", "");
         inputText = inputText.Replace("Hold ", "");
         inputText = inputText.Replace("Multi Tap ", "");
         inputText = inputText.Replace("Press ", "");
         inputText = inputText.Replace("Slow Tap ", "");
         manager.specialInput.text = "<sprite name=" + inputText + ">";
+        inputText = input.actions.FindAction("Change Special - Negative").GetBindingDisplayString();
+        inputText = inputText.Replace("Tap;action.interactions ", "");
+        inputText = inputText.Replace("Tap ", "");
+        inputText = inputText.Replace("Hold ", "");
+        inputText = inputText.Replace("Multi Tap ", "");
+        inputText = inputText.Replace("Press ", "");
+        inputText = inputText.Replace("Slow Tap ", "");
+        manager.scrollLeftInput.text = "< <sprite name=" + inputText + ">";
+        inputText = input.actions.FindAction("Change Special - Positive").GetBindingDisplayString();
+        inputText = inputText.Replace("Tap;action.interactions ", "");
+        inputText = inputText.Replace("Tap ", "");
+        inputText = inputText.Replace("Hold ", "");
+        inputText = inputText.Replace("Multi Tap ", "");
+        inputText = inputText.Replace("Press ", "");
+        inputText = inputText.Replace("Slow Tap ", "");
+        manager.scrollRightInput.text = "<sprite name=" + inputText + "> >";
     }
+
 
     public void SetupUltimate()
     {
         manager.ultimateIcon.sprite = ultimate.skillIcon;
         manager.ultimateName.text = ultimate.attackName;
         string inputText = input.actions.FindAction("Ultimate").GetBindingDisplayString();
+        inputText = inputText.Replace("Tap;action.interactions ", "");
         inputText = inputText.Replace("Tap ", "");
         inputText = inputText.Replace("Hold ", "");
         inputText = inputText.Replace("Multi Tap ", "");
@@ -155,7 +189,8 @@ public class PlayerCombat : MonoBehaviour
         if (ultimateProgress >= 100)
         {
             manager.ultimateProgress.text = "<color=yellow>READY";
-        } else
+        }
+        else
         {
             string progressDisplayed = "";
             string progressEmptyDisplay = "";
@@ -163,69 +198,171 @@ public class PlayerCombat : MonoBehaviour
             int amountOfEmpty = 10 - amountOfPoint;
             for (int i = 0; i < amountOfPoint; i++)
             {
-                progressDisplayed += "¡";
+                progressDisplayed += "â– ";
             }
             for (int i = 0; i < amountOfEmpty; i++)
             {
-                progressEmptyDisplay += "¡";
+                progressEmptyDisplay += "â– ";
             }
             manager.ultimateProgress.text = "[ <color=yellow>" + progressDisplayed + "</color>" + progressEmptyDisplay + " ]";
         }
     }
 
-    public void OnChangeSpecial(InputAction.CallbackContext context)
-    {
-        float x = context.ReadValue<float>();
-        if (x != 0)
-        {
-            if (x < 0)
-            {
-                specialSelected--;
-                if (specialSelected < 0)
-                {
-                    specialSelected = listOfSpecial.Count - 1;
-                }
-            } else
-            {
-                specialSelected++;
-                if (specialSelected >= listOfSpecial.Count)
-                {
-                    specialSelected = 0;
-                }
-            }
-        }
-    }
-
-    public void OnAttack(InputAction.CallbackContext context)
+    public void OnChangeSpecialPos(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            if (Time.time - lastComboEnd > 0.2f && comboCounter <= combo.Count)
+            specialSelected++;
+            if (specialSelected >= listOfSpecial.Count)
             {
-                manager.weapon.repeatingDamage = true;
-                manager.readyToAttack = false;
-                CancelInvoke("EndCombo");
-                CancelInvoke("EndAttack");
-                manager.weapon.EnableHitbox();
-                if (Time.time - lastClickedTime >= manager.anim.GetCurrentAnimatorClipInfo(0)[0].clip.length * combo[comboCounter].timeToNextAnim)
-                {
-                    manager.anim.runtimeAnimatorController = combo[comboCounter].animOV;
-                    manager.anim.SetTrigger("Basic Attack");
-                    manager.weapon.damage = combo[comboCounter].damage * attackModifier;
-                    manager.weapon.critChance = critChance;
-                    manager.weapon.critDamage = critDamage;
-                    //Set all variables here...
-                    comboCounter++;
-                    lastClickedTime = Time.time;
-
-                    if (comboCounter + 1 > combo.Count)
-                    {
-                        comboCounter = 0;
-                    }
-                }
+                specialSelected = 0;
             }
         }
     }
+
+    public void OnChangeSpecialNeg(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            specialSelected--;
+            if (specialSelected < 0)
+            {
+                specialSelected = listOfSpecial.Count - 1;
+            }
+        }
+    }
+
+
+    public void OnLightAttack(InputAction.CallbackContext context)
+    {
+        if (manager.readyToSpecial && manager.readyToUltimate && manager.readyToDodge)
+        {
+            if (context.performed && context.interaction is TapInteraction)
+            {
+                HandleAttack(Combo.attackTypes.TapLightAttack);
+            }
+            else if (context.performed && context.interaction is HoldInteraction)
+            {
+                HandleAttack(Combo.attackTypes.HoldLightAttack);
+            }
+        }
+    }
+
+    public void OnHeavyAttack(InputAction.CallbackContext context)
+    {
+        if (manager.readyToSpecial && manager.readyToUltimate && manager.readyToDodge)
+        {
+            if (context.performed && context.interaction is TapInteraction)
+            {
+                HandleAttack(Combo.attackTypes.TapHeavyAttack);
+            }
+            else if (context.performed && context.interaction is HoldInteraction)
+            {
+                HandleAttack(Combo.attackTypes.HoldHeavyAttack);
+            }
+        }
+    }
+
+
+    void HandleAttack(Combo.attackTypes input)
+    {
+        if (playerAttacks.Count >= moveset[0].comboList.Length)
+        {
+            playerAttacks.Clear();
+            comboCounter = 0;
+        }
+        if (input == Combo.attackTypes.HoldLightAttack || input == Combo.attackTypes.HoldHeavyAttack)
+        {
+            if (!alreadyInputReady)
+            {
+                alreadyInputReady = true;
+                StartCoroutine(ReadyToHold(input));
+            }
+        }
+        CancelInvoke("EndAttack");
+        CancelInvoke("EndCombo");
+        if (!manager.readyToAttack) return;
+        // Add to combo input buffer
+        playerAttacks.Add(input);
+
+        MovesetSO move = CheckMoveset();
+        if (move == null || comboCounter >= move.comboList.Length)
+        {
+            playerAttacks.Clear();
+            comboCounter = 0;
+            HandleAttack(input);
+            return;
+        }
+
+        var attack = move.comboList[comboCounter].attackUsed;
+
+        manager.readyToAttack = false;
+        manager.weapon.repeatingDamage = true;
+
+        manager.weapon.EnableHitbox();
+        foreach (var push in attack.movementDone)
+        {
+            StartCoroutine(PushingPlayerCount(push));
+        }
+
+        manager.anim.runtimeAnimatorController = attack.animOV;
+        Transform enemy = FindClosestEnemy();
+        if (enemy != null)
+        {
+            if (Vector3.Distance(enemy.position, manager.playerBody.position) < 7)
+            {
+                manager.playerBody.LookAt(new Vector3(enemy.position.x, manager.playerBody.position.y, enemy.position.z));
+            }
+        }
+        manager.anim.SetTrigger("Basic Attack");
+        manager.anim.Update(0f);
+        manager.weapon.damage = attack.damage * attackModifier;
+        manager.weapon.critChance = critChance;
+        manager.weapon.critDamage = critDamage;
+
+        lastClickedTime = Time.time;
+        comboCounter++;
+        StartCoroutine(WaitForAnotherAttack(attack.timeToNextAnim));
+
+    }
+
+    IEnumerator ReadyToHold(Combo.attackTypes input)
+    {
+        yield return new WaitUntil(() => manager.readyToAttack);
+        HandleAttack(input);
+        alreadyInputReady = false;
+    }
+
+    MovesetSO CheckMoveset()
+    {
+        MovesetSO bestMatch = null;
+        int longestMatch = 0;
+
+        foreach (var m in moveset)
+        {
+            if (playerAttacks.Count > m.comboList.Length)
+                continue;
+
+            bool isMatch = true;
+            for (int i = 0; i < playerAttacks.Count; i++)
+            {
+                if (m.comboList[i].keyUsed != playerAttacks[i])
+                {
+                    isMatch = false;
+                    break;
+                }
+            }
+
+            if (isMatch && playerAttacks.Count > longestMatch)
+            {
+                bestMatch = m;
+                longestMatch = playerAttacks.Count;
+            }
+        }
+
+        return bestMatch;
+    }
+
 
     public void OnSpecialAttack(InputAction.CallbackContext context)
     {
@@ -263,18 +400,47 @@ public class PlayerCombat : MonoBehaviour
     {
         if (context.performed && manager.readyToUltimate && ultimateProgress >= 100)
         {
-            manager.weapon.repeatingDamage = true;
-            CancelInvoke("EndCombo");
-            CancelInvoke("EndAttack");
-            manager.readyToUltimate = false;
-            ultimateProgress = 0;
-            manager.anim.runtimeAnimatorController = ultimate.animOV;
-            manager.anim.SetTrigger("Ultimate");
-            manager.weapon.damage = ultimate.damage * attackModifier;
-            manager.weapon.critChance = critChance;
-            manager.weapon.critDamage = critDamage;
-            manager.weapon.EnableHitbox();
+            manager.ultCamera.SetActive(true);
+            manager.ultCanvas.SetActive(true);
+            StartCoroutine(UltimateInitiation());
         }
+    }
+
+
+    IEnumerator UltimateInitiation()
+    {
+        yield return new WaitForSeconds(ultimate.waitingUltimateInitiation);
+        manager.ultCanvas.SetActive(false);
+        manager.ultCamera.SetActive(false);
+        if (ultimate.movePlayer.Length > 0)
+        {
+            for (int i = 0; i < ultimate.movePlayer.Length; i++)
+            {
+                Transform enemy = FindClosestEnemy();
+                if (enemy != null)
+                {
+                    manager.playerBody.LookAt(new Vector3(enemy.position.x, manager.playerBody.position.y, enemy.position.z));
+                }
+                StartCoroutine(PushingPlayerCount(ultimate.movePlayer[i]));
+            }
+        }
+        manager.weapon.repeatingDamage = true;
+        CancelInvoke("EndCombo");
+        CancelInvoke("EndAttack");
+        manager.readyToUltimate = false;
+        ultimateProgress = 0;
+        manager.anim.runtimeAnimatorController = ultimate.animOV;
+        manager.anim.SetTrigger("Ultimate");
+        manager.weapon.damage = ultimate.damage * attackModifier;
+        manager.weapon.critChance = critChance;
+        manager.weapon.critDamage = critDamage;
+        manager.weapon.EnableHitbox();
+    }
+
+    IEnumerator PushingPlayerCount(Movement movement)
+    {
+        yield return new WaitForSeconds(movement.timeBeforeMoving);
+        PushPlayer(movement.amountToMove, movement.moveDirection);
     }
 
     IEnumerator SpawnFireball(SkillSO specialUsed)
@@ -316,6 +482,15 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
+    public void PushPlayer(float amountOfPush, Vector3 direction)
+    {
+        if (direction == Vector3.zero)
+        {
+            direction = manager.playerBody.forward;
+        }
+        manager.rb.AddForce(direction * amountOfPush, ForceMode.Impulse);
+    }
+
     Transform FindClosestEnemy()
     {
         if (manager.enemyList.Count == 0)
@@ -346,7 +521,8 @@ public class PlayerCombat : MonoBehaviour
             if (existing != null)
             {
                 existing.duration = statusEffect.duration;
-            } else
+            }
+            else
             {
                 activeStatusEffect.Add(newStatus);
                 switch (newStatus.type)
@@ -378,19 +554,30 @@ public class PlayerCombat : MonoBehaviour
         manager.readyToAttack = true;
         Invoke("EndCombo", 1);
     }
-
-    public void EndAttack()
+    IEnumerator WaitForAnotherAttack(float waiting)
     {
-        if (manager.anim.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.9f && manager.anim.GetCurrentAnimatorStateInfo(0).IsTag("Basic Attack"))
+        yield return new WaitForSeconds(waiting);
+        manager.readyToAttack = true;
+        Invoke("EndCombo", 1);
+    }
+
+    void EndAttack()
+    {
+        AnimatorStateInfo anim = manager.anim.GetCurrentAnimatorStateInfo(0);
+
+        if (anim.normalizedTime >= 1f && anim.IsTag("Basic Attack"))
         {
-            manager.readyToAttack = true;
             Invoke("EndCombo", 1);
         }
     }
 
+
+
     public void EndCombo()
     {
         manager.weapon.DisableHitbox();
+        playerAttacks.Clear();
+        manager.readyToAttack = true;
         comboCounter = 0;
         lastComboEnd = Time.time;
     }

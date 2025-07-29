@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67ba9e2778b15554b9672a70041022c7, type: 3}
+  m_Name: Basic Hold Light
+  m_EditorClassIdentifier: 
+  movesetName: Basic Hold Heavy
+  comboList:
+  - keyUsed: 2
+    attackUsed: {fileID: 11400000, guid: c58c13e25a50f4746ab17b2f932ed831, type: 2}

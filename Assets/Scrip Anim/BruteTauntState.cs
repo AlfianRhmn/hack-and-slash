@@ -21,6 +21,11 @@ public class BruteTauntState : StateMachineBehaviour
             // Transition back to the run state or idle state
             animator.SetBool("RUN", true);
             animator.SetBool("ATTACK", true);
+            if (!animator.GetBool("ATTACK ENRAGED"))
+            {
+                animator.Play("Standing Taunt Battlecry");
+                animator.SetBool("ATTACK ENRAGED", true);
+            }
         }
         else
         {

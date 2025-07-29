@@ -15,4 +15,8 @@ MonoBehaviour:
   attackName: 
   animOV: {fileID: 22100000, guid: d46281c9dc4e87142b021374eaa19929, type: 2}
   damage: 20
-  timeToNextAnim: 0.4
+  movementDone:
+  - timeBeforeMoving: 0.2
+    amountToMove: 10
+    moveDirection: {x: 0, y: 0, z: 0}
+  timeToNextAnim: 1

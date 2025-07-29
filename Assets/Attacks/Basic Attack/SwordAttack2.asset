@@ -15,11 +15,8 @@ MonoBehaviour:
   attackName: 
   animOV: {fileID: 22100000, guid: d7237249f0fb98044a76864be46f8069, type: 2}
   damage: 12
-  timeToNextAnim: 0.5
-  manaCost: 0
-  skillType: []
-  projectile: {fileID: 0}
-  velocity: 0
-  timeBeforeApply: 0
-  status: []
-  heal: 0
+  movementDone:
+  - timeBeforeMoving: 0.05
+    amountToMove: 10
+    moveDirection: {x: 0, y: 0, z: 0}
+  timeToNextAnim: 0.8

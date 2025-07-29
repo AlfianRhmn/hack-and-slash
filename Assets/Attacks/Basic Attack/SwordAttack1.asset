@@ -12,6 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6244e3677caae714aad1f26cfc2683c8, type: 3}
   m_Name: SwordAttack1
   m_EditorClassIdentifier: 
+  attackName: 
   animOV: {fileID: 22100000, guid: 9103e043b6be46c499a5dc37f3affa2c, type: 2}
   damage: 10
-  timeToNextAnim: 0.5
+  movementDone:
+  - timeBeforeMoving: 0.05
+    amountToMove: 10
+    moveDirection: {x: 0, y: 0, z: 0}
+  timeToNextAnim: 0.7

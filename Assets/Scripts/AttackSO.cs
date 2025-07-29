@@ -7,21 +7,9 @@ public class AttackSO : ScriptableObject
     public string attackName;
     public AnimatorOverrideController animOV;
     public float damage;
-    [Tooltip("Preferably around 0.1 to 1, depends on animation")]
+    public Movement[] movementDone;
+    [Tooltip("Wait how long until this animation runs (s). The higher, the longer it takes to start this animation.")]
     public float timeToNextAnim; // 0 to 1;
-    [Header("Skills")]
-    public Sprite skillIcon;
-    public float manaCost;
-    public enum typeOfSkill { Fireball, GiveStatus, Heal, Quake}
-    public typeOfSkill[] skillType; // fireball, giveStatus, heal
-    public float timeBeforeApply;
-    [Header("Skill - Fireball")]
-    public GameObject projectile;
-    public float velocity;
-    [Header("Skill - Give Status")]
-    public StatusEffects[] status;
-    [Header("Skill - Heal")]
-    public float heal;
 }
 
 [System.Serializable]

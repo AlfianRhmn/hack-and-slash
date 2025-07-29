@@ -26,8 +26,12 @@ public class PlayerManager : MonoBehaviour
     public Image ultimateIcon;
     public TextMeshProUGUI ultimateInput;
     public TextMeshProUGUI ultimateProgress;
+    public TextMeshProUGUI scrollLeftInput;
+    public TextMeshProUGUI scrollRightInput;
     public ObjectPooling damageNumber;
     public Transform rightHand;
+    public GameObject ultCanvas;
+    public GameObject ultCamera;
     [Header("Player Restrictions")]
     public bool readyToDodge = true;
     public bool readyToAttack = true;
