@@ -9,4 +9,14 @@ public class UltimateSO : ScriptableObject
     public float damage;
     [Header("Skills")]
     public Sprite skillIcon;
+    public Movement[] movePlayer;
+    public float waitingUltimateInitiation;
+}
+
+[System.Serializable]
+public class Movement
+{
+    public float timeBeforeMoving;
+    public float amountToMove;
+    public Vector3 moveDirection;
 }

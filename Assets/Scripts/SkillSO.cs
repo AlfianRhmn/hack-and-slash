@@ -1,3 +1,4 @@
+using SmallHedge.SoundManager;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Attacks/Special Attack")]
@@ -10,6 +11,7 @@ public class SkillSO : ScriptableObject
     [Header("Skills")]
     public Sprite skillIcon;
     public float manaCost;
+    public SoundType soundUsed;
     public enum typeOfSkill { Fireball, GiveStatus, Heal, Quake}
     public typeOfSkill[] skillType; // fireball, giveStatus, heal
     public float timeBeforeApply;

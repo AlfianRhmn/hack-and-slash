@@ -31,6 +31,7 @@ public class Balmond : MonoBehaviour
     public void TakeDamage(float damageAmount)
     {
         HP -= damageAmount;
+        PlayerManager.Instance.combat.ultimateProgress += UnityEngine.Random.Range(1, 10);
 
         if (HP <= 50)
         {
@@ -80,6 +81,10 @@ public class Balmond : MonoBehaviour
     IEnumerator Dead()
     {
         yield return new WaitForSeconds(1f);
+        gameObject.tag = "Untagged";
+        gameObject.layer = 0;
+        gameObject.GetComponent<CapsuleCollider>().enabled = false;
+        GetComponent<NavMeshAgent>().enabled = false;
         healthBar.gameObject.SetActive(false);
         PlayerManager.Instance.enemyList.Remove(this);
         Destroy(this);
