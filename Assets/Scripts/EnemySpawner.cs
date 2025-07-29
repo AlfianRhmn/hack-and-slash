@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections; 
 using System.Collections.Generic;
+using TMPro;
 
 public class EnemySpawner : MonoBehaviour
 {
@@ -14,6 +15,10 @@ public class EnemySpawner : MonoBehaviour
 
     [Header("Spawn Points")]
     public Transform[] spawnPoints;
+
+    [Header("UI")]
+    public GameObject waveDisplay;
+    public TextMeshProUGUI waveDisplayText;
 
     private List<GameObject> currentEnemies = new List<GameObject>(); 
     private int currentWave = 0; 
@@ -62,10 +67,19 @@ public class EnemySpawner : MonoBehaviour
 
     void StartNextWave()
     {
+        waveDisplayText.text = "Wave " + (currentWave + 1);
+        waveDisplay.SetActive(true);
+        StartCoroutine(waveDisplayCooldown());
         currentWave++;
         Debug.Log($"Starting Wave {currentWave}!");
         waveInProgress = true;
         StartCoroutine(SpawnWave());
+    }
+
+    IEnumerator waveDisplayCooldown()
+    {
+        yield return new WaitForSeconds(3.9f);
+        waveDisplay.SetActive(false);
     }
 
     IEnumerator SpawnWave()
