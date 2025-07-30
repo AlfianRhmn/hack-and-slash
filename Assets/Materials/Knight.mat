@@ -32,11 +32,11 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _1st_ShadeMap:
-        m_Texture: {fileID: 2800000, guid: 98f8b2511390d034783356c831c89930, type: 3}
+        m_Texture: {fileID: 2800000, guid: 080c33de8e748674bab4d050ba829175, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _2nd_ShadeMap:
-        m_Texture: {fileID: 2800000, guid: 9800c687d5513f1448a3a344a2acfe56, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _AngelRing_Sampler:
@@ -238,8 +238,8 @@ Material:
     m_Ints: []
     m_Floats:
     - _1st2nd_Shades_Feather: 0.0001
-    - _1st_ShadeColor_Feather: 0.4
-    - _1st_ShadeColor_Step: 0.5
+    - _1st_ShadeColor_Feather: 0.393
+    - _1st_ShadeColor_Step: 0.555
     - _2nd_ShadeColor_Feather: 0.0001
     - _2nd_ShadeColor_Step: 0
     - _AORemapMax: 1
@@ -271,8 +271,8 @@ Material:
     - _AutoRenderQueue: 1
     - _BaseColorOverridden: 0
     - _BaseColorVisible: 1
-    - _BaseColor_Step: 0.5
-    - _BaseShade_Feather: 0.4
+    - _BaseColor_Step: 0.555
+    - _BaseShade_Feather: 0.393
     - _Base_Speed: 0
     - _Blend: 0
     - _BlendMode: 0
