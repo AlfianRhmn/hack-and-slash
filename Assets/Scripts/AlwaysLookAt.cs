@@ -27,11 +27,16 @@ public class AlwaysLookAt : MonoBehaviour
         if (enableTimer)
         {
             timer += Time.deltaTime;
-            if (timer > 5)
+            if (timer > 3)
             {
                 //dead
                 sourceOfPool.ReturnObject(gameObject);
             }
         }
+    }
+
+    public void DestroyMe()
+    {
+        sourceOfPool.ReturnObject(gameObject);
     }
 }

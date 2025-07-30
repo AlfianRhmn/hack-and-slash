@@ -85,6 +85,33 @@
                     "processors": "",
                     "interactions": "Tap",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Lock-On Camera",
+                    "type": "Button",
+                    "id": "c11a8764-deaf-4e2a-bd2d-f42fe31959ac",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Tap",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Change Lock-On - Positive",
+                    "type": "Button",
+                    "id": "564c6858-fc8f-451a-84f5-956189e6788d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Tap",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Change Lock-On - Negative",
+                    "type": "Button",
+                    "id": "bcdda11f-cc46-4529-a0a3-34630a2e0653",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Tap",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -322,7 +349,7 @@
                 {
                     "name": "",
                     "id": "53de0e5b-f737-4a91-8bb8-2d3b346e1fdc",
-                    "path": "<Keyboard>/q",
+                    "path": "<Keyboard>/1",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -333,7 +360,7 @@
                 {
                     "name": "",
                     "id": "a39ddba2-a860-458f-b479-4e3e6c4d88e2",
-                    "path": "<Gamepad>/dpad/left",
+                    "path": "<Gamepad>/leftShoulder",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
@@ -343,8 +370,52 @@
                 },
                 {
                     "name": "",
-                    "id": "4ae0a3e4-7607-4467-9d05-cff2aef4f014",
+                    "id": "ccd5c6df-112d-48d9-9f5c-8fa0c5df1800",
                     "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Change Lock-On - Positive",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a768ef35-999d-455e-8ef3-f2f3d4429a8e",
+                    "path": "<Gamepad>/rightStick/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Change Lock-On - Positive",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5f195619-b7f5-46a7-a226-815e2c208669",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Change Lock-On - Negative",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6f9d4469-afcc-4b8f-b5f0-c5c62be8120d",
+                    "path": "<Gamepad>/rightStick/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Change Lock-On - Negative",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4ae0a3e4-7607-4467-9d05-cff2aef4f014",
+                    "path": "<Keyboard>/2",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -355,11 +426,33 @@
                 {
                     "name": "",
                     "id": "3b6d3372-e4cb-4670-aa83-7acb793532f7",
-                    "path": "<Gamepad>/dpad/right",
+                    "path": "<Gamepad>/rightShoulder",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "Change Special - Positive",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "dc5f5deb-51b6-414b-8aad-5119f9f0b612",
+                    "path": "<Keyboard>/leftAlt",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Lock-On Camera",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9e282eea-ae4b-483c-802d-3012530bd25a",
+                    "path": "<Gamepad>/rightStickPress",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Lock-On Camera",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

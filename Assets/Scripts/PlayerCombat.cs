@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Burst.Intrinsics;
@@ -162,6 +163,7 @@ public class PlayerCombat : MonoBehaviour
         inputText = inputText.Replace("Multi Tap ", "");
         inputText = inputText.Replace("Press ", "");
         inputText = inputText.Replace("Slow Tap ", "");
+        inputText = TurnToWord(inputText);
         manager.scrollLeftInput.text = "< <sprite name=" + inputText + ">";
         inputText = input.actions.FindAction("Change Special - Positive").GetBindingDisplayString();
         inputText = inputText.Replace("Tap;action.interactions ", "");
@@ -170,7 +172,27 @@ public class PlayerCombat : MonoBehaviour
         inputText = inputText.Replace("Multi Tap ", "");
         inputText = inputText.Replace("Press ", "");
         inputText = inputText.Replace("Slow Tap ", "");
+        inputText = TurnToWord(inputText);
         manager.scrollRightInput.text = "<sprite name=" + inputText + "> >";
+    }
+
+    string TurnToWord(string inputText)
+    {
+        switch (inputText)
+        {
+            case "0": return "zero";
+            case "1": return "one";
+            case "2": return "two";
+            case "3": return "three";
+            case "4": return "four";
+            case "5": return "five";
+            case "6": return "six";
+            case "7": return "seven";
+            case "8": return "eight";
+            case "9": return "nine";
+            default:
+                return inputText;
+        }
     }
 
 
@@ -366,7 +388,7 @@ public class PlayerCombat : MonoBehaviour
 
     public void OnSpecialAttack(InputAction.CallbackContext context)
     {
-        if (context.performed && manager.readyToSpecial && currentMana >= listOfSpecial[specialSelected].manaCost)
+        if (context.performed && manager.readyToSpecial && currentMana >= listOfSpecial[specialSelected].manaCost && manager.readyToDodge && manager.readyToUltimate)
         {
             manager.weapon.repeatingDamage = false;
             timeLastUsedSpecial = 0;
@@ -398,8 +420,9 @@ public class PlayerCombat : MonoBehaviour
 
     public void OnUltimate(InputAction.CallbackContext context)
     {
-        if (context.performed && manager.readyToUltimate && ultimateProgress >= 100)
+        if (context.performed && manager.readyToUltimate && ultimateProgress >= 100 && manager.readyToDodge && manager.readyToSpecial && manager.readyToAttack)
         {
+            manager.readyToUltimate = false;
             manager.ultCamera.SetActive(true);
             manager.ultCanvas.SetActive(true);
             StartCoroutine(UltimateInitiation());
@@ -445,7 +468,15 @@ public class PlayerCombat : MonoBehaviour
 
     IEnumerator SpawnFireball(SkillSO specialUsed)
     {
-        Transform enemyTransform = FindClosestEnemy();
+        Transform enemyTransform;
+        if (manager.currentLockOnTarget != null)
+        {
+            enemyTransform = manager.currentLockOnTarget;
+        }
+        else
+        {
+            enemyTransform = FindClosestEnemy();
+        }
         if (enemyTransform != null)
         {
             manager.playerBody.transform.LookAt(new Vector3(enemyTransform.position.x, manager.playerBody.position.y, enemyTransform.position.z));
@@ -491,7 +522,7 @@ public class PlayerCombat : MonoBehaviour
         manager.rb.AddForce(direction * amountOfPush, ForceMode.Impulse);
     }
 
-    Transform FindClosestEnemy()
+    public Transform FindClosestEnemy()
     {
         if (manager.enemyList.Count == 0)
         {
@@ -598,5 +629,15 @@ public class PlayerCombat : MonoBehaviour
             manager.anim.SetTrigger("Hit");
             //PLAY HIT ANIMATION
         }
+    }
+
+    internal void TakeDamage(float damageToDeal)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal static void TakeDamage()
+    {
+        throw new NotImplementedException();
     }
 }

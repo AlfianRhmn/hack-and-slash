@@ -50,11 +50,9 @@ public class Weapon : MonoBehaviour
                 PlayerManager.Instance.combat.ultimateProgress += Random.Range(1, 5);
                 float totalDamage = damage;
                 AlwaysLookAt look = damageNumber.GetObject().GetComponent<AlwaysLookAt>();
-                look.transform.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
                 look.sourceOfPool = damageNumber;
-                look.transform.position = transform.position;
+                look.transform.position = enemy.transform.position + new Vector3(Random.Range(-1f, 1f), Random.Range(0f, 3f), Random.Range(-1f, 1f));
                 look.transform.localScale = new Vector3(0.2445875f, 0.2445875f, 0.2445875f);
-                look.transform.GetComponent<Rigidbody>().AddForce(new Vector3(UnityEngine.Random.Range(-50f, 50f), 400, UnityEngine.Random.Range(-50f, 50f)));
                 look.transform.GetChild(0).GetComponent<TextMeshPro>().text = Mathf.RoundToInt(damage).ToString();
                 look.transform.GetChild(0).GetComponent<TextMeshPro>().color = Color.white;
                 if (Random.Range(1, 101) <= critChance)

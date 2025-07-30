@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -32,6 +33,10 @@ public class PlayerManager : MonoBehaviour
     public Transform rightHand;
     public GameObject ultCanvas;
     public GameObject ultCamera;
+    public GameObject virtualThirdCam;
+    public GameObject virtualHardLockCam;
+    public LayerMask enemyLayer;
+    public float enemyDistance;
     [Header("Player Restrictions")]
     public bool readyToDodge = true;
     public bool readyToAttack = true;
@@ -39,6 +44,8 @@ public class PlayerManager : MonoBehaviour
     public bool readyToUltimate = true;
     [Header("Enemy List")]
     public List<Balmond> enemyList;
+    public List<Balmond> enemyClose;
+    public Transform currentLockOnTarget;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
@@ -54,6 +61,26 @@ public class PlayerManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (enemyList.Count == 0)
+        {
+            movement.CancelLockOn();
+        }
+        HandleEnemyClose();
+    }
+
+    void HandleEnemyClose()
+    {
+        enemyClose.Clear();
+        foreach (Balmond enemy in enemyList)
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(cam.position, enemy.transform.position - cam.position,out hit, enemyDistance, enemyLayer))
+            {
+                if (hit.collider.CompareTag("Enemy"))
+                {
+                    enemyClose.Add(enemy);
+                }
+            }
+        }
     }
 }
