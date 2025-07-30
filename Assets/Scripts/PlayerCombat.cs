@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Burst.Intrinsics;
@@ -598,5 +599,15 @@ public class PlayerCombat : MonoBehaviour
             manager.anim.SetTrigger("Hit");
             //PLAY HIT ANIMATION
         }
+    }
+
+    internal void TakeDamage(float damageToDeal)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal static void TakeDamage()
+    {
+        throw new NotImplementedException();
     }
 }

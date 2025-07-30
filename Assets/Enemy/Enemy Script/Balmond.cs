@@ -14,7 +14,7 @@ public class Balmond : MonoBehaviour
     private float smoothDampVelocity;
 
     [Header("Movement & Target Settings")]
-    public Transform target;
+    public Transform target; // Pastikan ini terisi dengan GameObject Player di Inspector
     public float detectionRange = 40f;
     public float stopChasingRange = 50f;
     public float attackRange = 2.5f;
@@ -25,6 +25,10 @@ public class Balmond : MonoBehaviour
     [Header("Attack Settings")]
     public float attackCooldown = 2.0f; 
     private float nextAttackTime;
+    public float phase2AttackCooldown = 2.0f; 
+    private float currentAttackCooldown;   
+    public float attackDamagePhase1 = 15f; // Damage untuk Fase 1
+    public float attackDamagePhase2 = 25f; // Damage untuk Fase 2
 
     [Header("Taunt Settings")]
     public float tauntCooldown = 5.0f; 
@@ -48,6 +52,7 @@ public class Balmond : MonoBehaviour
         healthBar.value = HP;
         animator = GetComponent<Animator>();
         navAgent = GetComponent<NavMeshAgent>();
+        currentAttackCooldown = attackCooldown;
 
         nextAttackTime = Time.time;
         nextTauntTime = Time.time;
@@ -63,16 +68,14 @@ public class Balmond : MonoBehaviour
     {
         if (isDead)
         {
-            {
-                navAgent.isStopped = true;
-                navAgent.enabled = false;
-            }
+            navAgent.isStopped = true;
+            navAgent.enabled = false;
             return;
         }
 
         healthBar.value = Mathf.SmoothDamp(healthBar.value, HP, ref smoothDampVelocity, 0.1f);
 
-        if (target != null && navAgent != null && navAgent.isActiveAndEnabled) 
+        if (target != null && navAgent != null && navAgent.isActiveAndEnabled)
         {
             float distanceToTarget = Vector3.Distance(transform.position, target.position);
 
@@ -85,15 +88,15 @@ public class Balmond : MonoBehaviour
             if (distanceToTarget <= detectionRange && distanceToTarget > attackRange)
             {
                 isChasing = true;
-                navAgent.isStopped = false; 
+                navAgent.isStopped = false;
                 navAgent.SetDestination(target.position);
-                animator.SetFloat("Speed", movementSpeed); 
+                animator.SetFloat("Speed", navAgent.velocity.magnitude); // Menggunakan kecepatan NavMeshAgent
             }
             else if (distanceToTarget <= attackRange)
             {
                 isChasing = false;
-                navAgent.isStopped = true; 
-                animator.SetFloat("Speed", 0f); 
+                navAgent.isStopped = true;
+                animator.SetFloat("Speed", 0f);
                 transform.LookAt(new Vector3(target.position.x, transform.position.y, target.position.z)); // Menghadap target
 
                 // --- Attack Logic ---
@@ -105,9 +108,9 @@ public class Balmond : MonoBehaviour
                     }
                     else
                     {
-                        PerformAttack(); 
+                        PerformAttack();
                     }
-                    nextAttackTime = Time.time + attackCooldown;
+                    nextAttackTime = Time.time + currentAttackCooldown; // Menggunakan currentAttackCooldown
                 }
             }
             else if (distanceToTarget > stopChasingRange)
@@ -120,24 +123,24 @@ public class Balmond : MonoBehaviour
             {
                 isChasing = false;
                 navAgent.isStopped = true;
-                animator.SetFloat("Speed", 0f); 
+                animator.SetFloat("Speed", 0f);
             }
         }
-        else 
+        else
         {
             isChasing = false;
             if (navAgent != null && navAgent.isActiveAndEnabled)
             {
                 navAgent.isStopped = true;
             }
-            animator.SetFloat("Speed", 0f); 
+            animator.SetFloat("Speed", 0f);
         }
 
         if (Time.time >= nextTauntTime && !isChasing && animator.GetFloat("Speed") < 0.1f && !animator.GetCurrentAnimatorStateInfo(0).IsTag("AttackState"))
         {
-            if (UnityEngine.Random.value < tauntChance) 
+            if (UnityEngine.Random.value < tauntChance)
             {
-                PerformTaunt(); 
+                PerformTaunt();
             }
             nextTauntTime = Time.time + tauntCooldown;
         }
@@ -149,7 +152,6 @@ public class Balmond : MonoBehaviour
         HP -= damageAmount;
         HP = Mathf.Max(HP, 0f); 
 
-        // Memicu animasi HIT
         animator.SetTrigger("Hit");   
 
         if (HP <= 50 && !isEnraged)
@@ -157,7 +159,6 @@ public class Balmond : MonoBehaviour
             ActivateEnragedMode();
         }
 
-        // Cek kematian
         if (HP <= 0)
         {
             isDead = true; 
@@ -168,30 +169,27 @@ public class Balmond : MonoBehaviour
 
     void PerformAttack()
     {
-       
         if (navAgent != null && navAgent.isActiveAndEnabled)
         {
             navAgent.isStopped = true;
         }
         animator.SetTrigger("Attack"); 
-        Debug.Log("Balmond Attacks (Phase 1)!");
-       
     }
 
-    void PerformPhase2Attack() 
+    void PerformPhase2Attack()
     {
         if (navAgent != null && navAgent.isActiveAndEnabled)
         {
             navAgent.isStopped = true;
         }
-        animator.SetTrigger("Phase2Attack"); 
-        Debug.Log("Balmond performs Phase 2 Attack!");
+        animator.SetTrigger("Phase2Attack");
 
+        // nextAttackTime akan diatur di Update setelah panggilan PerformPhase2Attack
+        // agar sesuai dengan cooldown yang diperbarui saat enraged.
     }
 
     void PerformTaunt()
     {
-        // Memastikan NavMeshAgent berhenti selama animasi taunt
         if (navAgent != null && navAgent.isActiveAndEnabled)
         {
             navAgent.isStopped = true;
@@ -201,12 +199,10 @@ public class Balmond : MonoBehaviour
         if (!isEnraged)
         {
             animator.SetTrigger("TauntChest"); 
-            Debug.Log("Balmond Taunts (Chest - Phase 1)!");
         }
         else 
         {
             animator.SetTrigger("TauntBattlecry"); 
-            Debug.Log("Balmond Taunts (Battlecry - Phase 2)!");
         }
     }
 
@@ -214,26 +210,23 @@ public class Balmond : MonoBehaviour
     {
         isEnraged = true;
         animator.SetBool("ENRAGED", true);
-        Debug.Log("Balmond enters ENRAGED mode (Phase 2)!");
 
-        nextAttackTime = Time.time;
+        currentAttackCooldown = phase2AttackCooldown; 
+        nextAttackTime = Time.time; 
 
-
-        movementSpeed *= 1.3f; 
-        attackCooldown *= 0.7f;
+        movementSpeed *= 1.3f;
         if (navAgent != null && navAgent.isActiveAndEnabled)
         {
-            navAgent.speed = movementSpeed;
-
-            PerformTaunt();
+            navAgent.speed = movementSpeed; 
         }
+        PerformTaunt();
     }
 
     public IEnumerator LaunchEnemy(float duration, float launchHeight)
     {
-        if (navAgent != null && navAgent.isActiveAndEnabled) 
+        if (navAgent != null && navAgent.isActiveAndEnabled)
         {
-            navAgent.enabled = false; 
+            navAgent.enabled = false;
         }
 
         Vector3 originalPosition = transform.position;
@@ -244,7 +237,7 @@ public class Balmond : MonoBehaviour
             elapsed += Time.deltaTime;
             float t = elapsed / duration;
 
-            float yOffset = Mathf.Sin(t * Mathf.PI) * launchHeight; 
+            float yOffset = Mathf.Sin(t * Mathf.PI) * launchHeight;
 
             transform.position = new Vector3(
                 originalPosition.x,
@@ -255,10 +248,10 @@ public class Balmond : MonoBehaviour
             yield return null;
         }
 
-        transform.position = originalPosition; 
+        transform.position = originalPosition;
         if (!isDead && navAgent != null)
         {
-            navAgent.enabled = true; 
+            navAgent.enabled = true;
         }
     }
 
@@ -299,22 +292,43 @@ public class Balmond : MonoBehaviour
             PlayerManager.Instance.enemyList.Remove(this);
         }
 
-        // Hancurkan GameObject Balmond setelah animasi mati selesai dan semua bersih
-        //Destroy(gameObject);
+        //Destroy(gameObject); // Hancurkan GameObject Balmond
+    }
+
+    // Metode ini akan dipanggil oleh Animation Event
+    public void DealDamageToPlayer()
+    {
+        Debug.Log("DealDamageToPlayer() dipanggil oleh Animation Event!"); // Debug log untuk konfirmasi
+
+        // Pastikan ada target dan berada dalam jangkauan serangan saat event dipicu
+        if (target != null && Vector3.Distance(transform.position, target.position) <= attackRange)
+        {
+            PlayerCombat playerCombat = target.GetComponent<PlayerCombat>();
+            if (playerCombat != null)
+            {
+                float damageToDeal = isEnraged ? attackDamagePhase2 : attackDamagePhase1;
+                
+                // --- PENTING: Panggil TakeDamage dengan DUA parameter ---
+                playerCombat.TakeDamage(damageToDeal, this.transform); // Menggunakan 'this.transform' sebagai sourceOfDamage
+                Debug.Log($"Balmond menyerang pemain dengan {damageToDeal} damage! (Fase: {(isEnraged ? "2" : "1")})");
+            }
+            else
+            {
+                Debug.LogWarning("Target pemain tidak memiliki komponen PlayerCombat atau namanya salah!");
+            }
+        }
+        else
+        {
+            Debug.Log("DealDamageToPlayer() dipanggil, tapi target tidak ada atau di luar jangkauan.");
+        }
     }
 
     private void OnDrawGizmos()
     {
-        // Jangkauan serangan
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
 
-        // Jangkauan deteksi (mulai mengejar)
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
-
-        // Jangkauan berhenti mengejar (jika ada)
-        //Gizmos.color = Color.green;
-        //Gizmos.DrawWireSphere(transform.position, stopChasingRange);
     }
 }

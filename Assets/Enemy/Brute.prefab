@@ -2157,9 +2157,9 @@ GameObject:
   - component: {fileID: 5398084275470831523}
   - component: {fileID: 4074206750442815772}
   - component: {fileID: 1225290388048505865}
-  - component: {fileID: 6763921113253904556}
   - component: {fileID: 8431767417220639175}
   - component: {fileID: -5264807416710956523}
+  - component: {fileID: -1449407971466271708}
   m_Layer: 6
   m_Name: Brute
   m_TagString: Enemy
@@ -2175,7 +2175,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3889348042384566474}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0.01, y: 0, z: 18.51}
   m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_ConstrainProportionsScale: 1
@@ -2252,20 +2252,6 @@ CapsuleCollider:
   m_Height: 2.3
   m_Direction: 1
   m_Center: {x: 0, y: 1.12, z: 0}
---- !u!114 &6763921113253904556
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3889348042384566474}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1568d96914988245ae691429fd4518e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  axe: {fileID: 264723602948203440}
-  enemyDamage: 0
 --- !u!114 &8431767417220639175
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2283,9 +2269,12 @@ MonoBehaviour:
   target: {fileID: 0}
   detectionRange: 40
   stopChasingRange: 50
-  attackRange: 2.5
+  attackRange: 3
   movementSpeed: 3
-  attackCooldown: 2
+  attackCooldown: 5
+  phase2AttackCooldown: 2
+  attackDamagePhase1: 15
+  attackDamagePhase2: 25
   tauntCooldown: 5
   tauntChance: 0.3
 --- !u!114 &-5264807416710956523
@@ -2348,6 +2337,20 @@ MonoBehaviour:
   UseImpactDirection: 1
   ScaleImpactWithMass: 0
   ScaleImpactWithSpeed: 0
+--- !u!114 &-1449407971466271708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3889348042384566474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1568d96914988245ae691429fd4518e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  axe: {fileID: 264723602948203440}
+  enemyDamage: 0
 --- !u!1 &3977828261057161983
 GameObject:
   m_ObjectHideFlags: 0
