@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Unity.Cinemachine;
 using Unity.VisualScripting;
@@ -86,6 +87,7 @@ public class PlayerMovement : MonoBehaviour
             manager.virtualHardLockCam.SetActive(false);
             currentSpeed = moveSpeed;
             manager.currentLockOnTarget = null;
+            manager.virtualHardLockCam.GetComponent<CinemachineCamera>().LookAt = null;
         }
     }
 
@@ -101,6 +103,7 @@ public class PlayerMovement : MonoBehaviour
                 manager.virtualThirdCam.SetActive(false);
                 manager.currentLockOnTarget = target;
                 currentSpeed = slowedSpeed;
+                manager.virtualHardLockCam.GetComponent<CinemachineCamera>().LookAt = target;
 
             } else
             {
@@ -109,6 +112,7 @@ public class PlayerMovement : MonoBehaviour
                 manager.virtualHardLockCam.SetActive(false);
                 currentSpeed = moveSpeed;
                 manager.currentLockOnTarget = null;
+                manager.virtualHardLockCam.GetComponent<CinemachineCamera>().LookAt = null;
             }
         }
     }
@@ -140,7 +144,7 @@ public class PlayerMovement : MonoBehaviour
             }
         }
         manager.currentLockOnTarget = manager.enemyClose[index].transform;
-        manager.virtualHardLockCam.GetComponent<CinemachineCamera>().LookAt = manager.enemyClose[index].transform.GetChild(2).GetChild(0);
+        manager.virtualHardLockCam.GetComponent<CinemachineCamera>().LookAt = manager.enemyClose[index].transform;
     }
 
     public void OnChangeLockNeg(InputAction.CallbackContext context)
