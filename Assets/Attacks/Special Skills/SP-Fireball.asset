@@ -17,6 +17,7 @@ MonoBehaviour:
   damage: 30
   skillIcon: {fileID: 21300000, guid: 721a3bee050740e47ba404d0039bf4e1, type: 3}
   manaCost: 40
+  soundUsed: 5
   skillType: 00000000
   timeBeforeApply: 0.1
   projectile: {fileID: 680070269991900385, guid: 5fc350f5939a8d446bb1fa402d09b3b4, type: 3}
