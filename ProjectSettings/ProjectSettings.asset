@@ -817,7 +817,19 @@ PlayerSettings:
   webGLCloseOnQuit: 0
   webWasm2023: 0
   scriptingDefineSymbols:
-    Standalone: UNITY_PIPELINE_URP
+    Android: MK_ALBEDO_MAP_INTENSITY
+    EmbeddedLinux: MK_ALBEDO_MAP_INTENSITY
+    GameCoreXboxOne: MK_ALBEDO_MAP_INTENSITY
+    Nintendo Switch: MK_ALBEDO_MAP_INTENSITY
+    PS4: MK_ALBEDO_MAP_INTENSITY
+    PS5: MK_ALBEDO_MAP_INTENSITY
+    QNX: MK_ALBEDO_MAP_INTENSITY
+    ReservedCFE: MK_ALBEDO_MAP_INTENSITY
+    Standalone: UNITY_PIPELINE_URP;MK_ALBEDO_MAP_INTENSITY
+    VisionOS: MK_ALBEDO_MAP_INTENSITY
+    WebGL: MK_ALBEDO_MAP_INTENSITY
+    XboxOne: MK_ALBEDO_MAP_INTENSITY
+    tvOS: MK_ALBEDO_MAP_INTENSITY
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
