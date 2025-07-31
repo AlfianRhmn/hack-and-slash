@@ -16,10 +16,9 @@ public class Juggle : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        print(other.gameObject.name);
         if (other.gameObject.CompareTag("Enemy"))
         {
-            other.GetComponent<Rigidbody>().AddForce(Vector3.up * velocity, ForceMode.Impulse);
+            StartCoroutine(other.GetComponent<EnemyBehaviour>().LaunchEnemy(1f, velocity));
         }
     }
 }

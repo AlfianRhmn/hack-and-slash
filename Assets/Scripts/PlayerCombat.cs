@@ -49,6 +49,7 @@ public class PlayerCombat : MonoBehaviour
     bool heavyAttackTriggered;
     bool alreadyInputReady;
     int juggleAttack = 0;
+    float timer = 0; //used for juggling
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -71,7 +72,9 @@ public class PlayerCombat : MonoBehaviour
         SetupSpecial();
         SetupUltimate();
         EndAttack();
-        
+
+        timer += Time.deltaTime;
+
         if (!manager.onAir)
         {
             StopCoroutine(JuggleUp());
@@ -334,9 +337,6 @@ public class PlayerCombat : MonoBehaviour
                 {
                     StartCoroutine(PushingPlayerCount(push));
                 }
-            } else
-            {
-                manager.rb.linearVelocity = new Vector3(0, 1, 0);
             }
 
             manager.anim.runtimeAnimatorController = attack.animOV;
@@ -385,10 +385,11 @@ public class PlayerCombat : MonoBehaviour
     IEnumerator JuggleUp()
     {
         yield return new WaitUntil(() => manager.rb.linearVelocity.y < -0.1f);
+        timer = 0;
         juggleAttack = 0;
         manager.rb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
         manager.rb.linearVelocity = Vector3.zero;
-        yield return new WaitUntil(() => juggleAttack > 5);
+        yield return new WaitUntil(() => juggleAttack > 5 || !manager.onAir || timer >= 1.5f);
         manager.rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
     }
 
@@ -461,6 +462,11 @@ public class PlayerCombat : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void ResetTimer()
+    {
+        timer = 0;
     }
 
     IEnumerator StartSounds(Sounds sound)
@@ -659,7 +665,6 @@ public class PlayerCombat : MonoBehaviour
 
         if (anim.normalizedTime >= 1f && anim.IsTag("Basic Attack"))
         {
-            manager.rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
             Invoke("EndCombo", 1);
         }
     }
@@ -694,10 +699,14 @@ public class PlayerCombat : MonoBehaviour
             }
             else
             {
+                manager.rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
                 StopCoroutine(manager.movement.DodgeCooldown());
                 manager.readyToDodge = false;
                 manager.playerBody.transform.LookAt(new Vector3(sourceOfDamage.position.x, manager.playerBody.transform.position.y, sourceOfDamage.position.z));
-                manager.rb.AddForce(manager.playerBody.forward * -10, ForceMode.Impulse);
+                if (!manager.onAir)
+                {
+                    manager.rb.AddForce(manager.playerBody.forward * -10, ForceMode.Impulse);
+                }
                 AlwaysLookAt look = manager.damageNumber.GetObject().GetComponent<AlwaysLookAt>();
                 look.sourceOfPool = manager.damageNumber;
                 look.transform.position = manager.playerBody.position + new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(0f, 3f), UnityEngine.Random.Range(-1f, 1f));
@@ -723,6 +732,9 @@ public class PlayerCombat : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
         manager.readyToHurt = true;
+        manager.readyToAttack = true;
+        manager.readyToDodge = true;
+        manager.readyToSpecial = true;
     }
 
     internal void TakeDamage(float damageToDeal)

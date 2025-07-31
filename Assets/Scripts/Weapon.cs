@@ -42,12 +42,12 @@ public class Weapon : MonoBehaviour
     // Update is called once per frame
     void OnTriggerEnter(Collider other)
     {
-        print(other.gameObject.name);
         EnemyBehaviour enemy = other.GetComponent<EnemyBehaviour>();
         if (enemy != null)
         {
             if (!targets.Contains(enemy.gameObject) || repeatingDamage)
             {
+                PlayerManager.Instance.combat.ResetTimer();
                 PlayerManager.Instance.combat.ultimateProgress += Random.Range(1, 5);
                 float totalDamage = damage;
                 AlwaysLookAt look = damageNumber.GetObject().GetComponent<AlwaysLookAt>();

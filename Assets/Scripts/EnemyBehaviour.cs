@@ -21,6 +21,10 @@ public class EnemyBehaviour : MonoBehaviour
     bool isAttacking = false;
     bool hasNoticedPlayer;
     bool readyToAttack = true;
+    int damageTaken;
+    bool onAir = false;
+    float timer = 0;
+    Rigidbody rb;
     EnemyMoveset currentMoveset;
     [Header("User Interface")]
     public Slider healthBar;
@@ -30,6 +34,7 @@ public class EnemyBehaviour : MonoBehaviour
     {
         healthBar.maxValue = maxHP;
         healthBar.value = currentHP;
+        rb = GetComponent<Rigidbody>();
         agent = GetComponent<NavMeshAgent>();
         PlayerManager.Instance.enemyList.Add(this);
     }
@@ -37,12 +42,17 @@ public class EnemyBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        timer += Time.deltaTime;
+
         SetupUI();
-        CheckEnemyState();
-        HandleMovement();
-        if (Vector3.Distance(transform.position, target.position) < enemyState[currentState].distanceUntilAttack && !isAttacking && !isChangingState && hasNoticedPlayer && readyToAttack)
+        if (currentHP > 0)
         {
-            HandleAttack();
+            CheckEnemyState();
+            HandleMovement();
+            if (Vector3.Distance(transform.position, target.position) < enemyState[currentState].distanceUntilAttack && !isAttacking && !isChangingState && hasNoticedPlayer && readyToAttack && !onAir)
+            {
+                HandleAttack();
+            }
         }
         if (currentHP <= 0)
         {
@@ -59,7 +69,10 @@ public class EnemyBehaviour : MonoBehaviour
     {
         if (hasNoticedPlayer && !isChangingState && !isAttacking)
         {
-            agent.SetDestination(target.position);
+            if (agent != null && agent.isOnNavMesh)
+            {
+                agent.SetDestination(target.position);
+            }
         } else if (!hasNoticedPlayer && Vector3.Distance(target.position, transform.position) < enemyState[currentState].distanceUntilNotice && !isAttacking && !isChangingState && !isAttacking)
         {
             hasNoticedPlayer = true;
@@ -109,12 +122,17 @@ public class EnemyBehaviour : MonoBehaviour
         else
         {
             agent.enabled = true;
+            rb.isKinematic = true;
+            rb.useGravity = false;
         }
     }
 
     IEnumerator StartAttack(EnemyMoveset moveset) // masukin semua logic serangan disini
     {
-        agent.isStopped = true;
+        if (agent != null && agent.isOnNavMesh)
+        {
+            agent.isStopped = true;
+        }
         // masukin semua variable penting yang ada di EnemyMoveset disini
         currentMoveset = moveset;
         anim.runtimeAnimatorController = moveset.animOV;
@@ -130,7 +148,10 @@ public class EnemyBehaviour : MonoBehaviour
         yield return new WaitForSeconds(moveset.duration);
         currentMoveset = null;
         isAttacking = false;
-        agent.isStopped = false;
+        if (agent != null && agent.isOnNavMesh)
+        {
+            agent.isStopped = false;
+        }
         yield return new WaitForSeconds(Random.Range(enemyState[currentState].minCooldownPerAttack, enemyState[currentState].maxCooldownPerAttack));
         readyToAttack = true;
     }
@@ -166,7 +187,10 @@ public class EnemyBehaviour : MonoBehaviour
             currentMoveset = null;
             isAttacking = false;
         }
-        agent.isStopped = true;
+        if (agent != null && agent.isOnNavMesh)
+        {
+            agent.isStopped = true;
+        }
         currentState = stateID;
         isChangingState = true;
         if (enemyState[stateID].changeStateAnim != null)
@@ -175,16 +199,22 @@ public class EnemyBehaviour : MonoBehaviour
             anim.Play("Taunt");
         }
         yield return new WaitForSeconds(enemyState[stateID].changingDuration);
-        agent.isStopped = false;
+        if (agent != null && agent.isOnNavMesh)
+        {
+            agent.isStopped = false;
+        }
         isChangingState = false;
     }
 
     public void TakeDamage(float damage)
     {
+        timer = 0;
         currentHP -= damage;
+        damageTaken++;
         if (currentHP <= 0)
         {
             PlayerManager.Instance.enemyList.Remove(this);
+            StopAllCoroutines();
             StartCoroutine(Dead());
             //dead
         } else
@@ -201,15 +231,29 @@ public class EnemyBehaviour : MonoBehaviour
         } else
         {
             anim.SetTrigger("Hit");
-            agent.isStopped = true;
+            if (agent != null && agent.isOnNavMesh)
+            {
+                agent.isStopped = true;
+            }
             yield return new WaitForSeconds(0.2f);
-            agent.isStopped = false;
+            if (agent != null && agent.isOnNavMesh)
+            {
+                agent.isStopped = false;
+            }
         }
     }
 
     IEnumerator Dead()
     {
-        agent.isStopped = true;
+        if (onAir)
+        {
+            rb.isKinematic = false;
+            rb.useGravity = true;
+        }
+        if (agent != null && agent.isOnNavMesh)
+        {
+            agent.isStopped = true;
+        }
         anim.SetTrigger("Dead");
         yield return new WaitForSeconds(0.1f);
         healthBar.gameObject.SetActive(false);
@@ -219,35 +263,56 @@ public class EnemyBehaviour : MonoBehaviour
 
     public IEnumerator LaunchEnemy(float duration, float launchHeight)
     {
+        print("launch");
+        if (currentMoveset != null)
+        {
+            StopCoroutine(StartAttack(currentMoveset));
+            currentMoveset = null;
+            isAttacking = false;
+        }
+        timer = 0;
+        onAir = true;
+        damageTaken = 0;
         if (agent != null && agent.isActiveAndEnabled)
         {
             agent.enabled = false;
         }
 
-        Vector3 originalPosition = transform.position;
+        // Disable physics
+        rb.isKinematic = true;
+        rb.useGravity = false;
+
+        Vector3 startPosition = transform.position;
         float elapsed = 0f;
 
-        while (elapsed < duration)
+        // Peak will be reached at half duration
+        float halfDuration = duration / 2f;
+
+        while (elapsed < halfDuration)
         {
             elapsed += Time.deltaTime;
-            float t = elapsed / duration;
+            float t = elapsed / halfDuration;
 
-            float yOffset = Mathf.Sin(t * Mathf.PI) * launchHeight;
+            // Parabolic arc using sine wave
+            float yOffset = Mathf.Sin(t * Mathf.PI * 0.5f) * launchHeight;
 
             transform.position = new Vector3(
-                originalPosition.x,
-                originalPosition.y + yOffset,
-                originalPosition.z
+                startPosition.x,
+                startPosition.y + yOffset,
+                startPosition.z
             );
 
             yield return null;
         }
-
-        transform.position = originalPosition;
-        if (currentHP <= 0 && agent != null)
+        print("SUCCESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSs");
+        yield return new WaitUntil(() => damageTaken >= 5 || timer >= 1.5f);
+        rb.isKinematic = false;
+        rb.useGravity = true;
+        if (agent != null)
         {
             agent.enabled = true;
         }
+        onAir = false;
     }
 }
 
