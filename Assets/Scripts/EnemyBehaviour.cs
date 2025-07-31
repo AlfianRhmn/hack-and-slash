@@ -25,6 +25,9 @@ public class EnemyBehaviour : MonoBehaviour
     bool onAir = false;
     float timer = 0;
     Rigidbody rb;
+    private Coroutine launchRoutine;
+    private bool isBeingLaunched = false;
+    private int airborneHitCount = 0;
     EnemyMoveset currentMoveset;
     [Header("User Interface")]
     public Slider healthBar;
@@ -73,7 +76,8 @@ public class EnemyBehaviour : MonoBehaviour
             {
                 agent.SetDestination(target.position);
             }
-        } else if (!hasNoticedPlayer && Vector3.Distance(target.position, transform.position) < enemyState[currentState].distanceUntilNotice && !isAttacking && !isChangingState && !isAttacking)
+        }
+        else if (!hasNoticedPlayer && Vector3.Distance(target.position, transform.position) < enemyState[currentState].distanceUntilNotice && !isAttacking && !isChangingState && !isAttacking)
         {
             hasNoticedPlayer = true;
             StartCoroutine(StartChangingState(currentState));
@@ -208,27 +212,31 @@ public class EnemyBehaviour : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        timer = 0;
         currentHP -= damage;
-        damageTaken++;
+
+        if (onAir)
+            airborneHitCount++;
+
         if (currentHP <= 0)
         {
             PlayerManager.Instance.enemyList.Remove(this);
             StopAllCoroutines();
             StartCoroutine(Dead());
-            //dead
-        } else
+        }
+        else
         {
             StartCoroutine(EnemyHit());
         }
     }
+
 
     IEnumerator EnemyHit()
     {
         if (Random.Range(0f, 1f) <= enemyState[currentState].painTolerance)
         {
             HandleAttack();
-        } else
+        }
+        else
         {
             anim.SetTrigger("Hit");
             if (agent != null && agent.isOnNavMesh)
@@ -261,39 +269,40 @@ public class EnemyBehaviour : MonoBehaviour
         Destroy(gameObject);
     }
 
+    public void StartLaunch(float duration, float height)
+    {
+        // Call this to safely start the launch
+        if (launchRoutine != null)
+            StopCoroutine(launchRoutine);
+
+        launchRoutine = StartCoroutine(LaunchEnemy(duration, height));
+    }
+
     public IEnumerator LaunchEnemy(float duration, float launchHeight)
     {
-        print("launch");
-        if (currentMoveset != null)
-        {
-            StopCoroutine(StartAttack(currentMoveset));
-            currentMoveset = null;
-            isAttacking = false;
-        }
-        timer = 0;
-        onAir = true;
-        damageTaken = 0;
-        if (agent != null && agent.isActiveAndEnabled)
-        {
-            agent.enabled = false;
-        }
+        if (isBeingLaunched)
+            yield break;
 
-        // Disable physics
+        isBeingLaunched = true;
+        airborneHitCount = 0;
+        onAir = true;
+
+        if (agent != null && agent.isActiveAndEnabled)
+            agent.enabled = false;
+
+        // Freeze during launch arc
         rb.isKinematic = true;
         rb.useGravity = false;
 
         Vector3 startPosition = transform.position;
         float elapsed = 0f;
-
-        // Peak will be reached at half duration
         float halfDuration = duration / 2f;
 
+        // Launch arc (manual movement upward)
         while (elapsed < halfDuration)
         {
             elapsed += Time.deltaTime;
             float t = elapsed / halfDuration;
-
-            // Parabolic arc using sine wave
             float yOffset = Mathf.Sin(t * Mathf.PI * 0.5f) * launchHeight;
 
             transform.position = new Vector3(
@@ -304,19 +313,43 @@ public class EnemyBehaviour : MonoBehaviour
 
             yield return null;
         }
-        print("SUCCESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSs");
-        yield return new WaitUntil(() => damageTaken >= 5 || timer >= 1.5f);
+
+        // Floating phase: wait for 5 hits or 1.5s with no hit
+        float noHitTimer = 0f;
+        int lastHitCount = airborneHitCount;
+
+        while (true)
+        {
+            yield return null;
+
+            if (airborneHitCount >= 5 && PlayerManager.Instance.combat.juggleAttack >= 5)
+                break;
+
+            if (airborneHitCount != lastHitCount)
+            {
+                lastHitCount = airborneHitCount;
+                noHitTimer = 0f;
+            }
+            else
+            {
+                noHitTimer += Time.deltaTime;
+            }
+
+            if (noHitTimer >= 1.5f)
+                break;
+        }
+
+        // Allow natural falling
         rb.isKinematic = false;
         rb.useGravity = true;
-        if (agent != null)
-        {
-            agent.enabled = true;
-        }
+
         onAir = false;
+        isBeingLaunched = false;
+        launchRoutine = null;
     }
 }
 
-[System.Serializable]
+    [System.Serializable]
 public class State
 {
     [Range(0f, 1f)]

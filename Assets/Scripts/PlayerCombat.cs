@@ -48,7 +48,7 @@ public class PlayerCombat : MonoBehaviour
     float heavyPressTime;
     bool heavyAttackTriggered;
     bool alreadyInputReady;
-    int juggleAttack = 0;
+    [HideInInspector] public int juggleAttack = 0;
     float timer = 0; //used for juggling
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()

@@ -15,6 +15,8 @@ public class PlayerMovement : MonoBehaviour
     public float dodgeDistance = 80;
     public float dodgeCooldownTime = 0.4f;
     public float rotationSpeed = 720;
+    [Header("Auto-Lock")]
+    public GameObject crosshair;
     float currentSpeed;
     bool isTargeting;
     float targetRotY;
@@ -98,6 +100,7 @@ public class PlayerMovement : MonoBehaviour
         {
             if (!isTargeting && manager.enemyClose.Count > 0)
             {
+                crosshair.SetActive(true);
                 Transform target = manager.FindSuperCloseEnemy();
                 isTargeting = true;
                 manager.virtualHardLockCam.SetActive(true);
@@ -108,6 +111,7 @@ public class PlayerMovement : MonoBehaviour
 
             } else
             {
+                crosshair.SetActive(false);
                 isTargeting = false;
                 manager.virtualThirdCam.SetActive(true);
                 manager.virtualHardLockCam.SetActive(false);

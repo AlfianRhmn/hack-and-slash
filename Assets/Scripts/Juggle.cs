@@ -18,7 +18,7 @@ public class Juggle : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Enemy"))
         {
-            StartCoroutine(other.GetComponent<EnemyBehaviour>().LaunchEnemy(1f, velocity));
+            other.GetComponent<EnemyBehaviour>().StartLaunch(1f, velocity);
         }
     }
 }

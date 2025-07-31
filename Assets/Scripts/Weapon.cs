@@ -72,7 +72,7 @@ public class Weapon : MonoBehaviour
                 switch (effectID)
                 {
                     case 1:
-                        StartCoroutine(enemy.LaunchEnemy(0.6f, 2.5f));
+                        enemy.StartLaunch(0.6f, 2.5f);
                         break;
                 }
             }

@@ -372,6 +372,7 @@ GameObject:
   - component: {fileID: 4664854264062910041}
   - component: {fileID: 9134893510809551066}
   - component: {fileID: 8352351538941937162}
+  - component: {fileID: 1034529913486879399}
   m_Layer: 6
   m_Name: Enemy Basic
   m_TagString: Enemy
@@ -477,8 +478,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80434bb8eac36024cbe781e25222b673, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentHP: 100
-  maxHP: 100
+  currentHP: 9999
+  maxHP: 9999
   currentDamage: 10
   target: {fileID: 0}
   enemyState:
@@ -506,6 +507,33 @@ MonoBehaviour:
     painTolerance: 0
   anim: {fileID: 8348242735088087735}
   healthBar: {fileID: 2187102356415936017}
+--- !u!54 &1034529913486879399
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1148315207241049440}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1221276503386104008
 GameObject:
   m_ObjectHideFlags: 0
