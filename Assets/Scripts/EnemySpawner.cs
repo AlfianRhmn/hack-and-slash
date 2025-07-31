@@ -51,7 +51,7 @@ public class EnemySpawner : MonoBehaviour
         // Loop mundur untuk menghindari masalah saat menghapus elemen dari list
         for (int i = currentEnemies.Count - 1; i >= 0; i--)
         {
-            if (currentEnemies[i] == null || currentEnemies[i].GetComponent<Balmond>().HP <= 0) 
+            if (currentEnemies[i] == null || currentEnemies[i].GetComponent<EnemyBehaviour>().currentHP <= 0) 
             {
                 currentEnemies.RemoveAt(i);
             }
@@ -102,7 +102,7 @@ public class EnemySpawner : MonoBehaviour
             currentEnemies.Add(newEnemy);
 
             // Jika musuh adalah Balmond dan PlayerManager memiliki Instance, set targetnya
-            Balmond balmondScript = newEnemy.GetComponent<Balmond>();
+            EnemyBehaviour balmondScript = newEnemy.GetComponent<EnemyBehaviour>();
             if (balmondScript != null && PlayerManager.Instance != null) // Asumsi PlayerManager sudah ada dan Singleton bekerja
             {
                 // Kamu harus memiliki referensi ke objek Player di PlayerManager atau di sini

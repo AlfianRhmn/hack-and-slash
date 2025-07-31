@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dcce9c5b1fc1ea94e90159c30a9d267d, type: 3}
-  m_Name: Slash2
+  m_Name: Attack Kick
   m_EditorClassIdentifier: 
-  attackName: Slash 2
-  animOV: {fileID: 22100000, guid: dbfd42b96d2b1004ca95d1677713d82f, type: 2}
+  attackName: Kick
+  animOV: {fileID: 22100000, guid: 0c524d0318ba4cb4190b046daf8efe6d, type: 2}
   duration: 1.5
-  damage: 20
+  damage: 10
   probability: 50
   timeBeforeHitCheck:
   - 0.5

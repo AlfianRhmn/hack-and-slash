@@ -372,7 +372,6 @@ GameObject:
   - component: {fileID: 4664854264062910041}
   - component: {fileID: 9134893510809551066}
   - component: {fileID: 8352351538941937162}
-  - component: {fileID: 3145200819554570691}
   m_Layer: 6
   m_Name: Enemy Basic
   m_TagString: Enemy
@@ -486,52 +485,27 @@ MonoBehaviour:
   - hpCondition: 1
     moveset:
     - {fileID: 11400000, guid: 144ef6529274daf4682575b17c7b1f45, type: 2}
-    distanceUntilNotice: 20
+    distanceUntilNotice: 40
     distanceUntilAttack: 4
     changeStateAnim: {fileID: 22100000, guid: 3c4a0228c2b59a84793bab057bb2b6e4, type: 2}
     changingDuration: 2.9
-    minCooldownPerAttack: 4
-    maxCooldownPerAttack: 5
-    painTolerance: 0.2
+    minCooldownPerAttack: 3
+    maxCooldownPerAttack: 4
+    painTolerance: 0
   - hpCondition: 0.5
     moveset:
     - {fileID: 11400000, guid: 1135be74142f77740a64096f370c69ea, type: 2}
+    - {fileID: 11400000, guid: 4ad6dd4f6b29e714faddde59077767bf, type: 2}
+    - {fileID: 11400000, guid: 0fa66dff2790af34bae2323541720753, type: 2}
     distanceUntilNotice: 10
     distanceUntilAttack: 4
     changeStateAnim: {fileID: 22100000, guid: 388a41f89d594d1498cc8a542bdc7d8f, type: 2}
     changingDuration: 2.9
-    minCooldownPerAttack: 3
-    maxCooldownPerAttack: 4
-    painTolerance: 0.4
+    minCooldownPerAttack: 2
+    maxCooldownPerAttack: 3
+    painTolerance: 0
   anim: {fileID: 8348242735088087735}
   healthBar: {fileID: 2187102356415936017}
---- !u!54 &3145200819554570691
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1148315207241049440}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 80
-  m_CollisionDetection: 0
 --- !u!1 &1221276503386104008
 GameObject:
   m_ObjectHideFlags: 0
