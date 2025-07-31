@@ -30,7 +30,7 @@ MonoBehaviour:
     m_Value: 0
   focusDistance:
     m_OverrideState: 1
-    m_Value: 10
+    m_Value: 15
   aperture:
     m_OverrideState: 1
     m_Value: 5.6
@@ -61,12 +61,12 @@ MonoBehaviour:
   active: 1
   lift:
     m_OverrideState: 1
-    m_Value: {x: 1, y: 1, z: 1, w: 0}
+    m_Value: {x: 0.88178587, y: 0.8240191, z: 1, w: 0}
   gamma:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: {x: 1, y: 1, z: 1, w: 0}
   gain:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: {x: 1, y: 1, z: 1, w: 0}
 --- !u!114 &11400000
 MonoBehaviour:
@@ -102,13 +102,13 @@ MonoBehaviour:
     m_Value: 1
   threshold:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0.8
   intensity:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0.39
   scatter:
     m_OverrideState: 1
-    m_Value: 0.7
+    m_Value: 0.8
   clamp:
     m_OverrideState: 1
     m_Value: 65472
