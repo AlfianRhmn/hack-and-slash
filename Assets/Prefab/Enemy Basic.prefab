@@ -485,22 +485,24 @@ MonoBehaviour:
   - hpCondition: 1
     moveset:
     - {fileID: 11400000, guid: 144ef6529274daf4682575b17c7b1f45, type: 2}
-    distanceUntilNotice: 20
+    distanceUntilNotice: 40
     distanceUntilAttack: 4
     changeStateAnim: {fileID: 22100000, guid: 3c4a0228c2b59a84793bab057bb2b6e4, type: 2}
     changingDuration: 2.9
-    minCooldownPerAttack: 4
-    maxCooldownPerAttack: 5
+    minCooldownPerAttack: 3
+    maxCooldownPerAttack: 4
     painTolerance: 0
   - hpCondition: 0.5
     moveset:
     - {fileID: 11400000, guid: 1135be74142f77740a64096f370c69ea, type: 2}
+    - {fileID: 11400000, guid: 4ad6dd4f6b29e714faddde59077767bf, type: 2}
+    - {fileID: 11400000, guid: 0fa66dff2790af34bae2323541720753, type: 2}
     distanceUntilNotice: 10
     distanceUntilAttack: 4
     changeStateAnim: {fileID: 22100000, guid: 388a41f89d594d1498cc8a542bdc7d8f, type: 2}
     changingDuration: 2.9
-    minCooldownPerAttack: 3
-    maxCooldownPerAttack: 4
+    minCooldownPerAttack: 2
+    maxCooldownPerAttack: 3
     painTolerance: 0
   anim: {fileID: 8348242735088087735}
   healthBar: {fileID: 2187102356415936017}
