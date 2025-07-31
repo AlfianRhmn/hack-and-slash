@@ -38,15 +38,23 @@ MonoBehaviour:
   - name: Quake
     volume: 1
     mixer: {fileID: 0}
-    sounds: []
+    sounds:
+    - {fileID: 8300000, guid: 58a09b32c1cc33b45979cd2f38fdf8de, type: 3}
+    - {fileID: 8300000, guid: 8309288259dc81044ba5556ddd3be77a, type: 3}
   - name: Fireball
     volume: 1
     mixer: {fileID: 0}
-    sounds: []
+    sounds:
+    - {fileID: 8300000, guid: 750e67eb052a4c343a30e8452af6bfd6, type: 3}
+    - {fileID: 8300000, guid: 0fa3d32c21730c04e9ebc41f553df10f, type: 3}
+    - {fileID: 8300000, guid: eabd3136bed66db40b0e3d2c12ed107a, type: 3}
   - name: Buff
     volume: 1
     mixer: {fileID: 0}
-    sounds: []
+    sounds:
+    - {fileID: 8300000, guid: 89cfdda66d854734c916186ef7660d55, type: 3}
+    - {fileID: 8300000, guid: ec447726400b459459e50b6f5db1347c, type: 3}
+    - {fileID: 8300000, guid: a8b998fd05e618a45bdc296a8fd51d8c, type: 3}
   - name: Ultimate
     volume: 1
     mixer: {fileID: 0}
