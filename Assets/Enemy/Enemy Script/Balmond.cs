@@ -41,7 +41,7 @@ public class Balmond : MonoBehaviour
     {
         if (PlayerManager.Instance != null)
         {
-            PlayerManager.Instance.enemyList.Add(this);
+            //PlayerManager.Instance.enemyList.Add(this);
         }
         else
         {
@@ -163,7 +163,22 @@ public class Balmond : MonoBehaviour
         {
             isDead = true; 
             animator.SetTrigger("Die");
+            if (PlayerManager.Instance != null)
+            {
+                //PlayerManager.Instance.enemyList.Remove(this);
+            }
             StartCoroutine(Dead());
+        }
+    }
+
+    public void SetAir(bool onAir)
+    {
+        if (onAir)
+        {
+            navAgent.enabled = false;
+        } else
+        {
+            navAgent.enabled = true;
         }
     }
 
@@ -206,7 +221,7 @@ public class Balmond : MonoBehaviour
         }
     }
 
-    void ActivateEnragedMode()
+    void ActivateEnragedMode() //function
     {
         isEnraged = true;
         animator.SetBool("ENRAGED", true);
@@ -286,11 +301,6 @@ public class Balmond : MonoBehaviour
         yield return new WaitForSeconds(dieAnimLength);
 
         healthBar.gameObject.SetActive(false); 
-
-        if (PlayerManager.Instance != null && PlayerManager.Instance.enemyList.Contains(this))
-        {
-            PlayerManager.Instance.enemyList.Remove(this);
-        }
 
         //Destroy(gameObject); // Hancurkan GameObject Balmond
     }

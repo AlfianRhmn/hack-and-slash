@@ -42,7 +42,8 @@ public class Weapon : MonoBehaviour
     // Update is called once per frame
     void OnTriggerEnter(Collider other)
     {
-        Balmond enemy = other.GetComponent<Balmond>();
+        print(other.gameObject.name);
+        EnemyBehaviour enemy = other.GetComponent<EnemyBehaviour>();
         if (enemy != null)
         {
             if (!targets.Contains(enemy.gameObject) || repeatingDamage)
@@ -64,6 +65,10 @@ public class Weapon : MonoBehaviour
                 }
                 targets.Add(enemy.gameObject);
                 enemy.TakeDamage(totalDamage);
+                if (PlayerManager.Instance.onAir)
+                {
+                    enemy.GetComponent<Rigidbody>().AddForce(Vector3.up * 5);
+                }
                 switch (effectID)
                 {
                     case 1:
@@ -76,12 +81,20 @@ public class Weapon : MonoBehaviour
 
     public void EnableHitbox()
     {
+        if (GetComponent<TrailRenderer>() != null)
+        {
+            GetComponent<TrailRenderer>().enabled = true;
+        }
         hitbox.enabled = true;
         targets.Clear();
     }
 
     public void DisableHitbox()
     {
+        if (GetComponent<TrailRenderer>() != null)
+        {
+            GetComponent<TrailRenderer>().enabled = false;
+        }
         hitbox.enabled = false;
     }
 }

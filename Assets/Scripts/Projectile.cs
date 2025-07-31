@@ -28,7 +28,7 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Balmond enemy = other.GetComponent<Balmond>();
+        EnemyBehaviour enemy = other.GetComponent<EnemyBehaviour>();
         if (enemy != null)
         {
             float totalDamage = damage;

@@ -10,6 +10,8 @@ public class AttackSO : ScriptableObject
     public Movement[] movementDone;
     [Tooltip("Wait how long until this animation runs (s). The higher, the longer it takes to start this animation.")]
     public float timeToNextAnim; // 0 to 1;
+    [Header("Add Effects")]
+    public SpecialEffects[] addEffects;
 }
 
 [System.Serializable]
@@ -36,4 +38,12 @@ public class StatusEffects
         copy.severity = severity;
         return copy;
     }
+}
+
+[System.Serializable]
+public class SpecialEffects
+{
+    public enum Effects { JuggleUp, Knockback}
+    public Effects specialEffect;
+    public GameObject specialObject;
 }

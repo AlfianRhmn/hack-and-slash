@@ -11,7 +11,7 @@ public class SkillSO : ScriptableObject
     [Header("Skills")]
     public Sprite skillIcon;
     public float manaCost;
-    public SoundType soundUsed;
+    public Sounds[] soundUsed;
     public enum typeOfSkill { Fireball, GiveStatus, Heal, Quake}
     public typeOfSkill[] skillType; // fireball, giveStatus, heal
     public float timeBeforeApply;
@@ -22,4 +22,11 @@ public class SkillSO : ScriptableObject
     public StatusEffects[] status;
     [Header("Skill - Heal")]
     public float heal;
+}
+
+[System.Serializable]
+public class Sounds
+{
+    public SoundType type;
+    public float time;
 }

@@ -15,6 +15,7 @@ public class EnemySpawner : MonoBehaviour
 
     [Header("Spawn Points")]
     public Transform[] spawnPoints;
+    public GameObject playerObject;
 
     [Header("UI")]
     public GameObject waveDisplay;
@@ -107,7 +108,6 @@ public class EnemySpawner : MonoBehaviour
                 // Kamu harus memiliki referensi ke objek Player di PlayerManager atau di sini
                 // Contoh: balmondScript.target = PlayerManager.Instance.playerTransform;
                 // Untuk contoh ini, kita bisa mencari objek dengan tag "Player"
-                GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
                 if (playerObject != null)
                 {
                     balmondScript.target = playerObject.transform;

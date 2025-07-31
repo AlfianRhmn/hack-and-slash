@@ -30,7 +30,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (manager.rb.linearDamping == 5 && manager.readyToAttack && manager.readyToSpecial && manager.readyToUltimate)
+        if (manager.rb.linearDamping == 5 && manager.readyToAttack && manager.readyToSpecial && manager.readyToUltimate && !manager.onAir)
         {
             manager.rb.AddForce(moveDir * currentSpeed, ForceMode.Force);
         }
@@ -43,8 +43,9 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnDodge(InputAction.CallbackContext context)
     {
-        if (context.performed && manager.readyToDodge && manager.readyToSpecial && manager.readyToUltimate)
+        if (context.performed && manager.readyToDodge && manager.readyToSpecial && manager.readyToUltimate && !manager.onAir)
         {
+            manager.invulnerability = true;
             manager.combat.Reset();
             manager.rb.linearDamping = 2;
             if (manager.anim != null)
@@ -97,7 +98,7 @@ public class PlayerMovement : MonoBehaviour
         {
             if (!isTargeting && manager.enemyClose.Count > 0)
             {
-                Transform target = manager.enemyClose[0].transform;
+                Transform target = manager.FindSuperCloseEnemy();
                 isTargeting = true;
                 manager.virtualHardLockCam.SetActive(true);
                 manager.virtualThirdCam.SetActive(false);
@@ -127,7 +128,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleChangeLockOn(bool isPos)
     {
-        int index = manager.enemyClose.IndexOf(manager.currentLockOnTarget.GetComponent<Balmond>());
+        int index = manager.enemyClose.IndexOf(manager.currentLockOnTarget.GetComponent<EnemyBehaviour>());
         if (isPos)
         {
             index++;
@@ -173,17 +174,34 @@ public class PlayerMovement : MonoBehaviour
 
             moveDir = forwardRelative + rightRelative;
 
+            if (manager.onAir)
+            {
+                manager.rb.linearDamping = 0f;
+            }
+            else
+            {
+                manager.rb.linearDamping = 5f;
+            }
+
             if (manager.anim.GetCurrentAnimatorStateInfo(0).IsTag("Dodge") && manager.anim.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.9f)
             {
                 manager.rb.linearDamping = 5f;
             }
 
+            if (manager.anim.GetCurrentAnimatorStateInfo(0).IsTag("Dodge") && manager.anim.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.4f)
+            {
+                manager.invulnerability = false;
+            }
+
             if (manager.anim.GetCurrentAnimatorStateInfo(0).IsTag("Hit") && manager.anim.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.9f)
             {
                 manager.readyToDodge = true;
+                manager.readyToSpecial = true;
+                manager.readyToUltimate = true;
+                manager.readyToAttack = true;
             }
 
-            if (moveDirection != Vector2.zero && manager.readyToAttack && manager.readyToSpecial && manager.readyToDodge && !isTargeting)
+            if (moveDirection != Vector2.zero && manager.readyToAttack && manager.readyToSpecial && manager.readyToDodge && !isTargeting && !manager.onAir)
             {
                 Vector3 worldDirection = (camForward * moveDirection.y + camRight * moveDirection.x).normalized;
 
@@ -194,10 +212,10 @@ public class PlayerMovement : MonoBehaviour
                 manager.playerBody.rotation = Quaternion.RotateTowards(manager.playerBody.rotation, targetRotation, rotationSpeed * Time.deltaTime);
             } else if (isTargeting)
             {
-                manager.playerBody.LookAt(new Vector3(manager.currentLockOnTarget.position.x, 0, manager.currentLockOnTarget.position.z));
+                manager.playerBody.LookAt(new Vector3(manager.currentLockOnTarget.position.x, manager.playerBody.position.y, manager.currentLockOnTarget.position.z));
             }
 
-            if (manager.anim != null)
+            if (manager.anim != null && !manager.onAir)
             {
                 Vector2 targetInput = new Vector2(moveDirection.x, moveDirection.y);
                 currentInput = Vector2.Lerp(currentInput, targetInput, Time.deltaTime * 5);

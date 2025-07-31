@@ -1,12 +1,15 @@
-﻿using System;
+﻿using SmallHedge.SoundManager;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using Unity.Burst.Intrinsics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Interactions;
 using UnityEngine.UIElements;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class PlayerCombat : MonoBehaviour
 {
@@ -31,7 +34,6 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] int comboCounter;
     public List<SkillSO> listOfSpecial;
     public UltimateSO ultimate;
-    public PlayerInput input;
     public float timeUntilManaRegen = 2;
     [Range(0f, 1f)]
     public float percentageManaRegen = 0.1f;
@@ -46,6 +48,7 @@ public class PlayerCombat : MonoBehaviour
     float heavyPressTime;
     bool heavyAttackTriggered;
     bool alreadyInputReady;
+    int juggleAttack = 0;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -57,12 +60,23 @@ public class PlayerCombat : MonoBehaviour
         manager.manaBar.value = currentMana;
     }
 
+    private void OnEnable()
+    {
+        manager.anim.Play("Idle");
+    }
+
     // Update is called once per frame
     void Update()
     {
         SetupSpecial();
         SetupUltimate();
         EndAttack();
+        
+        if (!manager.onAir)
+        {
+            StopCoroutine(JuggleUp());
+            juggleAttack = 0;
+        }
 
         for (int i = 0; i < activeStatusEffect.Count; i++)
         {
@@ -93,15 +107,6 @@ public class PlayerCombat : MonoBehaviour
                 }
                 activeStatusEffect.Remove(effect);
             }
-        }
-
-        if (manager.anim.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f && manager.anim.GetCurrentAnimatorStateInfo(0).IsTag("Special Attack"))
-        {
-            manager.readyToSpecial = true;
-        }
-        if (manager.anim.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f && manager.anim.GetCurrentAnimatorStateInfo(0).IsTag("Ultimate"))
-        {
-            manager.readyToUltimate = true;
         }
 
         if (currentHealth > maxHealth)
@@ -148,7 +153,7 @@ public class PlayerCombat : MonoBehaviour
         manager.specialName.text = $"{special.attackName}<br><size=15>[{special.manaCost} Energy]";
 
         // Inputs
-        string inputText = input.actions.FindAction("Special Attack").GetBindingDisplayString();
+        string inputText = manager.input.actions.FindAction("Special Attack").GetBindingDisplayString();
         inputText = inputText.Replace("Tap;action.interactions ", "");
         inputText = inputText.Replace("Tap ", "");
         inputText = inputText.Replace("Hold ", "");
@@ -156,7 +161,7 @@ public class PlayerCombat : MonoBehaviour
         inputText = inputText.Replace("Press ", "");
         inputText = inputText.Replace("Slow Tap ", "");
         manager.specialInput.text = "<sprite name=" + inputText + ">";
-        inputText = input.actions.FindAction("Change Special - Negative").GetBindingDisplayString();
+        inputText = manager.input.actions.FindAction("Change Special - Negative").GetBindingDisplayString();
         inputText = inputText.Replace("Tap;action.interactions ", "");
         inputText = inputText.Replace("Tap ", "");
         inputText = inputText.Replace("Hold ", "");
@@ -165,7 +170,7 @@ public class PlayerCombat : MonoBehaviour
         inputText = inputText.Replace("Slow Tap ", "");
         inputText = TurnToWord(inputText);
         manager.scrollLeftInput.text = "< <sprite name=" + inputText + ">";
-        inputText = input.actions.FindAction("Change Special - Positive").GetBindingDisplayString();
+        inputText = manager.input.actions.FindAction("Change Special - Positive").GetBindingDisplayString();
         inputText = inputText.Replace("Tap;action.interactions ", "");
         inputText = inputText.Replace("Tap ", "");
         inputText = inputText.Replace("Hold ", "");
@@ -200,7 +205,7 @@ public class PlayerCombat : MonoBehaviour
     {
         manager.ultimateIcon.sprite = ultimate.skillIcon;
         manager.ultimateName.text = ultimate.attackName;
-        string inputText = input.actions.FindAction("Ultimate").GetBindingDisplayString();
+        string inputText = manager.input.actions.FindAction("Ultimate").GetBindingDisplayString();
         inputText = inputText.Replace("Tap;action.interactions ", "");
         inputText = inputText.Replace("Tap ", "");
         inputText = inputText.Replace("Hold ", "");
@@ -318,34 +323,56 @@ public class PlayerCombat : MonoBehaviour
 
         var attack = move.comboList[comboCounter].attackUsed;
 
-        manager.readyToAttack = false;
-        manager.weapon.repeatingDamage = true;
-
-        manager.weapon.EnableHitbox();
-        foreach (var push in attack.movementDone)
+        if ((move.isAirAttack && manager.onAir) || (!move.isAirAttack && !manager.onAir))
         {
-            StartCoroutine(PushingPlayerCount(push));
-        }
-
-        manager.anim.runtimeAnimatorController = attack.animOV;
-        Transform enemy = FindClosestEnemy();
-        if (enemy != null)
-        {
-            if (Vector3.Distance(enemy.position, manager.playerBody.position) < 7)
+            manager.readyToAttack = false;
+            manager.weapon.repeatingDamage = true;
+            manager.weapon.EnableHitbox();
+            if (!move.isAirAttack)
             {
-                manager.playerBody.LookAt(new Vector3(enemy.position.x, manager.playerBody.position.y, enemy.position.z));
+                foreach (var push in attack.movementDone)
+                {
+                    StartCoroutine(PushingPlayerCount(push));
+                }
+            } else
+            {
+                manager.rb.linearVelocity = new Vector3(0, 1, 0);
             }
+
+            manager.anim.runtimeAnimatorController = attack.animOV;
+            Transform enemy = FindClosestEnemy();
+            if (enemy != null)
+            {
+                if (Vector3.Distance(enemy.position, manager.playerBody.position) < 7)
+                {
+                    manager.playerBody.LookAt(new Vector3(enemy.position.x, manager.playerBody.position.y, enemy.position.z));
+                }
+            }
+            manager.anim.SetTrigger("Basic Attack");
+            manager.anim.Update(0f);
+            manager.weapon.damage = attack.damage * attackModifier;
+            manager.weapon.critChance = critChance;
+            manager.weapon.critDamage = critDamage;
+            if (manager.onAir)
+            {
+                juggleAttack++;
+            }
+            foreach (SpecialEffects effect in attack.addEffects)
+            {
+                switch (effect.specialEffect)
+                {
+                    case SpecialEffects.Effects.JuggleUp:
+                        var obj = Instantiate(effect.specialObject, manager.frontOfBody.position, Quaternion.identity);
+                        StartCoroutine(JuggleUp());
+                        break;
+                    case SpecialEffects.Effects.Knockback:
+                        break;
+                }
+            }
+            lastClickedTime = Time.time;
+            comboCounter++;
+            StartCoroutine(WaitForAnotherAttack(attack.timeToNextAnim));
         }
-        manager.anim.SetTrigger("Basic Attack");
-        manager.anim.Update(0f);
-        manager.weapon.damage = attack.damage * attackModifier;
-        manager.weapon.critChance = critChance;
-        manager.weapon.critDamage = critDamage;
-
-        lastClickedTime = Time.time;
-        comboCounter++;
-        StartCoroutine(WaitForAnotherAttack(attack.timeToNextAnim));
-
     }
 
     IEnumerator ReadyToHold(Combo.attackTypes input)
@@ -355,6 +382,16 @@ public class PlayerCombat : MonoBehaviour
         alreadyInputReady = false;
     }
 
+    IEnumerator JuggleUp()
+    {
+        yield return new WaitUntil(() => manager.rb.linearVelocity.y < -0.1f);
+        juggleAttack = 0;
+        manager.rb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+        manager.rb.linearVelocity = Vector3.zero;
+        yield return new WaitUntil(() => juggleAttack > 5);
+        manager.rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+    }
+
     MovesetSO CheckMoveset()
     {
         MovesetSO bestMatch = null;
@@ -362,6 +399,9 @@ public class PlayerCombat : MonoBehaviour
 
         foreach (var m in moveset)
         {
+            if (m.isAirAttack != manager.onAir)
+                continue;
+
             if (playerAttacks.Count > m.comboList.Length)
                 continue;
 
@@ -395,8 +435,13 @@ public class PlayerCombat : MonoBehaviour
             currentMana -= listOfSpecial[specialSelected].manaCost;
             manager.readyToSpecial = false;
             SkillSO specialUsed = listOfSpecial[specialSelected];
+            for (int i = 0; i < specialUsed.soundUsed.Length; i++)
+            {
+                StartCoroutine(StartSounds(specialUsed.soundUsed[i]));
+            }
             manager.anim.runtimeAnimatorController = specialUsed.animOV;
             manager.anim.SetTrigger("Special Attack");
+            StartCoroutine(WaitForSpecial(manager.anim.GetCurrentAnimatorStateInfo(0).length));
             for (int i = 0; i < specialUsed.skillType.Length; i++)
             {
                 switch (specialUsed.skillType[i])
@@ -416,6 +461,18 @@ public class PlayerCombat : MonoBehaviour
                 }
             }
         }
+    }
+
+    IEnumerator StartSounds(Sounds sound)
+    {
+        yield return new WaitForSeconds(sound.time);
+        SoundManager.PlaySound(sound.type);
+    }
+
+    IEnumerator WaitForSpecial(float length)
+    {
+        yield return new WaitForSeconds(length);
+        manager.readyToSpecial = true;
     }
 
     public void OnUltimate(InputAction.CallbackContext context)
@@ -458,6 +515,9 @@ public class PlayerCombat : MonoBehaviour
         manager.weapon.critChance = critChance;
         manager.weapon.critDamage = critDamage;
         manager.weapon.EnableHitbox();
+        yield return new WaitForSeconds(manager.anim.GetCurrentAnimatorStateInfo(0).length);
+        manager.weapon.DisableHitbox();
+        manager.readyToUltimate = true;
     }
 
     IEnumerator PushingPlayerCount(Movement movement)
@@ -530,7 +590,7 @@ public class PlayerCombat : MonoBehaviour
         }
         float closestDistance = Mathf.Infinity;
         int enemyIndex = 0;
-        foreach (Balmond enemy in manager.enemyList)
+        foreach (EnemyBehaviour enemy in manager.enemyList)
         {
             if (Vector3.Distance(transform.position, enemy.transform.position) < closestDistance)
             {
@@ -588,6 +648,7 @@ public class PlayerCombat : MonoBehaviour
     IEnumerator WaitForAnotherAttack(float waiting)
     {
         yield return new WaitForSeconds(waiting);
+        manager.weapon.DisableHitbox();
         manager.readyToAttack = true;
         Invoke("EndCombo", 1);
     }
@@ -598,6 +659,7 @@ public class PlayerCombat : MonoBehaviour
 
         if (anim.normalizedTime >= 1f && anim.IsTag("Basic Attack"))
         {
+            manager.rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
             Invoke("EndCombo", 1);
         }
     }
@@ -615,20 +677,52 @@ public class PlayerCombat : MonoBehaviour
 
     public void TakeDamage(float damage, Transform sourceOfDamage)
     {
-        currentHealth -= damage;
-        if (currentHealth <= 0)
+        if (manager.readyToHurt && !manager.invulnerability)
         {
-            currentHealth = 0;
-            // RUN DEATH SEQUENCE
-        }
-        else
+            manager.readyToHurt = false;
+            currentHealth -= damage;
+            if (currentHealth <= 0)
+            {
+                currentHealth = 0;
+                manager.readyToAttack = false;
+                manager.readyToDodge = false;
+                manager.readyToSpecial = false;
+                manager.readyToUltimate = false;
+                manager.anim.SetTrigger("Dead");
+                this.enabled = false;
+                // RUN DEATH SEQUENCE
+            }
+            else
+            {
+                StopCoroutine(manager.movement.DodgeCooldown());
+                manager.readyToDodge = false;
+                manager.playerBody.transform.LookAt(new Vector3(sourceOfDamage.position.x, manager.playerBody.transform.position.y, sourceOfDamage.position.z));
+                manager.rb.AddForce(manager.playerBody.forward * -10, ForceMode.Impulse);
+                AlwaysLookAt look = manager.damageNumber.GetObject().GetComponent<AlwaysLookAt>();
+                look.sourceOfPool = manager.damageNumber;
+                look.transform.position = manager.playerBody.position + new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(0f, 3f), UnityEngine.Random.Range(-1f, 1f));
+                look.transform.localScale = new Vector3(0.2445875f, 0.2445875f, 0.2445875f);
+                look.transform.GetChild(0).GetComponent<TextMeshPro>().text = Mathf.RoundToInt(damage).ToString();
+                look.transform.GetChild(0).GetComponent<TextMeshPro>().color = Color.red;
+                manager.anim.SetTrigger("Hit");
+                StartCoroutine(DamageCooldown());
+                //PLAY HIT ANIMATION
+            }
+        } else if (manager.invulnerability)
         {
-            StopCoroutine(manager.movement.DodgeCooldown());
-            manager.readyToDodge = false;
-            manager.playerBody.transform.LookAt(new Vector3(sourceOfDamage.position.x, manager.playerBody.transform.position.y, sourceOfDamage.position.z));
-            manager.anim.SetTrigger("Hit");
-            //PLAY HIT ANIMATION
+            AlwaysLookAt look = manager.damageNumber.GetObject().GetComponent<AlwaysLookAt>();
+            look.sourceOfPool = manager.damageNumber;
+            look.transform.position = manager.playerBody.position + new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(0f, 3f), UnityEngine.Random.Range(-1f, 1f));
+            look.transform.localScale = new Vector3(0.2445875f, 0.2445875f, 0.2445875f);
+            look.transform.GetChild(0).GetComponent<TextMeshPro>().text = "DODGE";
+            look.transform.GetChild(0).GetComponent<TextMeshPro>().color = Color.cyan;
         }
+    }
+
+    IEnumerator DamageCooldown()
+    {
+        yield return new WaitForSeconds(1f);
+        manager.readyToHurt = true;
     }
 
     internal void TakeDamage(float damageToDeal)

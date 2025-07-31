@@ -20,3 +20,6 @@ MonoBehaviour:
     amountToMove: 10
     moveDirection: {x: 0, y: 1, z: 0}
   timeToNextAnim: 0.8
+  addEffects:
+  - specialEffect: 0
+    specialObject: {fileID: 7822625790817863365, guid: 37dd30331c47a9e46b8e62d9b0f0d760, type: 3}

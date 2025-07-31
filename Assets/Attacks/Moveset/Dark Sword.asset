@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: Dark Sword
   m_EditorClassIdentifier: 
   movesetName: Dark Sword
+  isAirAttack: 1
   comboList:
-  - keyUsed: 0
+  - keyUsed: 1
     attackUsed: {fileID: 11400000, guid: 1bf941261f9afa543ad1e93999b1b163, type: 2}
   - keyUsed: 0
     attackUsed: {fileID: 11400000, guid: c972333c28ce81f47841fb40487214b4, type: 2}

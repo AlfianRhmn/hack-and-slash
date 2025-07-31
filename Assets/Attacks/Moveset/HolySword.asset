@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: HolySword
   m_EditorClassIdentifier: 
   movesetName: Holy Sword
+  isAirAttack: 1
   comboList:
   - keyUsed: 0
     attackUsed: {fileID: 11400000, guid: 1bf941261f9afa543ad1e93999b1b163, type: 2}

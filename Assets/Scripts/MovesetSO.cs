@@ -4,6 +4,7 @@ using UnityEngine;
 public class MovesetSO : ScriptableObject
 {
     public string movesetName;
+    public bool isAirAttack;
     public Combo[] comboList;
 }
 
