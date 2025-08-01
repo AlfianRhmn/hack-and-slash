@@ -22,6 +22,7 @@ MonoBehaviour:
   - type: 6
     time: 0.2
   skillType: 01000000
+  vfx: {fileID: 7155335147208632822, guid: 97c43495f80a3244fad1301dfafbe252, type: 3}
   timeBeforeApply: 0.2
   projectile: {fileID: 4658901686297171087, guid: 836e33eee4509a04ba62b7eff5bd9e71, type: 3}
   velocity: 0

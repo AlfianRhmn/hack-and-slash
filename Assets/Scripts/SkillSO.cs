@@ -15,6 +15,7 @@ public class SkillSO : ScriptableObject
     public Sounds[] soundUsed;
     public enum typeOfSkill { Fireball, GiveStatus, Heal, Quake}
     public typeOfSkill[] skillType; // fireball, giveStatus, heal
+    public GameObject vfx;
     public float timeBeforeApply;
     [Header("Skill - Fireball")]
     public GameObject projectile;

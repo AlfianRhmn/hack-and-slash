@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Interactions;
 using UnityEngine.UIElements;
+using UnityEngine.VFX;
 using static UnityEngine.EventSystems.EventTrigger;
 
 public class PlayerCombat : MonoBehaviour
@@ -541,7 +542,7 @@ public class PlayerCombat : MonoBehaviour
             }
             manager.anim.runtimeAnimatorController = specialUsed.animOV;
             manager.anim.SetTrigger("Special Attack");
-            StartCoroutine(WaitForSpecial(specialUsed.duration));
+            StartCoroutine(WaitForSpecial(specialUsed.duration, specialUsed.vfx));
             for (int i = 0; i < specialUsed.skillType.Length; i++)
             {
                 switch (specialUsed.skillType[i])
@@ -574,10 +575,19 @@ public class PlayerCombat : MonoBehaviour
         SoundManager.PlaySound(sound.type);
     }
 
-    IEnumerator WaitForSpecial(float length)
+    IEnumerator WaitForSpecial(float length, GameObject vfeffect)
     {
-        yield return new WaitForSeconds(length);
-        manager.readyToSpecial = true;
+        if (vfeffect != null)
+        {
+            GameObject vfx = Instantiate(vfeffect, transform.position, Quaternion.identity);
+            yield return new WaitForSeconds(length);
+            Destroy(vfx);
+        }
+        else
+        {
+            yield return new WaitForSeconds(length);
+        }
+            manager.readyToSpecial = true;
     }
 
     public void OnUltimate(InputAction.CallbackContext context)
