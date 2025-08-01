@@ -7,6 +7,7 @@ public class SkillSO : ScriptableObject
     [Header("General")]
     public string attackName;
     public AnimatorOverrideController animOV;
+    public float duration;
     public float damage;
     [Header("Skills")]
     public Sprite skillIcon;

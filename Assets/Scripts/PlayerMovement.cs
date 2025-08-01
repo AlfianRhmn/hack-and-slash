@@ -197,14 +197,6 @@ public class PlayerMovement : MonoBehaviour
                 manager.invulnerability = false;
             }
 
-            if (manager.anim.GetCurrentAnimatorStateInfo(0).IsTag("Hit") && manager.anim.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.9f)
-            {
-                manager.readyToDodge = true;
-                manager.readyToSpecial = true;
-                manager.readyToUltimate = true;
-                manager.readyToAttack = true;
-            }
-
             if (moveDirection != Vector2.zero && manager.readyToAttack && manager.readyToSpecial && manager.readyToDodge && !isTargeting && !manager.onAir)
             {
                 Vector3 worldDirection = (camForward * moveDirection.y + camRight * moveDirection.x).normalized;
@@ -228,6 +220,10 @@ public class PlayerMovement : MonoBehaviour
                 manager.anim.SetFloat("moveX", currentInput.x);
                 manager.anim.SetFloat("moveY", currentInput.y);
                 manager.anim.SetBool("IsTargeting", isTargeting);
+            }
+            if (manager.onAir)
+            {
+                manager.anim.SetBool("Moving", false);
             }
         }// Movement Calculation
     }

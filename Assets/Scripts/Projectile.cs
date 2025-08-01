@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
+    public int effectID; // 0 - none, 1 - quake
     public ObjectPooling damageNumber;
     public float duration;
     public float damage;
@@ -46,8 +47,14 @@ public class Projectile : MonoBehaviour
                 look.transform.GetChild(0).GetComponent<TextMeshPro>().color = Color.yellow;
             }
             enemy.TakeDamage(totalDamage);
+            switch (effectID)
+            {
+                case 1:
+                    StartCoroutine(enemy.LaunchEnemy(1f, 3f));
+                    break;
+            }
         }
-        if (other.gameObject.CompareTag("Enemy") || other.gameObject.CompareTag("Ground"))
+        if ((other.gameObject.CompareTag("Enemy") || other.gameObject.CompareTag("Ground")) && effectID != 1)
         {
             Destroy(gameObject);
         }

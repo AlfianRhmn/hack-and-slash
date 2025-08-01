@@ -10,9 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 67ba9e2778b15554b9672a70041022c7, type: 3}
-  m_Name: Basic Hold Light
+  m_Name: The World's Strength
   m_EditorClassIdentifier: 
-  movesetName: Basic Hold Heavy
+  movesetName: The World's Strength
+  isAirAttack: 0
   comboList:
-  - keyUsed: 2
-    attackUsed: {fileID: 11400000, guid: c58c13e25a50f4746ab17b2f932ed831, type: 2}
+  - keyUsed: 4
+    attackUsed: {fileID: 11400000, guid: bc13499e75c1e824a92bc3e64253e00f, type: 2}
+  - keyUsed: 1
+    attackUsed: {fileID: 11400000, guid: 30be36d454890f1468b2b511ebdd8d1f, type: 2}

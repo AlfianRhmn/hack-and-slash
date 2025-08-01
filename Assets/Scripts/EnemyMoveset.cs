@@ -10,5 +10,4 @@ public class EnemyMoveset : ScriptableObject
     public float damage; // self-explanatory, damage
     [Range(0, 100)]
     public int probability; // berapa persen serangan ini akan dipilih --- PASTIKAN KALAU TOTAL SEMUA PROBABILITY DALAM MOVESET ITU 100% 
-    public float[] timeBeforeHitCheck; // nunggu berapa detik setelah animasi jalan untuk mulai hitbox check
 }

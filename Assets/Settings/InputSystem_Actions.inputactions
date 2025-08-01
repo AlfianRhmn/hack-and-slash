@@ -51,12 +51,21 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Ultimate",
+                    "name": "Attack Modifier A",
                     "type": "Button",
-                    "id": "44660ebd-b240-4cab-9bc2-12a72d812847",
+                    "id": "7596ac02-2fe8-4a72-84fa-0ef327c9f7f5",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "Tap",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Attack Modifier B",
+                    "type": "Button",
+                    "id": "a0c8b8de-00c2-45fa-bbe3-25bdcfff5b94",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
                     "initialStateCheck": false
                 },
                 {
@@ -281,7 +290,7 @@
                 {
                     "name": "",
                     "id": "053e2608-fe1c-44db-9ce8-777d564d3b9a",
-                    "path": "<Gamepad>/buttonSouth",
+                    "path": "<Gamepad>/buttonWest",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
@@ -303,7 +312,7 @@
                 {
                     "name": "",
                     "id": "d05bdae7-8bbf-4baf-afd9-07e667bdbc1a",
-                    "path": "<Gamepad>/buttonWest",
+                    "path": "<Gamepad>/buttonNorth",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
@@ -335,19 +344,8 @@
                 },
                 {
                     "name": "",
-                    "id": "3868868e-b705-49c2-a3ae-39462bdfff13",
-                    "path": "<Gamepad>/leftTrigger",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "Dodge",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "937a7a37-3507-4162-bb14-e004c47a0881",
-                    "path": "<Gamepad>/rightTrigger",
+                    "path": "<Gamepad>/buttonSouth",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
@@ -369,7 +367,7 @@
                 {
                     "name": "",
                     "id": "d7378b8b-58a0-41e4-bfbc-b60903f1fd85",
-                    "path": "<Gamepad>/leftShoulder",
+                    "path": "<Gamepad>/dpad/left",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
@@ -435,7 +433,7 @@
                 {
                     "name": "",
                     "id": "0499eebe-f894-42eb-8ba6-f2c7152ebd8e",
-                    "path": "<Gamepad>/rightShoulder",
+                    "path": "<Gamepad>/dpad/right",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
@@ -479,33 +477,11 @@
                 {
                     "name": "",
                     "id": "74c5480d-0132-4144-8477-0039ab497008",
-                    "path": "<Gamepad>/buttonNorth",
-                    "interactions": "Tap",
-                    "processors": "",
-                    "groups": "Gamepad",
-                    "action": "Special Attack",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "ab8cf23f-46b9-49af-baa6-450ae7ef7c5f",
-                    "path": "<Keyboard>/g",
-                    "interactions": "Tap",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Ultimate",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "c65af8e6-1581-4a8d-b84b-7da0908e7306",
                     "path": "<Gamepad>/buttonEast",
                     "interactions": "Tap",
                     "processors": "",
                     "groups": "Gamepad",
-                    "action": "Ultimate",
+                    "action": "Special Attack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -528,6 +504,50 @@
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "Pause Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f1504be3-babd-410d-8d7e-f87100140033",
+                    "path": "<Keyboard>/leftCtrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Attack Modifier A",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6aebc371-1396-4910-b957-7aae27cf8d5a",
+                    "path": "<Gamepad>/leftShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Attack Modifier A",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "429130d9-5401-4c96-92c3-f134a23124eb",
+                    "path": "<Keyboard>/leftShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Attack Modifier B",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8c6e5e59-2c1a-4f84-a63f-4dff7263824b",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Attack Modifier B",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

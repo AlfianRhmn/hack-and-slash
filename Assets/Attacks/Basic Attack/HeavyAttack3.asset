@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackName: 
   animOV: {fileID: 22100000, guid: 2f46607b29c65ef459f26ac3ea0a1fd2, type: 2}
-  damage: 30
+  damage: 25
   movementDone:
   - timeBeforeMoving: 0.05
     amountToMove: 10
     moveDirection: {x: 0, y: 0, z: 0}
   timeToNextAnim: 0.7
+  addEffects: []

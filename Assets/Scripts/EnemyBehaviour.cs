@@ -10,11 +10,11 @@ public class EnemyBehaviour : MonoBehaviour
     [Header("General - Statistics")]
     public float currentHP;
     public float maxHP;
-    public float currentDamage;
     [Header("General - AI")]
     public Transform target;
     public State[] enemyState;
     public Animator anim;
+    public EnemyWeapon weapon;
     private int currentState = 0;
     private NavMeshAgent agent;
     bool isChangingState = false;
@@ -23,10 +23,11 @@ public class EnemyBehaviour : MonoBehaviour
     bool readyToAttack = true;
     int damageTaken;
     bool onAir = false;
+    bool isDead = false;
     float timer = 0;
     Rigidbody rb;
     private Coroutine launchRoutine;
-    private bool isBeingLaunched = false;
+    [HideInInspector] public bool isBeingLaunched = false;
     private int airborneHitCount = 0;
     EnemyMoveset currentMoveset;
     [Header("User Interface")]
@@ -57,7 +58,7 @@ public class EnemyBehaviour : MonoBehaviour
                 HandleAttack();
             }
         }
-        if (currentHP <= 0)
+        if (currentHP <= 0 && agent != null && agent.isOnNavMesh)
         {
             agent.isStopped = true;
         }
@@ -140,15 +141,11 @@ public class EnemyBehaviour : MonoBehaviour
         // masukin semua variable penting yang ada di EnemyMoveset disini
         currentMoveset = moveset;
         anim.runtimeAnimatorController = moveset.animOV;
-        currentDamage = moveset.damage;
+        weapon.damage = moveset.damage;
         isAttacking = true;
         // masukin vfx ting! buat penanda serangan
         transform.LookAt(new Vector3(target.position.x, transform.position.y, target.position.z));
         anim.SetTrigger("Attack");
-        for (int i = 0; i < moveset.timeBeforeHitCheck.Length; i++)
-        {
-            StartCoroutine(CheckForHit(moveset.timeBeforeHitCheck[i]));
-        }
         yield return new WaitForSeconds(moveset.duration);
         currentMoveset = null;
         isAttacking = false;
@@ -158,16 +155,6 @@ public class EnemyBehaviour : MonoBehaviour
         }
         yield return new WaitForSeconds(Random.Range(enemyState[currentState].minCooldownPerAttack, enemyState[currentState].maxCooldownPerAttack));
         readyToAttack = true;
-    }
-
-
-    IEnumerator CheckForHit(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (Vector3.Distance(target.position, transform.position) <= enemyState[currentState].distanceUntilAttack)
-        {
-            target.GetComponent<PlayerCombat>().TakeDamage(currentDamage, transform);
-        }
     }
 
     void CheckEnemyState() // cek kalau semua kondisi darah terpenuhi
@@ -181,6 +168,11 @@ public class EnemyBehaviour : MonoBehaviour
                 StartCoroutine(StartChangingState(i)); //... mulai ganti state!
             }
         }
+    }
+
+    public void CheckHit()
+    {
+        weapon.DoHit();
     }
 
     IEnumerator StartChangingState(int stateID)
@@ -217,15 +209,18 @@ public class EnemyBehaviour : MonoBehaviour
         if (onAir)
             airborneHitCount++;
 
-        if (currentHP <= 0)
+        if (currentHP <= 0 && !isDead)
         {
             PlayerManager.Instance.enemyList.Remove(this);
             StopAllCoroutines();
             StartCoroutine(Dead());
         }
-        else
+        else if (!isDead)
         {
-            StartCoroutine(EnemyHit());
+            if (!isChangingState)
+            {
+                StartCoroutine(EnemyHit());
+            }
         }
     }
 
@@ -253,6 +248,7 @@ public class EnemyBehaviour : MonoBehaviour
 
     IEnumerator Dead()
     {
+        isDead = true;
         if (onAir)
         {
             rb.isKinematic = false;
@@ -336,6 +332,9 @@ public class EnemyBehaviour : MonoBehaviour
             }
 
             if (noHitTimer >= 1.5f)
+                break;
+
+            if (!PlayerManager.Instance.onAir)
                 break;
         }
 

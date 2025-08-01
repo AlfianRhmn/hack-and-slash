@@ -43,7 +43,7 @@ public class StatusEffects
 [System.Serializable]
 public class SpecialEffects
 {
-    public enum Effects { JuggleUp, Knockback}
+    public enum Effects { JuggleUp, Knockback, UseUltimate}
     public Effects specialEffect;
     public GameObject specialObject;
 }

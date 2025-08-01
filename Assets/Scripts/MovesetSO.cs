@@ -11,7 +11,7 @@ public class MovesetSO : ScriptableObject
 [System.Serializable]
 public class Combo
 {
-    public enum attackTypes { TapLightAttack, TapHeavyAttack, HoldLightAttack, HoldHeavyAttack}
+    public enum attackTypes { TapLightAttack, TapHeavyAttack, HoldLightAttack, HoldHeavyAttack, ModifiedTapLightAttackA, ModifiedTapLightAttackB, ModifiedHoldLightAttackA, ModifiedHoldLightAttackB, ModifiedTapHeavyAttackA, ModifiedTapHeavyAttackB, ModifiedHoldHeavyAttackA, ModifiedHoldHeavyAttackB}
     public attackTypes keyUsed;
     public AttackSO attackUsed;
 }

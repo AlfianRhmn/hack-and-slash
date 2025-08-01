@@ -23,12 +23,12 @@ public class PlayerManager : MonoBehaviour
     public GameObject statusDisplay;
     public Transform gridStatus;
     public Weapon weapon;
+    public Weapon rightLeg;
     public TextMeshProUGUI specialName;
     public Image specialIcon;
     public TextMeshProUGUI specialInput;    
     public TextMeshProUGUI ultimateName;
     public Image ultimateIcon;
-    public TextMeshProUGUI ultimateInput;
     public TextMeshProUGUI ultimateProgress;
     public TextMeshProUGUI scrollLeftInput;
     public TextMeshProUGUI scrollRightInput;
@@ -134,7 +134,7 @@ public class PlayerManager : MonoBehaviour
 
     public void PauseGame(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && !ultCanvas.gameObject.activeSelf)
         {
             PauseGame();
         }

@@ -17,7 +17,7 @@ MonoBehaviour:
   duration: 2
   damage: 20
   probability: 50
-  timeBeforeHitCheck:
-  - 1
-  - 0.6
-  - 0.2
+  checkingAttackTime:
+  - 0.45
+  - 1.36
+  - 2.36

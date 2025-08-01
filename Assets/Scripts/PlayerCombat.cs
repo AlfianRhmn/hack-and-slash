@@ -48,6 +48,8 @@ public class PlayerCombat : MonoBehaviour
     float heavyPressTime;
     bool heavyAttackTriggered;
     bool alreadyInputReady;
+    bool isModifierA;
+    bool isModifierB;
     [HideInInspector] public int juggleAttack = 0;
     float timer = 0; //used for juggling
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -208,14 +210,6 @@ public class PlayerCombat : MonoBehaviour
     {
         manager.ultimateIcon.sprite = ultimate.skillIcon;
         manager.ultimateName.text = ultimate.attackName;
-        string inputText = manager.input.actions.FindAction("Ultimate").GetBindingDisplayString();
-        inputText = inputText.Replace("Tap;action.interactions ", "");
-        inputText = inputText.Replace("Tap ", "");
-        inputText = inputText.Replace("Hold ", "");
-        inputText = inputText.Replace("Multi Tap ", "");
-        inputText = inputText.Replace("Press ", "");
-        inputText = inputText.Replace("Slow Tap ", "");
-        manager.ultimateInput.text = "<sprite name=" + inputText + ">";
         if (ultimateProgress >= 100)
         {
             manager.ultimateProgress.text = "<color=yellow>READY";
@@ -262,18 +256,67 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
+    public void OnModifierA(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            isModifierA = true;
+        } else if (context.canceled)
+        {
+            isModifierA = false;
+        }
+    }
+
+    public void OnModifierB(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            isModifierB = true;
+        }
+        else if (context.canceled)
+        {
+            isModifierB = false;
+        }
+    }
+
 
     public void OnLightAttack(InputAction.CallbackContext context)
     {
         if (manager.readyToSpecial && manager.readyToUltimate && manager.readyToDodge)
         {
-            if (context.performed && context.interaction is TapInteraction)
+            if (context.performed)
             {
-                HandleAttack(Combo.attackTypes.TapLightAttack);
-            }
-            else if (context.performed && context.interaction is HoldInteraction)
-            {
-                HandleAttack(Combo.attackTypes.HoldLightAttack);
+                if (isModifierA)
+                {
+                    if (context.interaction is TapInteraction)
+                    {
+                        HandleAttack(Combo.attackTypes.ModifiedTapLightAttackA);
+                    }
+                    else if (context.interaction is HoldInteraction)
+                    {
+                        HandleAttack(Combo.attackTypes.ModifiedHoldLightAttackA);
+                    }
+                } else if (isModifierB)
+                {
+                    if (context.interaction is TapInteraction)
+                    {
+                        HandleAttack(Combo.attackTypes.ModifiedTapLightAttackB);
+                    }
+                    else if (context.interaction is HoldInteraction)
+                    {
+                        HandleAttack(Combo.attackTypes.ModifiedHoldLightAttackB);
+                    }
+                } else
+                {
+                    if (context.interaction is TapInteraction)
+                    {
+                        HandleAttack(Combo.attackTypes.TapLightAttack);
+                    }
+                    else if (context.interaction is HoldInteraction)
+                    {
+                        HandleAttack(Combo.attackTypes.HoldLightAttack);
+                    }
+                }
             }
         }
     }
@@ -282,13 +325,41 @@ public class PlayerCombat : MonoBehaviour
     {
         if (manager.readyToSpecial && manager.readyToUltimate && manager.readyToDodge)
         {
-            if (context.performed && context.interaction is TapInteraction)
+            if (context.performed)
             {
-                HandleAttack(Combo.attackTypes.TapHeavyAttack);
-            }
-            else if (context.performed && context.interaction is HoldInteraction)
-            {
-                HandleAttack(Combo.attackTypes.HoldHeavyAttack);
+                if (isModifierA)
+                {
+                    if (context.interaction is TapInteraction)
+                    {
+                        HandleAttack(Combo.attackTypes.ModifiedTapHeavyAttackA);
+                    }
+                    else if (context.interaction is HoldInteraction)
+                    {
+                        HandleAttack(Combo.attackTypes.ModifiedHoldHeavyAttackA);
+                    }
+                }
+                else if (isModifierB)
+                {
+                    if (context.interaction is TapInteraction)
+                    {
+                        HandleAttack(Combo.attackTypes.ModifiedTapHeavyAttackB);
+                    }
+                    else if (context.interaction is HoldInteraction)
+                    {
+                        HandleAttack(Combo.attackTypes.ModifiedHoldHeavyAttackB);
+                    }
+                }
+                else
+                {
+                    if (context.interaction is TapInteraction)
+                    {
+                        HandleAttack(Combo.attackTypes.TapHeavyAttack);
+                    }
+                    else if (context.interaction is HoldInteraction)
+                    {
+                        HandleAttack(Combo.attackTypes.HoldHeavyAttack);
+                    }
+                }
             }
         }
     }
@@ -301,7 +372,7 @@ public class PlayerCombat : MonoBehaviour
             playerAttacks.Clear();
             comboCounter = 0;
         }
-        if (input == Combo.attackTypes.HoldLightAttack || input == Combo.attackTypes.HoldHeavyAttack)
+        if (input == Combo.attackTypes.HoldLightAttack || input == Combo.attackTypes.HoldHeavyAttack || input == Combo.attackTypes.ModifiedHoldHeavyAttackA || input == Combo.attackTypes.ModifiedHoldLightAttackA || input == Combo.attackTypes.ModifiedHoldHeavyAttackB || input == Combo.attackTypes.ModifiedHoldLightAttackB)
         {
             if (!alreadyInputReady)
             {
@@ -318,6 +389,13 @@ public class PlayerCombat : MonoBehaviour
         MovesetSO move = CheckMoveset();
         if (move == null || comboCounter >= move.comboList.Length)
         {
+            if (comboCounter == 0)
+            {
+                print("Invalid button, " + input + " doesn't exist in moveset.");
+                playerAttacks.Clear();
+                comboCounter = 0;
+                return;
+            }
             playerAttacks.Clear();
             comboCounter = 0;
             HandleAttack(input);
@@ -329,8 +407,6 @@ public class PlayerCombat : MonoBehaviour
         if ((move.isAirAttack && manager.onAir) || (!move.isAirAttack && !manager.onAir))
         {
             manager.readyToAttack = false;
-            manager.weapon.repeatingDamage = true;
-            manager.weapon.EnableHitbox();
             if (!move.isAirAttack)
             {
                 foreach (var push in attack.movementDone)
@@ -353,6 +429,9 @@ public class PlayerCombat : MonoBehaviour
             manager.weapon.damage = attack.damage * attackModifier;
             manager.weapon.critChance = critChance;
             manager.weapon.critDamage = critDamage;
+            manager.rightLeg.damage = attack.damage * attackModifier;
+            manager.rightLeg.critChance = critChance;
+            manager.rightLeg.critDamage = critDamage;
             if (manager.onAir)
             {
                 juggleAttack++;
@@ -366,6 +445,15 @@ public class PlayerCombat : MonoBehaviour
                         StartCoroutine(JuggleUp());
                         break;
                     case SpecialEffects.Effects.Knockback:
+                        break;
+                    case SpecialEffects.Effects.UseUltimate:
+                        if (ultimateProgress >= 100)
+                        {
+                            manager.readyToUltimate = false;
+                            manager.ultCamera.SetActive(true);
+                            manager.ultCanvas.SetActive(true);
+                            StartCoroutine(UltimateInitiation());
+                        }
                         break;
                 }
             }
@@ -389,8 +477,20 @@ public class PlayerCombat : MonoBehaviour
         juggleAttack = 0;
         manager.rb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
         manager.rb.linearVelocity = Vector3.zero;
-        yield return new WaitUntil(() => juggleAttack > 5 || !manager.onAir || timer >= 1.5f);
+        yield return new WaitUntil(() => juggleAttack > 5 || !manager.onAir || timer >= 1.5f || !CheckEnemyOnAir());
         manager.rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+    }
+
+    bool CheckEnemyOnAir()
+    {
+        for (int i = 0; i < manager.enemyClose.Count; i++)
+        {
+            if (manager.enemyClose[i].isBeingLaunched)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     MovesetSO CheckMoveset()
@@ -429,9 +529,8 @@ public class PlayerCombat : MonoBehaviour
 
     public void OnSpecialAttack(InputAction.CallbackContext context)
     {
-        if (context.performed && manager.readyToSpecial && currentMana >= listOfSpecial[specialSelected].manaCost && manager.readyToDodge && manager.readyToUltimate)
+        if (context.performed && manager.readyToSpecial && currentMana >= listOfSpecial[specialSelected].manaCost && manager.readyToDodge && manager.readyToUltimate && !manager.onAir)
         {
-            manager.weapon.repeatingDamage = false;
             timeLastUsedSpecial = 0;
             currentMana -= listOfSpecial[specialSelected].manaCost;
             manager.readyToSpecial = false;
@@ -442,13 +541,13 @@ public class PlayerCombat : MonoBehaviour
             }
             manager.anim.runtimeAnimatorController = specialUsed.animOV;
             manager.anim.SetTrigger("Special Attack");
-            StartCoroutine(WaitForSpecial(manager.anim.GetCurrentAnimatorStateInfo(0).length));
+            StartCoroutine(WaitForSpecial(specialUsed.duration));
             for (int i = 0; i < specialUsed.skillType.Length; i++)
             {
                 switch (specialUsed.skillType[i])
                 {
                     case SkillSO.typeOfSkill.Fireball:
-                        StartCoroutine(SpawnFireball(specialUsed));
+                        StartCoroutine(SpawnFireball(specialUsed, i));
                         break;
                     case SkillSO.typeOfSkill.GiveStatus:
                         StartCoroutine(GiveStatus(specialUsed.status, specialUsed.timeBeforeApply));
@@ -457,7 +556,7 @@ public class PlayerCombat : MonoBehaviour
                         currentHealth += specialUsed.heal;
                         break;
                     case SkillSO.typeOfSkill.Quake:
-                        StartCoroutine(SpawnFireball(specialUsed));
+                        StartCoroutine(SpawnFireball(specialUsed, i));
                         break;
                 }
             }
@@ -495,6 +594,7 @@ public class PlayerCombat : MonoBehaviour
 
     IEnumerator UltimateInitiation()
     {
+        manager.readyToUltimate = false;
         yield return new WaitForSeconds(ultimate.waitingUltimateInitiation);
         manager.ultCanvas.SetActive(false);
         manager.ultCamera.SetActive(false);
@@ -510,19 +610,18 @@ public class PlayerCombat : MonoBehaviour
                 StartCoroutine(PushingPlayerCount(ultimate.movePlayer[i]));
             }
         }
-        manager.weapon.repeatingDamage = true;
         CancelInvoke("EndCombo");
         CancelInvoke("EndAttack");
-        manager.readyToUltimate = false;
         ultimateProgress = 0;
         manager.anim.runtimeAnimatorController = ultimate.animOV;
         manager.anim.SetTrigger("Ultimate");
         manager.weapon.damage = ultimate.damage * attackModifier;
         manager.weapon.critChance = critChance;
         manager.weapon.critDamage = critDamage;
-        manager.weapon.EnableHitbox();
+        manager.rightLeg.damage = ultimate.damage * attackModifier;
+        manager.rightLeg.critChance = critChance;
+        manager.rightLeg.critDamage = critDamage;
         yield return new WaitForSeconds(manager.anim.GetCurrentAnimatorStateInfo(0).length);
-        manager.weapon.DisableHitbox();
         manager.readyToUltimate = true;
     }
 
@@ -532,7 +631,7 @@ public class PlayerCombat : MonoBehaviour
         PushPlayer(movement.amountToMove, movement.moveDirection);
     }
 
-    IEnumerator SpawnFireball(SkillSO specialUsed)
+    IEnumerator SpawnFireball(SkillSO specialUsed, int skillTypeIndex)
     {
         Transform enemyTransform;
         if (manager.currentLockOnTarget != null)
@@ -556,6 +655,11 @@ public class PlayerCombat : MonoBehaviour
             fireball.damage = specialUsed.damage * attackModifier;
             fireball.critChance = critChance;
             fireball.critDamage = critDamage;
+            if (specialUsed.skillType[skillTypeIndex] == SkillSO.typeOfSkill.Quake)
+            {
+                fireball.transform.position = manager.playerBody.position;
+                fireball.effectID = 1;
+            }
             if (enemyTransform == null)
             {
                 fireball.GetComponent<Rigidbody>().AddForce(manager.playerBody.forward * specialUsed.velocity, ForceMode.Impulse);
@@ -564,18 +668,6 @@ public class PlayerCombat : MonoBehaviour
             {
                 fireball.GetComponent<Rigidbody>().AddForce((enemyTransform.position - manager.playerBody.position).normalized * specialUsed.velocity, ForceMode.Impulse);
             }
-        }
-        Weapon quake = obj.GetComponent<Weapon>();
-        if (quake != null)
-        {
-            obj.transform.position = transform.position;
-            quake.effectID = 1;
-            quake.damage = specialUsed.damage * attackModifier;
-            quake.critChance = critChance;
-            quake.critDamage = critDamage;
-            quake.damageNumber = manager.damageNumber;
-            yield return new WaitForEndOfFrame();
-            quake.EnableHitbox();
         }
     }
 
@@ -654,7 +746,6 @@ public class PlayerCombat : MonoBehaviour
     IEnumerator WaitForAnotherAttack(float waiting)
     {
         yield return new WaitForSeconds(waiting);
-        manager.weapon.DisableHitbox();
         manager.readyToAttack = true;
         Invoke("EndCombo", 1);
     }
@@ -673,7 +764,6 @@ public class PlayerCombat : MonoBehaviour
 
     public void EndCombo()
     {
-        manager.weapon.DisableHitbox();
         playerAttacks.Clear();
         manager.readyToAttack = true;
         comboCounter = 0;
@@ -713,7 +803,10 @@ public class PlayerCombat : MonoBehaviour
                 look.transform.localScale = new Vector3(0.2445875f, 0.2445875f, 0.2445875f);
                 look.transform.GetChild(0).GetComponent<TextMeshPro>().text = Mathf.RoundToInt(damage).ToString();
                 look.transform.GetChild(0).GetComponent<TextMeshPro>().color = Color.red;
-                manager.anim.SetTrigger("Hit");
+                if (manager.readyToUltimate && !manager.onAir)
+                {
+                    manager.anim.SetTrigger("Hit");
+                }
                 StartCoroutine(DamageCooldown());
                 //PLAY HIT ANIMATION
             }
@@ -730,20 +823,10 @@ public class PlayerCombat : MonoBehaviour
 
     IEnumerator DamageCooldown()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.05f);
         manager.readyToHurt = true;
         manager.readyToAttack = true;
         manager.readyToDodge = true;
         manager.readyToSpecial = true;
-    }
-
-    internal void TakeDamage(float damageToDeal)
-    {
-        throw new NotImplementedException();
-    }
-
-    internal static void TakeDamage()
-    {
-        throw new NotImplementedException();
     }
 }
