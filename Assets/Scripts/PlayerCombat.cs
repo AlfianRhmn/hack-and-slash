@@ -36,6 +36,8 @@ public class PlayerCombat : MonoBehaviour
     public List<SkillSO> listOfSpecial;
     public UltimateSO ultimate;
     public float timeUntilManaRegen = 2;
+    public GameObject VFX_ModifierA;
+    public GameObject VFX_ModifierB;
     [Range(0f, 1f)]
     public float percentageManaRegen = 0.1f;
     float lastClickedTime;
@@ -261,9 +263,11 @@ public class PlayerCombat : MonoBehaviour
     {
         if (context.performed)
         {
+            VFX_ModifierA.SetActive(true);
             isModifierA = true;
         } else if (context.canceled)
         {
+            VFX_ModifierA.SetActive(false);
             isModifierA = false;
         }
     }
@@ -272,10 +276,12 @@ public class PlayerCombat : MonoBehaviour
     {
         if (context.performed)
         {
+            VFX_ModifierB.SetActive(true);
             isModifierB = true;
         }
         else if (context.canceled)
         {
+            VFX_ModifierB.SetActive(false);
             isModifierB = false;
         }
     }
