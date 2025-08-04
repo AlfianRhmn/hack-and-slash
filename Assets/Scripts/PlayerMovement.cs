@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using Unity.Cinemachine;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -19,7 +18,7 @@ public class PlayerMovement : MonoBehaviour
     public GameObject crosshair;
     float currentSpeed;
     bool isTargeting;
-    float targetRotY;
+    bool allowSnappyRotation;
     Vector2 moveDirection;
     Vector3 moveDir;
     Vector2 currentInput;
@@ -32,7 +31,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (manager.rb.linearDamping == 5 && manager.readyToAttack && manager.readyToSpecial && manager.readyToUltimate && !manager.onAir)
+        if (manager.rb.linearDamping == 5 && manager.readyToAttack && manager.readyToSpecial && manager.readyToUltimate && !manager.onAir && manager.readyToDodge)
         {
             manager.rb.AddForce(moveDir * currentSpeed, ForceMode.Force);
         }
@@ -55,6 +54,7 @@ public class PlayerMovement : MonoBehaviour
                 manager.anim.SetTrigger("Roll");
             }
             StartCoroutine(DodgeCooldown());
+            StartCoroutine(StartSnappy());
             Vector3 dodgeDirection;
 
             if (moveDirection == Vector2.zero)
@@ -77,8 +77,15 @@ public class PlayerMovement : MonoBehaviour
             }
 
             // Apply impulse force in the dodge direction
-            manager.rb.AddForce(dodgeDirection * dodgeDistance, ForceMode.Impulse);
+            manager.rb.linearVelocity = dodgeDirection * dodgeDistance;
         }
+    }
+
+    IEnumerator StartSnappy()
+    {
+        allowSnappyRotation = true;
+        yield return new WaitForSeconds(0.05f);
+        allowSnappyRotation = false;
     }
 
     public void CancelLockOn()
@@ -206,7 +213,17 @@ public class PlayerMovement : MonoBehaviour
 
                 Quaternion targetRotation = Quaternion.LookRotation(worldDirection);
                 manager.playerBody.rotation = Quaternion.RotateTowards(manager.playerBody.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-            } else if (isTargeting)
+            } else if (moveDirection != Vector2.zero && manager.readyToDodge == false && allowSnappyRotation) 
+            {
+                Vector3 worldDirection = (camForward * moveDirection.y + camRight * moveDirection.x).normalized;
+
+                // Optional: visualize in Scene view
+                Debug.DrawRay(manager.playerBody.position, worldDirection * 2f, Color.red);
+
+                Quaternion targetRotation = Quaternion.LookRotation(worldDirection);
+                manager.playerBody.rotation = targetRotation;
+            }
+            else if (isTargeting)
             {
                 manager.playerBody.LookAt(new Vector3(manager.currentLockOnTarget.position.x, manager.playerBody.position.y, manager.currentLockOnTarget.position.z));
             }

@@ -11,50 +11,73 @@ using UnityEngine.UI;
 public class PlayerManager : MonoBehaviour
 {
     public static PlayerManager Instance { get; private set; }
-    [Header("References")]
+    [Header("Core References")]
     public PlayerCombat combat;
     public PlayerMovement movement;
     public Animator anim;
-    public Transform playerBody;
     public Rigidbody rb;
+    public PlayerInput input;
+    public Transform playerBody;
+    public Transform frontOfBody;
+
+    [Header("Camera & View")]
     public Transform cam;
-    public Slider healthBar;
-    public Slider manaBar;
-    public GameObject statusDisplay;
-    public Transform gridStatus;
+    public GameObject virtualThirdCam;
+    public GameObject virtualHardLockCam;
+
+    [Header("Weapon & Combat")]
     public Weapon weapon;
     public Weapon rightLeg;
+    public Transform rightHand;
+    public LayerMask enemyLayer;
+    public float enemyDistance;
+
+    [Header("HUD - Health & Mana")]
+    public Slider healthBar;
+    public Slider manaBar;
+
+    [Header("HUD - Specials & Ultimates")]
     public TextMeshProUGUI specialName;
     public Image specialIcon;
-    public TextMeshProUGUI specialInput;    
+    public TextMeshProUGUI specialInput;
     public TextMeshProUGUI ultimateName;
     public Image ultimateIcon;
     public TextMeshProUGUI ultimateProgress;
+
+    [Header("HUD - Input Prompts")]
     public TextMeshProUGUI scrollLeftInput;
     public TextMeshProUGUI scrollRightInput;
-    public ObjectPooling damageNumber;
-    public Transform rightHand;
+
+    [Header("HUD - General & Animation")]
+    public GameObject statusDisplay;
+    public Transform gridStatus;
+    public Animator playerHUDAnim;
+
+    [Header("HUD - Ult UI")]
     public GameObject ultCanvas;
     public GameObject ultCamera;
-    public GameObject virtualThirdCam;
-    public GameObject virtualHardLockCam;
-    public LayerMask enemyLayer;
-    public float enemyDistance;
+
+    [Header("UI Panels")]
     public GameObject pausePanel;
     public GameObject movesetPanel;
     public GameObject settingsPanel;
     public GameObject quitPanel;
-    public Animator playerHUDAnim;
+
+    [Header("UI Navigation")]
     public Button menuStartHighlight;
     public Button movesetHiglight;
     public Button settingsHighlight;
     public Button quitHighlight;
     public ScrollRect movesetScroll;
+
+    [Header("Pooling Systems")]
+    public ObjectPooling damageNumber;
     public ObjectPooling movesetDisplay;
-    public PlayerInput input;
+
+    [Header("Event Systems")]
     public EventSystem eventSystem;
-    public Transform frontOfBody;
-    [Header("Player Restrictions")]
+
+    [Header("Player State Flags")]
     public bool readyToDodge = true;
     public bool readyToAttack = true;
     public bool readyToSpecial = true;
@@ -62,10 +85,12 @@ public class PlayerManager : MonoBehaviour
     public bool readyToHurt = true;
     public bool invulnerability = false;
     public bool onAir = false;
-    [Header("Enemy List")]
+
+    [Header("Enemy List & Lock-On")]
     public List<EnemyBehaviour> enemyList;
     public List<EnemyBehaviour> enemyClose;
     public Transform currentLockOnTarget;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
@@ -129,6 +154,29 @@ public class PlayerManager : MonoBehaviour
             float value = context.ReadValue<Vector2>().y;
             movesetScroll.verticalNormalizedPosition += value * 0.2f;
             movesetScroll.verticalNormalizedPosition = Mathf.Clamp01(movesetScroll.verticalNormalizedPosition);
+        }
+    }
+
+    public void OnCancelMenu(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            if (settingsPanel.activeSelf)
+            {
+                SettingsOpen();
+            }
+            else if (movesetPanel.activeSelf)
+            {
+                MoveSetOpen();
+            }
+            else if (quitPanel.activeSelf)
+            {
+                //QuitOpen()
+            }
+            else
+            {
+                PauseGame();
+            }
         }
     }
 
@@ -197,6 +245,26 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
+    public void SettingsOpen()
+    {
+        if (settingsPanel.activeSelf)
+        {
+            settingsPanel.GetComponent<Animator>().Play("PanelDisappear");
+            StartCoroutine(WaitUntilSettings());
+        }
+        else
+        {
+            settingsPanel.SetActive(true);
+            foreach (InputDevice device in input.devices)
+            {
+                if (device is Gamepad)
+                {
+                    eventSystem.SetSelectedGameObject(settingsHighlight.gameObject);
+                }
+            }
+        }
+    }
+
     IEnumerator WaitUntilPause()
     {
         yield return new WaitForSecondsRealtime(1f);
@@ -219,6 +287,20 @@ public class PlayerManager : MonoBehaviour
             movesetDisplay.ReturnObject(movesetDisplay.transform.GetChild(i).gameObject);
         }
         movesetPanel.SetActive(false);
+        Time.timeScale = 0f;
+    }
+
+    IEnumerator WaitUntilSettings()
+    {
+        yield return new WaitForSecondsRealtime(1f);
+        foreach (InputDevice device in input.devices)
+        {
+            if (device is Gamepad)
+            {
+                eventSystem.SetSelectedGameObject(menuStartHighlight.gameObject);
+            }
+        }
+        settingsPanel.SetActive(false);
         Time.timeScale = 0f;
     }
 

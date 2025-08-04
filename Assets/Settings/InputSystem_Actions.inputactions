@@ -245,28 +245,6 @@
                 },
                 {
                     "name": "",
-                    "id": "7585cc44-6dc6-4830-a8e3-59bb3bf5ffdb",
-                    "path": "<XRController>/{Primary2DAxis}",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "XR",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "f38c706c-c9b4-4916-bcbf-e76f1ad23b6a",
-                    "path": "<Joystick>/stick",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Joystick",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "782a887a-babb-4df9-b550-6ad3152cfb46",
                     "path": "<Gamepad>/rightStick",
                     "interactions": "",
@@ -579,7 +557,7 @@
                     "name": "Cancel",
                     "type": "Button",
                     "id": "ca35a081-5788-4759-a902-4d38e5594dab",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -643,6 +621,24 @@
                     "type": "PassThrough",
                     "id": "d5b1a057-9e1a-4f4b-98ed-824cd1c9ae84",
                     "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Switch Settings Tab - Left",
+                    "type": "Button",
+                    "id": "e2e097e7-943a-4ad6-a97c-f1cccaceb8a1",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Switch Settings Tab - Right",
+                    "type": "Button",
+                    "id": "08830a09-2130-4cd9-88a5-43f3d0725906",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -916,7 +912,7 @@
                 {
                     "name": "",
                     "id": "2d8d3690-c114-4173-8960-67e3b7958933",
-                    "path": "*/{Submit}",
+                    "path": "<Gamepad>/buttonSouth",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse;Gamepad;Touch;Joystick;XR",
@@ -926,8 +922,19 @@
                 },
                 {
                     "name": "",
+                    "id": "6bca4cc5-0eea-42b0-b149-6b4d6e658d6d",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Submit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "f2a06387-ef14-4de6-b526-265858de41d3",
-                    "path": "*/{Cancel}",
+                    "path": "<Gamepad>/buttonEast",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse;Gamepad;Touch;Joystick;XR",
@@ -1075,6 +1082,28 @@
                     "processors": "",
                     "groups": "XR",
                     "action": "TrackedDeviceOrientation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f4c6cc6c-e8ed-462a-a3e0-3ad1842e3c50",
+                    "path": "<Gamepad>/leftShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Switch Settings Tab - Left",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "47a9d163-ae96-4161-9d98-93db63f05b9a",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Switch Settings Tab - Right",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
