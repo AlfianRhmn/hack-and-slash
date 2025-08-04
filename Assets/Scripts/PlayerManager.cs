@@ -3,9 +3,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class PlayerManager : MonoBehaviour
@@ -24,6 +26,8 @@ public class PlayerManager : MonoBehaviour
     public Transform cam;
     public GameObject virtualThirdCam;
     public GameObject virtualHardLockCam;
+    public GameObject virtualDeathCam;
+    public VolumeProfile deathVolumeSettings;
 
     [Header("Weapon & Combat")]
     public Weapon weapon;
@@ -31,6 +35,12 @@ public class PlayerManager : MonoBehaviour
     public Transform rightHand;
     public LayerMask enemyLayer;
     public float enemyDistance;
+
+    [Header("HUD - Main Canvas")]
+    public GameObject gameCanvas;
+    public GameObject camCanvas;
+    public GameObject pauseCanvas;
+    public GameObject deathCanvas;
 
     [Header("HUD - Health & Mana")]
     public Slider healthBar;
@@ -68,6 +78,7 @@ public class PlayerManager : MonoBehaviour
     public Button movesetHiglight;
     public Button settingsHighlight;
     public Button quitHighlight;
+    public Button deathHighlight;
     public ScrollRect movesetScroll;
 
     [Header("Pooling Systems")]
@@ -82,6 +93,7 @@ public class PlayerManager : MonoBehaviour
     public bool readyToAttack = true;
     public bool readyToSpecial = true;
     public bool readyToUltimate = true;
+    public bool isDead = false;
     public bool readyToHurt = true;
     public bool invulnerability = false;
     public bool onAir = false;
@@ -106,11 +118,19 @@ public class PlayerManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (enemyList.Count == 0)
+        if (!isDead)
         {
-            movement.CancelLockOn();
+            if (enemyList.Count == 0)
+            {
+                movement.CancelLockOn();
+            }
+            HandleEnemyClose();
+        } else
+        {
+            gameCanvas.SetActive(false);
+            camCanvas.SetActive(false);
+            pauseCanvas.SetActive(false);
         }
-        HandleEnemyClose();
     }
 
     public void OnControllerChange()
@@ -130,18 +150,28 @@ public class PlayerManager : MonoBehaviour
             else if (device is Gamepad)
             {
                 Cursor.visible = false;
-                if (settingsPanel.activeSelf)
+                if (isDead)
                 {
-                    eventSystem.SetSelectedGameObject(settingsPanel.gameObject);
-                } else if (movesetPanel.activeSelf)
+                    eventSystem.SetSelectedGameObject(deathHighlight.gameObject);
+                }
+                else
                 {
-                    eventSystem.SetSelectedGameObject(movesetHiglight.gameObject);
-                } else if (quitPanel.activeSelf)
-                {
-                    eventSystem.SetSelectedGameObject(quitHighlight.gameObject);
-                } else
-                {
-                    eventSystem.SetSelectedGameObject(menuStartHighlight.gameObject);
+                    if (settingsPanel.activeSelf)
+                    {
+                        eventSystem.SetSelectedGameObject(settingsPanel.gameObject);
+                    }
+                    else if (movesetPanel.activeSelf)
+                    {
+                        eventSystem.SetSelectedGameObject(movesetHiglight.gameObject);
+                    }
+                    else if (quitPanel.activeSelf)
+                    {
+                        eventSystem.SetSelectedGameObject(quitHighlight.gameObject);
+                    }
+                    else
+                    {
+                        eventSystem.SetSelectedGameObject(menuStartHighlight.gameObject);
+                    }
                 }
             }
         }
@@ -159,7 +189,7 @@ public class PlayerManager : MonoBehaviour
 
     public void OnCancelMenu(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && !isDead)
         {
             if (settingsPanel.activeSelf)
             {
@@ -182,7 +212,7 @@ public class PlayerManager : MonoBehaviour
 
     public void PauseGame(InputAction.CallbackContext context)
     {
-        if (context.performed && !ultCanvas.gameObject.activeSelf)
+        if (context.performed && !ultCanvas.gameObject.activeSelf && !isDead)
         {
             PauseGame();
         }

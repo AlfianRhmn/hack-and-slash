@@ -31,7 +31,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (manager.rb.linearDamping == 5 && manager.readyToAttack && manager.readyToSpecial && manager.readyToUltimate && !manager.onAir && manager.readyToDodge)
+        if (manager.rb.linearDamping == 5 && manager.readyToAttack && manager.readyToSpecial && manager.readyToUltimate && !manager.onAir && manager.readyToDodge && !manager.isDead)
         {
             manager.rb.AddForce(moveDir * currentSpeed, ForceMode.Force);
         }
@@ -44,7 +44,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnDodge(InputAction.CallbackContext context)
     {
-        if (context.performed && manager.readyToDodge && manager.readyToSpecial && manager.readyToUltimate && !manager.onAir)
+        if (context.performed && manager.readyToDodge && manager.readyToSpecial && manager.readyToUltimate && !manager.onAir && !manager.isDead)
         {
             manager.invulnerability = true;
             manager.combat.Reset();
@@ -103,7 +103,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnLockOnTarget(InputAction.CallbackContext context)
     {
-        if (context.performed && manager.readyToUltimate)
+        if (context.performed && manager.readyToUltimate && !manager.isDead)
         {
             if (!isTargeting && manager.enemyClose.Count > 0)
             {
@@ -131,7 +131,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnChangeLockPos(InputAction.CallbackContext context)
     {
-        if (context.performed && isTargeting)
+        if (context.performed && isTargeting && !manager.isDead)
         {
             HandleChangeLockOn(true);
         }
@@ -161,7 +161,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnChangeLockNeg(InputAction.CallbackContext context)
     {
-        if (context.performed && isTargeting)
+        if (context.performed && isTargeting && !manager.isDead)
         {
             HandleChangeLockOn(false);
         }
@@ -204,7 +204,7 @@ public class PlayerMovement : MonoBehaviour
                 manager.invulnerability = false;
             }
 
-            if (moveDirection != Vector2.zero && manager.readyToAttack && manager.readyToSpecial && manager.readyToDodge && !isTargeting && !manager.onAir)
+            if (moveDirection != Vector2.zero && manager.readyToAttack && manager.readyToSpecial && manager.readyToDodge && !isTargeting && !manager.onAir && !manager.isDead)
             {
                 Vector3 worldDirection = (camForward * moveDirection.y + camRight * moveDirection.x).normalized;
 
@@ -213,7 +213,7 @@ public class PlayerMovement : MonoBehaviour
 
                 Quaternion targetRotation = Quaternion.LookRotation(worldDirection);
                 manager.playerBody.rotation = Quaternion.RotateTowards(manager.playerBody.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-            } else if (moveDirection != Vector2.zero && manager.readyToDodge == false && allowSnappyRotation) 
+            } else if (moveDirection != Vector2.zero && manager.readyToDodge == false && allowSnappyRotation && !manager.isDead) 
             {
                 Vector3 worldDirection = (camForward * moveDirection.y + camRight * moveDirection.x).normalized;
 
@@ -223,7 +223,7 @@ public class PlayerMovement : MonoBehaviour
                 Quaternion targetRotation = Quaternion.LookRotation(worldDirection);
                 manager.playerBody.rotation = targetRotation;
             }
-            else if (isTargeting)
+            else if (isTargeting && !manager.isDead)
             {
                 manager.playerBody.LookAt(new Vector3(manager.currentLockOnTarget.position.x, manager.playerBody.position.y, manager.currentLockOnTarget.position.z));
             }

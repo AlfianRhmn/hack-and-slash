@@ -2,15 +2,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
-using Unity.Burst.Intrinsics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Interactions;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UIElements;
-using UnityEngine.VFX;
-using static UnityEngine.EventSystems.EventTrigger;
 
 public class PlayerCombat : MonoBehaviour
 {
@@ -40,16 +37,10 @@ public class PlayerCombat : MonoBehaviour
     public GameObject VFX_ModifierB;
     [Range(0f, 1f)]
     public float percentageManaRegen = 0.1f;
-    float lastClickedTime;
-    float lastComboEnd;
     int specialSelected;
     float healthVelocity;
     float manaVelocity;
     float timeLastUsedSpecial = 0;
-    float lightPressTime;
-    bool lightAttackTriggered;
-    float heavyPressTime;
-    bool heavyAttackTriggered;
     bool alreadyInputReady;
     bool isModifierA;
     bool isModifierB;
@@ -74,76 +65,79 @@ public class PlayerCombat : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        SetupSpecial();
-        SetupUltimate();
-        EndAttack();
-
-        timer += Time.deltaTime;
-
-        if (!manager.onAir)
+        if (!manager.isDead)
         {
-            StopCoroutine(JuggleUp());
-            juggleAttack = 0;
-        }
+            SetupSpecial();
+            SetupUltimate();
+            EndAttack();
 
-        for (int i = 0; i < activeStatusEffect.Count; i++)
-        {
-            StatusEffects effect = activeStatusEffect[i];
-            effect.duration -= Time.deltaTime;
-            if (effect.type == StatusEffects.statusType.poison && currentHealth > 1)
+            timer += Time.deltaTime;
+
+            if (!manager.onAir)
             {
-                currentHealth -= effect.severity * Time.deltaTime;
+                StopCoroutine(JuggleUp());
+                juggleAttack = 0;
             }
-            if (effect.duration <= 0)
+
+            for (int i = 0; i < activeStatusEffect.Count; i++)
             {
-                switch (effect.type)
+                StatusEffects effect = activeStatusEffect[i];
+                effect.duration -= Time.deltaTime;
+                if (effect.type == StatusEffects.statusType.poison && currentHealth > 1)
                 {
-                    case StatusEffects.statusType.attack:
-                        attackModifier -= effect.severity;
-                        break;
-                    case StatusEffects.statusType.defense:
-                        defenseModifier -= effect.severity;
-                        break;
-                    case StatusEffects.statusType.critDMG:
-                        critDamage -= effect.severity;
-                        break;
-                    case StatusEffects.statusType.critRate:
-                        critChance -= effect.severity;
-                        break;
-                    case StatusEffects.statusType.poison:
-                        break;
+                    currentHealth -= effect.severity * Time.deltaTime;
                 }
-                activeStatusEffect.Remove(effect);
+                if (effect.duration <= 0)
+                {
+                    switch (effect.type)
+                    {
+                        case StatusEffects.statusType.attack:
+                            attackModifier -= effect.severity;
+                            break;
+                        case StatusEffects.statusType.defense:
+                            defenseModifier -= effect.severity;
+                            break;
+                        case StatusEffects.statusType.critDMG:
+                            critDamage -= effect.severity;
+                            break;
+                        case StatusEffects.statusType.critRate:
+                            critChance -= effect.severity;
+                            break;
+                        case StatusEffects.statusType.poison:
+                            break;
+                    }
+                    activeStatusEffect.Remove(effect);
+                }
             }
-        }
 
-        if (currentHealth > maxHealth)
-        {
-            currentHealth = maxHealth;
-        }
+            if (currentHealth > maxHealth)
+            {
+                currentHealth = maxHealth;
+            }
 
-        if (currentMana > maxMana)
-        {
-            currentMana = maxMana;
-        }
-
-        timeLastUsedSpecial += Time.deltaTime;
-        if (timeLastUsedSpecial > timeUntilManaRegen && currentMana < maxMana)
-        {
-            currentMana += (maxMana * percentageManaRegen) * Time.deltaTime;
             if (currentMana > maxMana)
             {
                 currentMana = maxMana;
             }
-        }
 
-        if (manager.healthBar.maxValue != maxHealth)
-        {
-            manager.healthBar.maxValue = maxHealth;
-        }
-        if (manager.manaBar.maxValue != maxMana)
-        {
-            manager.manaBar.maxValue = maxMana;
+            timeLastUsedSpecial += Time.deltaTime;
+            if (timeLastUsedSpecial > timeUntilManaRegen && currentMana < maxMana)
+            {
+                currentMana += (maxMana * percentageManaRegen) * Time.deltaTime;
+                if (currentMana > maxMana)
+                {
+                    currentMana = maxMana;
+                }
+            }
+
+            if (manager.healthBar.maxValue != maxHealth)
+            {
+                manager.healthBar.maxValue = maxHealth;
+            }
+            if (manager.manaBar.maxValue != maxMana)
+            {
+                manager.manaBar.maxValue = maxMana;
+            }
         }
 
         float temp = Mathf.SmoothDamp(manager.healthBar.value, currentHealth, ref healthVelocity, 0.1f);
@@ -237,7 +231,7 @@ public class PlayerCombat : MonoBehaviour
 
     public void OnChangeSpecialPos(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && !manager.isDead)
         {
             specialSelected++;
             if (specialSelected >= listOfSpecial.Count)
@@ -249,7 +243,7 @@ public class PlayerCombat : MonoBehaviour
 
     public void OnChangeSpecialNeg(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && !manager.isDead)
         {
             specialSelected--;
             if (specialSelected < 0)
@@ -261,7 +255,7 @@ public class PlayerCombat : MonoBehaviour
 
     public void OnModifierA(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && !manager.isDead)
         {
             VFX_ModifierA.SetActive(true);
             isModifierA = true;
@@ -274,7 +268,7 @@ public class PlayerCombat : MonoBehaviour
 
     public void OnModifierB(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && !manager.isDead)
         {
             VFX_ModifierB.SetActive(true);
             isModifierB = true;
@@ -289,7 +283,7 @@ public class PlayerCombat : MonoBehaviour
 
     public void OnLightAttack(InputAction.CallbackContext context)
     {
-        if (manager.readyToSpecial && manager.readyToUltimate && manager.readyToDodge)
+        if (manager.readyToSpecial && manager.readyToUltimate && manager.readyToDodge && !manager.isDead)
         {
             if (context.performed)
             {
@@ -330,7 +324,7 @@ public class PlayerCombat : MonoBehaviour
 
     public void OnHeavyAttack(InputAction.CallbackContext context)
     {
-        if (manager.readyToSpecial && manager.readyToUltimate && manager.readyToDodge)
+        if (manager.readyToSpecial && manager.readyToUltimate && manager.readyToDodge && !manager.isDead)
         {
             if (context.performed)
             {
@@ -464,7 +458,6 @@ public class PlayerCombat : MonoBehaviour
                         break;
                 }
             }
-            lastClickedTime = Time.time;
             comboCounter++;
             StartCoroutine(WaitForAnotherAttack(attack.timeToNextAnim));
         }
@@ -536,7 +529,7 @@ public class PlayerCombat : MonoBehaviour
 
     public void OnSpecialAttack(InputAction.CallbackContext context)
     {
-        if (context.performed && manager.readyToSpecial && currentMana >= listOfSpecial[specialSelected].manaCost && manager.readyToDodge && manager.readyToUltimate && !manager.onAir)
+        if (context.performed && manager.readyToSpecial && currentMana >= listOfSpecial[specialSelected].manaCost && manager.readyToDodge && manager.readyToUltimate && !manager.onAir && !manager.isDead)
         {
             timeLastUsedSpecial = 0;
             currentMana -= listOfSpecial[specialSelected].manaCost;
@@ -598,7 +591,7 @@ public class PlayerCombat : MonoBehaviour
 
     public void OnUltimate(InputAction.CallbackContext context)
     {
-        if (context.performed && manager.readyToUltimate && ultimateProgress >= 100 && manager.readyToDodge && manager.readyToSpecial && manager.readyToAttack)
+        if (context.performed && manager.readyToUltimate && ultimateProgress >= 100 && manager.readyToDodge && manager.readyToSpecial && manager.readyToAttack && !manager.isDead)
         {
             manager.readyToUltimate = false;
             manager.ultCamera.SetActive(true);
@@ -783,7 +776,6 @@ public class PlayerCombat : MonoBehaviour
         playerAttacks.Clear();
         manager.readyToAttack = true;
         comboCounter = 0;
-        lastComboEnd = Time.time;
     }
 
     public void TakeDamage(float damage, Transform sourceOfDamage)
@@ -799,8 +791,22 @@ public class PlayerCombat : MonoBehaviour
                 manager.readyToDodge = false;
                 manager.readyToSpecial = false;
                 manager.readyToUltimate = false;
+                manager.isDead = true;
+                manager.rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+                manager.playerBody.transform.LookAt(new Vector3(sourceOfDamage.position.x, manager.playerBody.transform.position.y, sourceOfDamage.position.z));
+                if (!manager.onAir)
+                {
+                    manager.rb.AddForce(manager.playerBody.forward * -10, ForceMode.Impulse);
+                }
+                AlwaysLookAt look = manager.damageNumber.GetObject().GetComponent<AlwaysLookAt>();
+                look.sourceOfPool = manager.damageNumber;
+                look.transform.position = manager.playerBody.position + new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(0f, 3f), UnityEngine.Random.Range(-1f, 1f));
+                look.transform.localScale = new Vector3(0.2445875f, 0.2445875f, 0.2445875f);
+                look.transform.GetChild(0).GetComponent<TextMeshPro>().text = "DEAD";
+                look.transform.GetChild(0).GetComponent<TextMeshPro>().color = Color.red;
                 manager.anim.SetTrigger("Dead");
-                this.enabled = false;
+                StopAllCoroutines();
+                StartCoroutine(StartDead());
                 // RUN DEATH SEQUENCE
             }
             else
@@ -822,6 +828,14 @@ public class PlayerCombat : MonoBehaviour
                 if (manager.readyToUltimate && !manager.onAir)
                 {
                     manager.anim.SetTrigger("Hit");
+                    if (!manager.readyToSpecial)
+                    {
+                        StopCoroutine(GiveStatus(listOfSpecial[specialSelected].status, listOfSpecial[specialSelected].timeBeforeApply));
+                        for (int i = 0; i < listOfSpecial[specialSelected].skillType.Length; i++)
+                        {
+                            StopCoroutine(SpawnFireball(listOfSpecial[specialSelected], i));
+                        }
+                    }
                 }
                 StartCoroutine(DamageCooldown());
                 //PLAY HIT ANIMATION
@@ -835,6 +849,34 @@ public class PlayerCombat : MonoBehaviour
             look.transform.GetChild(0).GetComponent<TextMeshPro>().text = "DODGE";
             look.transform.GetChild(0).GetComponent<TextMeshPro>().color = Color.cyan;
         }
+    }
+
+    IEnumerator StartDead()
+    {
+        manager.virtualDeathCam.SetActive(true);
+        manager.virtualHardLockCam.SetActive(false);
+        manager.virtualThirdCam.SetActive(false);
+        if (manager.deathVolumeSettings.TryGet<ColorAdjustments>(out ColorAdjustments colorAdjustments))
+        {
+            float currVelocity = 0;
+            colorAdjustments.saturation.value = 0f;
+            while (colorAdjustments.saturation.value > -98f)
+            {
+                colorAdjustments.saturation.value = Mathf.SmoothDamp(colorAdjustments.saturation.value, -100f, ref currVelocity, 0.1f);
+                yield return new WaitForEndOfFrame();
+            }
+        }
+        yield return new WaitForSeconds(1f);
+        manager.deathCanvas.SetActive(true);
+        foreach (InputDevice device in manager.input.devices)
+        {
+            if (device is Gamepad)
+            {
+                manager.eventSystem.SetSelectedGameObject(manager.deathHighlight.gameObject);
+            }
+        }
+        UnityEngine.Cursor.lockState = CursorLockMode.None;
+        manager.input.SwitchCurrentActionMap("UI");
     }
 
     IEnumerator DamageCooldown()
