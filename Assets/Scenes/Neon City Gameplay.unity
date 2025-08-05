@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 3
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: cb20c710b0721ef4d88cabbec2aa4da7, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 20fca97cf5b8e92459331b3cd74c4be1, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -4030,6 +4030,18 @@ PrefabInstance:
       propertyPath: InitialModule.startSize.minScalar
       value: 100
       objectReference: {fileID: 0}
+    - target: {fileID: 5444271518893765271, guid: 434eb60bf6d483a4d8b7c101d492c20c, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.b
+      value: 0.90918875
+      objectReference: {fileID: 0}
+    - target: {fileID: 5444271518893765271, guid: 434eb60bf6d483a4d8b7c101d492c20c, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.g
+      value: 0.54250616
+      objectReference: {fileID: 0}
+    - target: {fileID: 5444271518893765271, guid: 434eb60bf6d483a4d8b7c101d492c20c, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.r
+      value: 0.9245283
+      objectReference: {fileID: 0}
     - target: {fileID: 7594845889359953296, guid: 434eb60bf6d483a4d8b7c101d492c20c, type: 3}
       propertyPath: m_Name
       value: blizzard (2)
@@ -5583,11 +5595,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5444271518893765271, guid: 434eb60bf6d483a4d8b7c101d492c20c, type: 3}
       propertyPath: InitialModule.startSize.scalar
-      value: 200
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 5444271518893765271, guid: 434eb60bf6d483a4d8b7c101d492c20c, type: 3}
       propertyPath: InitialModule.startSize.minScalar
-      value: 100
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5444271518893765271, guid: 434eb60bf6d483a4d8b7c101d492c20c, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.b
+      value: 0.8490566
+      objectReference: {fileID: 0}
+    - target: {fileID: 5444271518893765271, guid: 434eb60bf6d483a4d8b7c101d492c20c, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.g
+      value: 0.5622997
+      objectReference: {fileID: 0}
+    - target: {fileID: 5444271518893765271, guid: 434eb60bf6d483a4d8b7c101d492c20c, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.r
+      value: 0.83489686
       objectReference: {fileID: 0}
     - target: {fileID: 7594845889359953296, guid: 434eb60bf6d483a4d8b7c101d492c20c, type: 3}
       propertyPath: m_Name
@@ -7323,6 +7347,18 @@ PrefabInstance:
     - target: {fileID: 5444271518893765271, guid: 434eb60bf6d483a4d8b7c101d492c20c, type: 3}
       propertyPath: InitialModule.startSize.minScalar
       value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 5444271518893765271, guid: 434eb60bf6d483a4d8b7c101d492c20c, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.b
+      value: 0.68868685
+      objectReference: {fileID: 0}
+    - target: {fileID: 5444271518893765271, guid: 434eb60bf6d483a4d8b7c101d492c20c, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.g
+      value: 0.50954074
+      objectReference: {fileID: 0}
+    - target: {fileID: 5444271518893765271, guid: 434eb60bf6d483a4d8b7c101d492c20c, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.r
+      value: 0.735849
       objectReference: {fileID: 0}
     - target: {fileID: 7594845889359953296, guid: 434eb60bf6d483a4d8b7c101d492c20c, type: 3}
       propertyPath: m_Name
@@ -16471,7 +16507,7 @@ Transform:
   m_GameObject: {fileID: 4495330808991336155}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.2875, y: 0.0848, z: -8.275}
+  m_LocalPosition: {x: -0.2875, y: 0.0848, z: -8.332}
   m_LocalScale: {x: 1.3, y: 1.3, z: 1.3}
   m_ConstrainProportionsScale: 0
   m_Children: []
