@@ -35,6 +35,7 @@ public class PlayerCombat : MonoBehaviour
     public float timeUntilManaRegen = 2;
     public GameObject VFX_ModifierA;
     public GameObject VFX_ModifierB;
+    public GameObject swordVFX;
     [Range(0f, 1f)]
     public float percentageManaRegen = 0.1f;
     int specialSelected;
@@ -46,6 +47,8 @@ public class PlayerCombat : MonoBehaviour
     bool isModifierB;
     [HideInInspector] public int juggleAttack = 0;
     float timer = 0; //used for juggling
+    Vector3 originalPosition;
+    Quaternion originalRotation;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -55,6 +58,38 @@ public class PlayerCombat : MonoBehaviour
         manager.manaBar.maxValue = maxMana;
         manager.healthBar.value = currentHealth;
         manager.manaBar.value = currentMana;
+        originalPosition = transform.position;
+        originalRotation = transform.rotation;
+    }
+
+    public void Respawn()
+    {
+        UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+        manager.deathCanvas.SetActive(false);
+        manager.input.SwitchCurrentActionMap("Player");
+        manager.virtualDeathCam.SetActive(false);
+        manager.virtualHardLockCam.SetActive(false);
+        manager.virtualThirdCam.SetActive(true);
+        manager.movement.CancelLockOn();
+        manager.gameCanvas.SetActive(true);
+        manager.camCanvas.SetActive(true);
+        manager.pauseCanvas.SetActive(true);
+        currentHealth = maxHealth;
+        currentMana = maxMana;
+        manager.isDead = false;
+        manager.readyToAttack = true;
+        manager.readyToDodge = true;
+        manager.readyToHurt = true;
+        manager.readyToSpecial = true;
+        manager.readyToUltimate = true;
+        activeStatusEffect.Clear();
+        transform.position = originalPosition;
+        transform.rotation = originalRotation;
+        for (int i = 0; i < manager.gridStatus.childCount; i++)
+        {
+            Destroy(manager.gridStatus.GetChild(i).gameObject);
+        }
+        manager.anim.Play("Idle");
     }
 
     private void OnEnable()
@@ -219,11 +254,11 @@ public class PlayerCombat : MonoBehaviour
             int amountOfEmpty = 10 - amountOfPoint;
             for (int i = 0; i < amountOfPoint; i++)
             {
-                progressDisplayed += "■";
+                progressDisplayed += "O";
             }
             for (int i = 0; i < amountOfEmpty; i++)
             {
-                progressEmptyDisplay += "■";
+                progressEmptyDisplay += "O";
             }
             manager.ultimateProgress.text = "[ <color=yellow>" + progressDisplayed + "</color>" + progressEmptyDisplay + " ]";
         }
@@ -426,6 +461,7 @@ public class PlayerCombat : MonoBehaviour
                 }
             }
             manager.anim.SetTrigger("Basic Attack");
+            swordVFX.SetActive(true);
             manager.anim.Update(0f);
             manager.weapon.damage = attack.damage * attackModifier;
             manager.weapon.critChance = critChance;
@@ -553,13 +589,23 @@ public class PlayerCombat : MonoBehaviour
                         StartCoroutine(GiveStatus(specialUsed.status, specialUsed.timeBeforeApply));
                         break;
                     case SkillSO.typeOfSkill.Heal:
-                        currentHealth += specialUsed.heal;
+                        HealPlayer(specialUsed.heal);
                         break;
                     case SkillSO.typeOfSkill.Quake:
                         StartCoroutine(SpawnFireball(specialUsed, i));
                         break;
                 }
             }
+        }
+    }
+
+    public void HealPlayer(float amount)
+    {
+        //add vfx for heal n shit
+        currentHealth += amount;
+        if (currentHealth > maxHealth)
+        {
+            currentHealth = maxHealth;
         }
     }
 
@@ -755,6 +801,7 @@ public class PlayerCombat : MonoBehaviour
     IEnumerator WaitForAnotherAttack(float waiting)
     {
         yield return new WaitForSeconds(waiting);
+        swordVFX.SetActive(false);
         manager.readyToAttack = true;
         Invoke("EndCombo", 1);
     }
@@ -769,7 +816,11 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
-
+    private void OnValidate()
+    {
+        attackModifier = Mathf.Max(attackModifier, 0);
+        defenseModifier = Mathf.Max(defenseModifier, 0.001f);
+    }
 
     public void EndCombo()
     {
@@ -783,6 +834,12 @@ public class PlayerCombat : MonoBehaviour
         if (manager.readyToHurt && !manager.invulnerability)
         {
             manager.readyToHurt = false;
+            damage /= defenseModifier;
+            Gamepad.current.SetMotorSpeeds(1f, 1f);
+            if (damage < 1)
+            {
+                damage = 1;
+            }
             currentHealth -= damage;
             if (currentHealth <= 0)
             {
@@ -867,6 +924,7 @@ public class PlayerCombat : MonoBehaviour
             }
         }
         yield return new WaitForSeconds(1f);
+        Gamepad.current.SetMotorSpeeds(0f, 0f);
         manager.deathCanvas.SetActive(true);
         foreach (InputDevice device in manager.input.devices)
         {
@@ -882,6 +940,7 @@ public class PlayerCombat : MonoBehaviour
     IEnumerator DamageCooldown()
     {
         yield return new WaitForSeconds(0.05f);
+        Gamepad.current.SetMotorSpeeds(0f, 0f);
         manager.readyToHurt = true;
         manager.readyToAttack = true;
         manager.readyToDodge = true;

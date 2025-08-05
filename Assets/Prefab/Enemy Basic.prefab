@@ -397,6 +397,7 @@ Transform:
   - {fileID: 1599159930896759574}
   - {fileID: 5120608923177419284}
   - {fileID: 5118021846945001605}
+  - {fileID: 144285828693152923}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!95 &8348242735088087735
@@ -478,6 +479,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80434bb8eac36024cbe781e25222b673, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyName: Enemy
+  isBoss: 0
   currentHP: 100
   maxHP: 100
   target: {fileID: 0}
@@ -507,7 +510,9 @@ MonoBehaviour:
   anim: {fileID: 8348242735088087735}
   weapon: {fileID: 2407762738060288840}
   isBeingLaunched: 0
+  source: {fileID: 0}
   healthBar: {fileID: 2187102356415936017}
+  headOfModel: {fileID: 144285828693152923}
 --- !u!54 &1034529913486879399
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1206,6 +1211,37 @@ Transform:
   m_Children:
   - {fileID: 4566198097424302105}
   m_Father: {fileID: 1411915456460467094}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2417555840238984914
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 144285828693152923}
+  m_Layer: 6
+  m_Name: Head Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &144285828693152923
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2417555840238984914}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.103, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1213293566404817737}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2457144849980375729
 GameObject:

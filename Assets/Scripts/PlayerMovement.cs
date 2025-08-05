@@ -93,6 +93,7 @@ public class PlayerMovement : MonoBehaviour
         if (isTargeting)
         {
             isTargeting = false;
+            crosshair.SetActive(false);
             manager.virtualThirdCam.SetActive(true);
             manager.virtualHardLockCam.SetActive(false);
             currentSpeed = moveSpeed;
@@ -114,7 +115,7 @@ public class PlayerMovement : MonoBehaviour
                 manager.virtualThirdCam.SetActive(false);
                 manager.currentLockOnTarget = target;
                 currentSpeed = slowedSpeed;
-                manager.virtualHardLockCam.GetComponent<CinemachineCamera>().LookAt = target;
+                manager.virtualHardLockCam.GetComponent<CinemachineCamera>().LookAt = target.GetComponent<EnemyBehaviour>().headOfModel;
 
             } else
             {
@@ -156,7 +157,7 @@ public class PlayerMovement : MonoBehaviour
             }
         }
         manager.currentLockOnTarget = manager.enemyClose[index].transform;
-        manager.virtualHardLockCam.GetComponent<CinemachineCamera>().LookAt = manager.enemyClose[index].transform;
+        manager.virtualHardLockCam.GetComponent<CinemachineCamera>().LookAt = manager.enemyClose[index].GetComponent<EnemyBehaviour>().headOfModel;
     }
 
     public void OnChangeLockNeg(InputAction.CallbackContext context)

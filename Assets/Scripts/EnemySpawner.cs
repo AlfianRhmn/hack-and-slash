@@ -2,16 +2,12 @@ using UnityEngine;
 using System.Collections; 
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine.UI;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [Header("Enemy Prefab")]
-    public GameObject enemyPrefab;
-
-    [Header("Spawn Settings")]
-    public int enemiesPerWave = 3; 
-    public float timeBetweenWaves = 5f; 
-    public float spawnDelayPerEnemy = 0.5f; 
+    [Header("Wave")]
+    public EnemyWave[] wave;
 
     [Header("Spawn Points")]
     public Transform[] spawnPoints;
@@ -20,20 +16,18 @@ public class EnemySpawner : MonoBehaviour
     [Header("UI")]
     public GameObject waveDisplay;
     public TextMeshProUGUI waveDisplayText;
+    public Slider bossHealthBar;
+    public TextMeshProUGUI bossName;
+    public TextMeshProUGUI bossHealthText;
 
     private List<GameObject> currentEnemies = new List<GameObject>(); 
     private int currentWave = 0; 
-    private bool waveInProgress = false; 
+    private bool waveInProgress = false;
+    private EnemyBehaviour currentBoss;
+    float currentVelocity;
+    string divider = " / ";
     void Start()
     {
-        // Pastikan ada prefab musuh dan spawn points
-        if (enemyPrefab == null)
-        {
-            Debug.LogError("Enemy Prefab is not assigned in EnemySpawner!");
-            enabled = false; // Nonaktifkan skrip jika tidak ada prefab
-            return;
-        }
-
         if (spawnPoints == null || spawnPoints.Length == 0)
         {
             Debug.LogError("Spawn Points are not assigned in EnemySpawner!");
@@ -64,28 +58,60 @@ public class EnemySpawner : MonoBehaviour
             waveInProgress = false; // Tandai gelombang selesai
             StartCoroutine(WaitForNextWave()); // Tunggu sebelum memulai gelombang baru
         }
+
+        if (currentBoss != null)
+        {
+            bossHealthBar.maxValue = currentBoss.maxHP;
+            bossHealthBar.value = Mathf.SmoothDamp(bossHealthBar.value, currentBoss.currentHP, ref currentVelocity, 0.1f);
+            if (bossName.text != currentBoss.enemyName)
+            {
+                bossName.text = currentBoss.enemyName;
+            }
+            bossHealthText.text = Mathf.RoundToInt(bossHealthBar.value) + divider + currentBoss.maxHP;
+        }
     }
 
     void StartNextWave()
     {
-        waveDisplayText.text = "Wave " + (currentWave + 1);
-        waveDisplay.SetActive(true);
-        StartCoroutine(waveDisplayCooldown());
-        currentWave++;
-        Debug.Log($"Starting Wave {currentWave}!");
-        waveInProgress = true;
-        StartCoroutine(SpawnWave());
+        if (currentWave < wave.Length)
+        {
+            waveDisplayText.text = "Wave " + (currentWave + 1);
+            waveDisplay.SetActive(true);
+            StartCoroutine(waveDisplayCooldown());
+            currentWave++;
+            Debug.Log($"Starting Wave {currentWave}!");
+            waveInProgress = true;
+            StartCoroutine(SpawnWave());
+        }
     }
 
     IEnumerator waveDisplayCooldown()
     {
         yield return new WaitForSeconds(3.9f);
         waveDisplay.SetActive(false);
+        if (currentBoss != null)
+        {
+            bossHealthBar.maxValue = currentBoss.maxHP;
+            bossHealthBar.value = currentBoss.currentHP;
+            bossHealthBar.gameObject.SetActive(true);
+        }
+    }
+
+    public void BossDeath()
+    {
+        bossHealthBar.GetComponent<Animator>().Play("HideSlider");
+        StartCoroutine(WaitUntilSlider());
+    }
+
+    IEnumerator WaitUntilSlider()
+    {
+        yield return new WaitForSeconds(1f);
+        bossHealthBar.gameObject.SetActive(false);
     }
 
     IEnumerator SpawnWave()
     {
-        for (int i = 0; i < enemiesPerWave; i++)
+        for (int i = 0; i < wave[currentWave - 1].enemy.Length; i++)
         {
             // Pastikan masih ada spawn points yang tersedia
             if (spawnPoints.Length == 0)
@@ -98,33 +124,41 @@ public class EnemySpawner : MonoBehaviour
             Transform randomSpawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
 
             // Instantiate musuh
-            GameObject newEnemy = Instantiate(enemyPrefab, randomSpawnPoint.position, randomSpawnPoint.rotation);
+            GameObject newEnemy = Instantiate(wave[currentWave - 1].enemy[i], randomSpawnPoint.position, randomSpawnPoint.rotation);
             currentEnemies.Add(newEnemy);
 
             // Jika musuh adalah Balmond dan PlayerManager memiliki Instance, set targetnya
-            EnemyBehaviour balmondScript = newEnemy.GetComponent<EnemyBehaviour>();
-            if (balmondScript != null && PlayerManager.Instance != null) // Asumsi PlayerManager sudah ada dan Singleton bekerja
+            EnemyBehaviour enemy = newEnemy.GetComponent<EnemyBehaviour>();
+            if (enemy != null && PlayerManager.Instance != null) // Asumsi PlayerManager sudah ada dan Singleton bekerja
             {
-                // Kamu harus memiliki referensi ke objek Player di PlayerManager atau di sini
-                // Contoh: balmondScript.target = PlayerManager.Instance.playerTransform;
-                // Untuk contoh ini, kita bisa mencari objek dengan tag "Player"
                 if (playerObject != null)
                 {
-                    balmondScript.target = playerObject.transform;
+                    enemy.target = playerObject.transform;
                 }
                 else
                 {
                     Debug.LogWarning("Player object with 'Player' tag not found! Balmond will not have a target.");
                 }
             }
+            if (enemy.isBoss && wave[currentWave - 1].bossWave)
+            {
+                enemy.source = this;
+                currentBoss = enemy;
+                if (!waveDisplay.activeSelf)
+                {
+                    bossHealthBar.maxValue = currentBoss.maxHP;
+                    bossHealthBar.value = currentBoss.currentHP;
+                    bossHealthBar.gameObject.SetActive(true);
+                }
+            }
 
-            yield return new WaitForSeconds(spawnDelayPerEnemy); // Jeda sebelum spawn musuh berikutnya
+            yield return new WaitForSeconds(wave[currentWave - 1].spawnDelayPerEnemy); // Jeda sebelum spawn musuh berikutnya
         }
     }
 
     IEnumerator WaitForNextWave()
     {
-        yield return new WaitForSeconds(timeBetweenWaves);
+        yield return new WaitForSeconds(wave[currentWave - 1].timeBetweenWaves);
         StartNextWave();
     }
 
@@ -145,4 +179,13 @@ public class EnemySpawner : MonoBehaviour
         StopAllCoroutines(); // Hentikan semua coroutine yang berjalan
         StartNextWave(); // Mulai dari gelombang pertama lagi
     }
+}
+
+[System.Serializable]
+public class EnemyWave
+{
+    public GameObject[] enemy;
+    public float timeBetweenWaves = 5f;
+    public float spawnDelayPerEnemy = 0.5f;
+    public bool bossWave; // add boss health bar to scene
 }

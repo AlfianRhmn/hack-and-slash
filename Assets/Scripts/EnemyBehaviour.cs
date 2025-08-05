@@ -8,6 +8,8 @@ using UnityEngine.UI;
 public class EnemyBehaviour : MonoBehaviour
 {
     [Header("General - Statistics")]
+    public string enemyName = "Enemy";
+    public bool isBoss = false;
     public float currentHP;
     public float maxHP;
     [Header("General - AI")]
@@ -21,23 +23,26 @@ public class EnemyBehaviour : MonoBehaviour
     bool isAttacking = false;
     bool hasNoticedPlayer;
     bool readyToAttack = true;
-    int damageTaken;
     bool onAir = false;
     bool isDead = false;
-    float timer = 0;
     Rigidbody rb;
     private Coroutine launchRoutine;
     [HideInInspector] public bool isBeingLaunched = false;
+    [HideInInspector] public EnemySpawner source;
     private int airborneHitCount = 0;
     EnemyMoveset currentMoveset;
     [Header("User Interface")]
     public Slider healthBar;
+    public Transform headOfModel;
     float currentVelocity;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        healthBar.maxValue = maxHP;
-        healthBar.value = currentHP;
+        if (!isBoss)
+        {
+            healthBar.maxValue = maxHP;
+            healthBar.value = currentHP;
+        }
         rb = GetComponent<Rigidbody>();
         agent = GetComponent<NavMeshAgent>();
         PlayerManager.Instance.enemyList.Add(this);
@@ -46,9 +51,10 @@ public class EnemyBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        timer += Time.deltaTime;
-
-        SetupUI();
+        if (!isBoss)
+        {
+            SetupUI();
+        }
         if (currentHP > 0)
         {
             CheckEnemyState();
@@ -259,8 +265,18 @@ public class EnemyBehaviour : MonoBehaviour
             agent.isStopped = true;
         }
         anim.SetTrigger("Dead");
+        if (Random.Range(0, 2) == 1)
+        {
+            PlayerManager.Instance.combat.HealPlayer(Random.Range(5f, 20f));
+        }
         yield return new WaitForSeconds(0.1f);
-        healthBar.gameObject.SetActive(false);
+        if (isBoss)
+        {
+            source.BossDeath();
+        } else
+        {
+            healthBar.gameObject.SetActive(false);
+        }
         yield return new WaitForSeconds(2f);
         Destroy(gameObject);
     }
@@ -276,6 +292,8 @@ public class EnemyBehaviour : MonoBehaviour
 
     public IEnumerator LaunchEnemy(float duration, float launchHeight)
     {
+        if (isBoss)
+            yield break;
         if (isBeingLaunched)
             yield break;
 
