@@ -1,0 +1,13 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Taunt 2
+  m_Controller: {fileID: 9100000, guid: 19be87983007ac0439d01599d06e43bf, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: 7381df7707b371a4b9e5f5c39d24c603, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 997d11fdb5dac1944b2d29ea22423591, type: 2}
