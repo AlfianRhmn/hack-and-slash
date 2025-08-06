@@ -46,6 +46,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if (context.performed && manager.readyToDodge && manager.readyToSpecial && manager.readyToUltimate && !manager.onAir && !manager.isDead)
         {
+            manager.rb.useGravity = false;
+            manager.playerCollision.isTrigger = true;
             manager.invulnerability = true;
             manager.combat.Reset();
             manager.rb.linearDamping = 2;
@@ -250,6 +252,8 @@ public class PlayerMovement : MonoBehaviour
     {
         manager.readyToDodge = false;
         yield return new WaitForSeconds(dodgeCooldownTime);
+        manager.playerCollision.isTrigger = false;
+        manager.rb.useGravity = true;
         manager.readyToDodge = true;
     }
 }

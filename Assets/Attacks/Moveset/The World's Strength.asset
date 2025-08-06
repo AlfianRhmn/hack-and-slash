@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movesetName: The World's Strength
   isAirAttack: 0
+  skipAnimation: 1
   comboList:
   - keyUsed: 4
     attackUsed: {fileID: 11400000, guid: bc13499e75c1e824a92bc3e64253e00f, type: 2}

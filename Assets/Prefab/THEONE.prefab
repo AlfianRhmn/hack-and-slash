@@ -990,7 +990,7 @@ GameObject:
   - component: {fileID: 7981349615512154037}
   - component: {fileID: 8225976375455510745}
   - component: {fileID: 2723001644705240621}
-  - component: {fileID: 2852364924801447912}
+  - component: {fileID: 6981798809311967698}
   m_Layer: 6
   m_Name: THEONE
   m_TagString: Enemy
@@ -1138,7 +1138,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4147940095414018934}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 5
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -1157,8 +1157,8 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
---- !u!65 &2852364924801447912
-BoxCollider:
+--- !u!136 &6981798809311967698
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -1175,9 +1175,11 @@ BoxCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1.9990313, z: 1}
-  m_Center: {x: 0, y: 1.00756, z: 0}
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 1.8410461
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.9325514, z: 0}
 --- !u!1 &4151888430925383108
 GameObject:
   m_ObjectHideFlags: 0

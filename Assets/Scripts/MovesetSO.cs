@@ -5,6 +5,7 @@ public class MovesetSO : ScriptableObject
 {
     public string movesetName;
     public bool isAirAttack;
+    public bool skipAnimation;
     public Combo[] comboList;
 }
 

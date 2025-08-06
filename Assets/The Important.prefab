@@ -11983,8 +11983,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 974800799447277345}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.045397695, y: -0.10124023, z: 0.0046246774, w: 0.99381495}
-  m_LocalPosition: {x: 0.43944657, y: 1.2431947, z: -1.7459278}
+  m_LocalRotation: {x: 0.12425078, y: -0.014284617, z: 0.0017889242, w: 0.99214643}
+  m_LocalPosition: {x: 0.19215393, y: 3.0113344, z: -3.8942413}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12045,7 +12045,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 886251e9a18ece04ea8e61686c173e1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CameraDistance: 1.79
+  CameraDistance: 3.1
   DeadZoneDepth: 0
   Composition:
     ScreenPosition: {x: 0, y: 0}
@@ -12057,7 +12057,7 @@ MonoBehaviour:
       Size: {x: 0.8, y: 0.8}
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
-  TargetOffset: {x: 0.08, y: 0, z: 0}
+  TargetOffset: {x: 0.08, y: 0.94, z: 0}
   Damping: {x: 1, y: 1, z: 1}
   Lookahead:
     Enabled: 0
@@ -12076,7 +12076,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e8b78ac948f05a46a6d8339a503172b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LookAtOffset: {x: 0, y: 0.72, z: 0}
+  LookAtOffset: {x: 0, y: -0.3, z: 0}
 --- !u!114 &7230101760566395262
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28815,8 +28815,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "[ <color=yellow></color>\u25A0\u25A0\u25A0\u25A0\u25A0\u25A0\u25A0\u25A0\u25A0\u25A0</color>
-    ]"
+  m_text: '[ <color=yellow></color>OOOOOOOO</color> ]'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 02f6bf2376494434f9d9c8987192a749, type: 2}
   m_sharedMaterial: {fileID: -2896548858521233021, guid: 02f6bf2376494434f9d9c8987192a749, type: 2}
@@ -30987,7 +30986,7 @@ MonoBehaviour:
   maxHealth: 100
   currentMana: 100
   maxMana: 100
-  ultimateProgress: 0
+  ultimateProgress: 100
   activeStatusEffect: []
   attackModifier: 1
   defenseModifier: 1
@@ -31036,6 +31035,7 @@ MonoBehaviour:
   input: {fileID: 3697287256907859818}
   playerBody: {fileID: 1879761341135728299}
   frontOfBody: {fileID: 9074221503409622027}
+  playerCollision: {fileID: 0}
   cam: {fileID: 6495083216897507651}
   virtualThirdCam: {fileID: 8652074508795655144}
   virtualHardLockCam: {fileID: 974800799447277345}
@@ -37625,7 +37625,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6534663647265684564
 Transform:
   m_ObjectHideFlags: 0

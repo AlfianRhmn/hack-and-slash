@@ -21,6 +21,7 @@ public class PlayerManager : MonoBehaviour
     public PlayerInput input;
     public Transform playerBody;
     public Transform frontOfBody;
+    public CapsuleCollider playerCollision;
 
     [Header("Camera & View")]
     public Transform cam;
@@ -203,7 +204,7 @@ public class PlayerManager : MonoBehaviour
             {
                 //QuitOpen()
             }
-            else
+            else if (pausePanel.activeSelf)
             {
                 PauseGame();
             }

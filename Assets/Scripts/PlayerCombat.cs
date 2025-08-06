@@ -45,10 +45,13 @@ public class PlayerCombat : MonoBehaviour
     bool alreadyInputReady;
     bool isModifierA;
     bool isModifierB;
+    MovesetSO lastMoveset;
     [HideInInspector] public int juggleAttack = 0;
     float timer = 0; //used for juggling
     Vector3 originalPosition;
     Quaternion originalRotation;
+    Coroutine attackCooldownCoroutine;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -418,7 +421,16 @@ public class PlayerCombat : MonoBehaviour
         }
         CancelInvoke("EndAttack");
         CancelInvoke("EndCombo");
-        if (!manager.readyToAttack) return;
+        if (lastMoveset != null)
+        {
+            if (!lastMoveset.skipAnimation && !manager.readyToAttack)
+            {
+                return;
+            }
+        } else
+        {
+            if (!manager.readyToAttack) return;
+        }
         // Add to combo input buffer
         playerAttacks.Add(input);
 
@@ -437,6 +449,7 @@ public class PlayerCombat : MonoBehaviour
             HandleAttack(input);
             return;
         }
+        lastMoveset = move;
 
         var attack = move.comboList[comboCounter].attackUsed;
 
@@ -495,7 +508,12 @@ public class PlayerCombat : MonoBehaviour
                 }
             }
             comboCounter++;
-            StartCoroutine(WaitForAnotherAttack(attack.timeToNextAnim));
+            if (attackCooldownCoroutine != null)
+            {
+                StopCoroutine(attackCooldownCoroutine);
+            }
+            attackCooldownCoroutine = StartCoroutine(WaitForAnotherAttack(attack.timeToNextAnim));
+
         }
     }
 
@@ -831,11 +849,14 @@ public class PlayerCombat : MonoBehaviour
 
     public void TakeDamage(float damage, Transform sourceOfDamage)
     {
-        if (manager.readyToHurt && !manager.invulnerability)
+        if (manager.readyToHurt && !manager.invulnerability && manager.readyToUltimate)
         {
             manager.readyToHurt = false;
             damage /= defenseModifier;
-            Gamepad.current.SetMotorSpeeds(1f, 1f);
+            if (Gamepad.current != null)
+            {
+                Gamepad.current.SetMotorSpeeds(1f, 1f);
+            }
             if (damage < 1)
             {
                 damage = 1;
@@ -940,10 +961,14 @@ public class PlayerCombat : MonoBehaviour
     IEnumerator DamageCooldown()
     {
         yield return new WaitForSeconds(0.05f);
-        Gamepad.current.SetMotorSpeeds(0f, 0f);
         manager.readyToHurt = true;
         manager.readyToAttack = true;
         manager.readyToDodge = true;
         manager.readyToSpecial = true;
+        yield return new WaitForSeconds(0.5f);
+        if (Gamepad.current != null)
+        {
+            Gamepad.current.SetMotorSpeeds(0f, 0f);
+        }
     }
 }
