@@ -28,6 +28,8 @@ public class PlayerManager : MonoBehaviour
     public GameObject virtualThirdCam;
     public GameObject virtualHardLockCam;
     public GameObject virtualDeathCam;
+    public GameObject virtualJuggleCam;
+    public Transform jugglePoint;
     public VolumeProfile deathVolumeSettings;
 
     [Header("Weapon & Combat")]

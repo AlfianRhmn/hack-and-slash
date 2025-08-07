@@ -4,7 +4,6 @@ using UnityEngine;
 public class AttackSO : ScriptableObject
 {
     [Header("General")]
-    public string attackName;
     public AnimatorOverrideController animOV;
     public float damage;
     public Movement[] movementDone;

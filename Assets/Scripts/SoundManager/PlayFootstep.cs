@@ -19,4 +19,9 @@ public class PlayFootstep : MonoBehaviour
     {
         rightLeg.DoHit();
     }
+
+    public void Dodge()
+    {
+        PlayerManager.Instance.movement.InitiateDodge();
+    }
 }

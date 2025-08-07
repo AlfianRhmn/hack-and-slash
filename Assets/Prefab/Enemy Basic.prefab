@@ -509,6 +509,7 @@ MonoBehaviour:
     painTolerance: 0
   anim: {fileID: 8348242735088087735}
   weapon: {fileID: 2407762738060288840}
+  isAttacking: 0
   isBeingLaunched: 0
   source: {fileID: 0}
   healthBar: {fileID: 2187102356415936017}
@@ -1221,7 +1222,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 144285828693152923}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Head Point
   m_TagString: Untagged
   m_Icon: {fileID: 0}

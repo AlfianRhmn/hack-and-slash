@@ -18,6 +18,7 @@ public class Juggle : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Enemy"))
         {
+            PlayerManager.Instance.combat.SetLastHit(other.transform);
             other.GetComponent<EnemyBehaviour>().StartLaunch(1f, velocity);
         }
     }

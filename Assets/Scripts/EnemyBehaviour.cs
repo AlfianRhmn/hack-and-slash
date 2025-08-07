@@ -20,7 +20,7 @@ public class EnemyBehaviour : MonoBehaviour
     private int currentState = 0;
     private NavMeshAgent agent;
     bool isChangingState = false;
-    bool isAttacking = false;
+    [HideInInspector] public bool isAttacking = false;
     bool hasNoticedPlayer;
     bool readyToAttack = true;
     bool onAir = false;
@@ -35,6 +35,7 @@ public class EnemyBehaviour : MonoBehaviour
     public Slider healthBar;
     public Transform headOfModel;
     float currentVelocity;
+    float peakY;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -61,6 +62,7 @@ public class EnemyBehaviour : MonoBehaviour
             HandleMovement();
             if (Vector3.Distance(transform.position, target.position) < enemyState[currentState].distanceUntilAttack && !isAttacking && !isChangingState && hasNoticedPlayer && readyToAttack && !onAir)
             {
+                transform.LookAt(new Vector3(target.position.x, transform.position.y, target.position.z));
                 HandleAttack();
             }
         }
@@ -213,7 +215,13 @@ public class EnemyBehaviour : MonoBehaviour
         currentHP -= damage;
 
         if (onAir)
+        {
+            StopCoroutine(ForceMoveUpward(5));
+            StopCoroutine(PlayerManager.Instance.combat.ForceMoveUpward(3f));
+            StartCoroutine(ForceMoveUpward(5));
+            StartCoroutine(PlayerManager.Instance.combat.ForceMoveUpward(3f));
             airborneHitCount++;
+        }
 
         if (currentHP <= 0 && !isDead)
         {
@@ -233,7 +241,7 @@ public class EnemyBehaviour : MonoBehaviour
 
     IEnumerator EnemyHit()
     {
-        if (Random.Range(0f, 1f) <= enemyState[currentState].painTolerance)
+        if (Random.Range(0f, 1f) <= enemyState[currentState].painTolerance && !onAir)
         {
             HandleAttack();
         }
@@ -283,7 +291,6 @@ public class EnemyBehaviour : MonoBehaviour
 
     public void StartLaunch(float duration, float height)
     {
-        // Call this to safely start the launch
         if (launchRoutine != null)
             StopCoroutine(launchRoutine);
 
@@ -329,6 +336,7 @@ public class EnemyBehaviour : MonoBehaviour
         }
 
         // Floating phase: wait for 5 hits or 1.5s with no hit
+        peakY = transform.position.y;
         float noHitTimer = 0f;
         int lastHitCount = airborneHitCount;
 
@@ -346,10 +354,13 @@ public class EnemyBehaviour : MonoBehaviour
             }
             else
             {
-                noHitTimer += Time.deltaTime;
+                if (!PlayerManager.Instance.combat.pauseJuggleTimer)
+                {
+                    noHitTimer = PlayerManager.Instance.combat.timer;
+                }
             }
 
-            if (noHitTimer >= 1.5f)
+            if (noHitTimer >= 0.1f)
                 break;
 
             if (!PlayerManager.Instance.onAir)
@@ -364,9 +375,31 @@ public class EnemyBehaviour : MonoBehaviour
         isBeingLaunched = false;
         launchRoutine = null;
     }
+    public IEnumerator ForceMoveUpward(float initialVelocity)
+    {
+        float velocity = initialVelocity;
+        float gravity = -9.81f;
+        float startY = peakY;
+        float positionY = startY;
+
+        // Move until it comes back down to (or below) the starting position
+        while (positionY >= startY || velocity > 0)
+        {
+            velocity += gravity * Time.deltaTime;
+            positionY += velocity * Time.deltaTime;
+
+            transform.position = new Vector3(transform.position.x, positionY, transform.position.z);
+
+            yield return null;
+        }
+
+        // Snap back exactly to starting position
+        transform.position = new Vector3(transform.position.x, startY, transform.position.z);
+    }
+
 }
 
-    [System.Serializable]
+[System.Serializable]
 public class State
 {
     [Range(0f, 1f)]

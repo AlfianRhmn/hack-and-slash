@@ -1,3 +1,4 @@
+using EasyTextEffects;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -41,6 +42,7 @@ public class Weapon : MonoBehaviour
                     look.transform.localScale = new Vector3(0.2445875f, 0.2445875f, 0.2445875f);
                     look.transform.GetChild(0).GetComponent<TextMeshPro>().text = Mathf.RoundToInt(damage).ToString();
                     look.transform.GetChild(0).GetComponent<TextMeshPro>().color = Color.white;
+                    look.transform.GetChild(0).GetComponent<TextEffect>().Refresh();
                     if (Random.Range(1, 101) <= critChance)
                     {
                         //Critical Hits!

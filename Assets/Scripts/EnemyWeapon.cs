@@ -8,11 +8,20 @@ public class EnemyWeapon : MonoBehaviour
     public float hitboxRange = 1.0f;
     public Vector3 hitboxSize = new Vector3(0.5f, 1f, 0.5f);
     public Transform mainBody;
+
     public void DoHit()
     {
         Vector3 center = transform.position + transform.forward * hitboxRange;
 
         Collider[] hits = Physics.OverlapBox(center, hitboxSize / 2, transform.rotation, hitLayers);
+
+        if (Vector3.Distance(PlayerManager.Instance.transform.position, transform.position) < 3)
+        {
+            if (PlayerManager.Instance.invulnerability)
+            {
+                PlayerManager.Instance.combat.TakeDamage(0, mainBody);
+            }
+        }
 
         foreach (Collider hit in hits)
         {

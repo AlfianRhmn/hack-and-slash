@@ -19,4 +19,5 @@ MonoBehaviour:
   - timeBeforeMoving: 0.05
     amountToMove: 10
     moveDirection: {x: 0, y: 0, z: 0}
-  timeToNextAnim: 0.8
+  timeToNextAnim: 1
+  addEffects: []

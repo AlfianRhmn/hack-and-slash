@@ -48,7 +48,6 @@ public class PlayerMovement : MonoBehaviour
         {
             manager.rb.useGravity = false;
             manager.playerCollision.isTrigger = true;
-            manager.invulnerability = true;
             manager.combat.Reset();
             manager.rb.linearDamping = 2;
             if (manager.anim != null)
@@ -57,30 +56,35 @@ public class PlayerMovement : MonoBehaviour
             }
             StartCoroutine(DodgeCooldown());
             StartCoroutine(StartSnappy());
-            Vector3 dodgeDirection;
-
-            if (moveDirection == Vector2.zero)
-            {
-                // Dodge forward relative to player body when idle
-                dodgeDirection = manager.playerBody.forward;
-            }
-            else
-            {
-                // Get camera's flat forward and right vectors
-                Vector3 camForward = manager.cam.forward;
-                Vector3 camRight = manager.cam.right;
-                camForward.y = 0;
-                camRight.y = 0;
-                camForward.Normalize();
-                camRight.Normalize();
-
-                // Calculate movement direction relative to camera
-                dodgeDirection = (camForward * moveDirection.y + camRight * moveDirection.x).normalized;
-            }
-
-            // Apply impulse force in the dodge direction
-            manager.rb.linearVelocity = dodgeDirection * dodgeDistance;
         }
+    }
+
+    public void InitiateDodge()
+    {
+        manager.invulnerability = true;
+        Vector3 dodgeDirection;
+
+        if (moveDirection == Vector2.zero)
+        {
+            // Dodge forward relative to player body when idle
+            dodgeDirection = manager.playerBody.forward;
+        }
+        else
+        {
+            // Get camera's flat forward and right vectors
+            Vector3 camForward = manager.cam.forward;
+            Vector3 camRight = manager.cam.right;
+            camForward.y = 0;
+            camRight.y = 0;
+            camForward.Normalize();
+            camRight.Normalize();
+
+            // Calculate movement direction relative to camera
+            dodgeDirection = (camForward * moveDirection.y + camRight * moveDirection.x).normalized;
+        }
+
+        // Apply impulse force in the dodge direction
+        manager.rb.linearVelocity = dodgeDirection * dodgeDistance;
     }
 
     IEnumerator StartSnappy()

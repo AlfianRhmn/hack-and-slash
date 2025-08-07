@@ -1,4 +1,5 @@
-﻿using SmallHedge.SoundManager;
+﻿using EasyTextEffects;
+using SmallHedge.SoundManager;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +8,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Interactions;
 using UnityEngine.Rendering.Universal;
-using UnityEngine.UIElements;
 
 public class PlayerCombat : MonoBehaviour
 {
@@ -36,6 +36,7 @@ public class PlayerCombat : MonoBehaviour
     public GameObject VFX_ModifierA;
     public GameObject VFX_ModifierB;
     public GameObject swordVFX;
+    public TextMeshProUGUI debug;
     [Range(0f, 1f)]
     public float percentageManaRegen = 0.1f;
     int specialSelected;
@@ -47,11 +48,15 @@ public class PlayerCombat : MonoBehaviour
     bool isModifierB;
     MovesetSO lastMoveset;
     [HideInInspector] public int juggleAttack = 0;
-    float timer = 0; //used for juggling
+    [HideInInspector] public float timer = 0; //used for juggling
     Vector3 originalPosition;
     Quaternion originalRotation;
+    Transform lastEnemyHit;
     Coroutine attackCooldownCoroutine;
-
+    Coroutine slowFrameDamage;
+    [HideInInspector] public bool pauseJuggleTimer = false;
+    GameObject dodgeNumber;
+    float peakY;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -108,8 +113,11 @@ public class PlayerCombat : MonoBehaviour
             SetupSpecial();
             SetupUltimate();
             EndAttack();
-
-            timer += Time.deltaTime;
+            debug.text = timer.ToString();
+            if (!pauseJuggleTimer)
+            {
+                timer += Time.deltaTime;
+            }
 
             if (!manager.onAir)
             {
@@ -321,9 +329,10 @@ public class PlayerCombat : MonoBehaviour
 
     public void OnLightAttack(InputAction.CallbackContext context)
     {
-        if (manager.readyToSpecial && manager.readyToUltimate && manager.readyToDodge && !manager.isDead)
+        if (context.performed)
         {
-            if (context.performed)
+            timer = 0;
+            if (manager.readyToSpecial && manager.readyToUltimate && manager.readyToDodge && !manager.isDead)
             {
                 if (isModifierA)
                 {
@@ -335,7 +344,8 @@ public class PlayerCombat : MonoBehaviour
                     {
                         HandleAttack(Combo.attackTypes.ModifiedHoldLightAttackA);
                     }
-                } else if (isModifierB)
+                }
+                else if (isModifierB)
                 {
                     if (context.interaction is TapInteraction)
                     {
@@ -345,7 +355,8 @@ public class PlayerCombat : MonoBehaviour
                     {
                         HandleAttack(Combo.attackTypes.ModifiedHoldLightAttackB);
                     }
-                } else
+                }
+                else
                 {
                     if (context.interaction is TapInteraction)
                     {
@@ -362,9 +373,10 @@ public class PlayerCombat : MonoBehaviour
 
     public void OnHeavyAttack(InputAction.CallbackContext context)
     {
-        if (manager.readyToSpecial && manager.readyToUltimate && manager.readyToDodge && !manager.isDead)
+        if (context.performed)
         {
-            if (context.performed)
+            timer = 0;
+            if (manager.readyToSpecial && manager.readyToUltimate && manager.readyToDodge && !manager.isDead)
             {
                 if (isModifierA)
                 {
@@ -527,11 +539,21 @@ public class PlayerCombat : MonoBehaviour
     IEnumerator JuggleUp()
     {
         yield return new WaitUntil(() => manager.rb.linearVelocity.y < -0.1f);
-        timer = 0;
+        peakY = transform.position.y;
+        if (lastEnemyHit != null && !manager.virtualHardLockCam.activeSelf)
+        {
+            manager.jugglePoint.position = Vector3.Lerp(manager.playerBody.position, lastEnemyHit.position, 0.5f);
+            manager.virtualJuggleCam.SetActive(true);
+        }
         juggleAttack = 0;
-        manager.rb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
-        manager.rb.linearVelocity = Vector3.zero;
-        yield return new WaitUntil(() => juggleAttack > 5 || !manager.onAir || timer >= 1.5f || !CheckEnemyOnAir());
+        if (timer <= 0.4f)
+        {
+            manager.rb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+            manager.rb.linearVelocity = Vector3.zero;
+        }
+        yield return new WaitUntil(() => juggleAttack > 5 || !manager.onAir || timer >= 0.1f || !CheckEnemyOnAir());
+        manager.virtualJuggleCam.SetActive(false);
+        print("Juggle Canceled - Attack : " + juggleAttack + ", OnAir : " + manager.onAir + ", Timer : " + timer + " Enemy OnAir : " + CheckEnemyOnAir());
         manager.rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
     }
 
@@ -753,6 +775,30 @@ public class PlayerCombat : MonoBehaviour
         manager.rb.AddForce(direction * amountOfPush, ForceMode.Impulse);
     }
 
+    public IEnumerator ForceMoveUpward(float initialVelocity)
+    {
+        float velocity = initialVelocity;
+        float gravity = -9.81f;
+        float startY = peakY;
+        float positionY = startY;
+
+        // Move until it comes back down to (or below) the starting position
+        while (positionY >= startY || velocity > 0)
+        {
+            velocity += gravity * Time.deltaTime;
+            positionY += velocity * Time.deltaTime;
+
+            transform.position = new Vector3(transform.position.x, positionY, transform.position.z);
+
+            yield return null;
+        }
+
+        // Snap back exactly to starting position
+        transform.position = new Vector3(transform.position.x, startY, transform.position.z);
+    }
+
+
+
     public Transform FindClosestEnemy()
     {
         if (manager.enemyList.Count == 0)
@@ -811,6 +857,11 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
+    public void SetLastHit(Transform enemy)
+    {
+        lastEnemyHit = enemy;
+    }
+
     public void Reset()
     {
         manager.readyToAttack = true;
@@ -818,10 +869,13 @@ public class PlayerCombat : MonoBehaviour
     }
     IEnumerator WaitForAnotherAttack(float waiting)
     {
+        pauseJuggleTimer = true;
         yield return new WaitForSeconds(waiting);
         swordVFX.SetActive(false);
         manager.readyToAttack = true;
         Invoke("EndCombo", 1);
+        yield return new WaitForSeconds(0.2f);
+        pauseJuggleTimer = false;
     }
 
     void EndAttack()
@@ -849,84 +903,113 @@ public class PlayerCombat : MonoBehaviour
 
     public void TakeDamage(float damage, Transform sourceOfDamage)
     {
-        if (manager.readyToHurt && !manager.invulnerability && manager.readyToUltimate)
+        if (manager.readyToHurt && manager.readyToUltimate)
         {
-            manager.readyToHurt = false;
-            damage /= defenseModifier;
-            if (Gamepad.current != null)
+            if (manager.invulnerability)
             {
-                Gamepad.current.SetMotorSpeeds(1f, 1f);
-            }
-            if (damage < 1)
-            {
-                damage = 1;
-            }
-            currentHealth -= damage;
-            if (currentHealth <= 0)
-            {
-                currentHealth = 0;
-                manager.readyToAttack = false;
-                manager.readyToDodge = false;
-                manager.readyToSpecial = false;
-                manager.readyToUltimate = false;
-                manager.isDead = true;
-                manager.rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
-                manager.playerBody.transform.LookAt(new Vector3(sourceOfDamage.position.x, manager.playerBody.transform.position.y, sourceOfDamage.position.z));
-                if (!manager.onAir)
+                if (dodgeNumber == null)
                 {
-                    manager.rb.AddForce(manager.playerBody.forward * -10, ForceMode.Impulse);
-                }
-                AlwaysLookAt look = manager.damageNumber.GetObject().GetComponent<AlwaysLookAt>();
-                look.sourceOfPool = manager.damageNumber;
-                look.transform.position = manager.playerBody.position + new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(0f, 3f), UnityEngine.Random.Range(-1f, 1f));
-                look.transform.localScale = new Vector3(0.2445875f, 0.2445875f, 0.2445875f);
-                look.transform.GetChild(0).GetComponent<TextMeshPro>().text = "DEAD";
-                look.transform.GetChild(0).GetComponent<TextMeshPro>().color = Color.red;
-                manager.anim.SetTrigger("Dead");
-                StopAllCoroutines();
-                StartCoroutine(StartDead());
-                // RUN DEATH SEQUENCE
-            }
-            else
-            {
-                manager.rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
-                StopCoroutine(manager.movement.DodgeCooldown());
-                manager.readyToDodge = false;
-                manager.playerBody.transform.LookAt(new Vector3(sourceOfDamage.position.x, manager.playerBody.transform.position.y, sourceOfDamage.position.z));
-                if (!manager.onAir)
-                {
-                    manager.rb.AddForce(manager.playerBody.forward * -10, ForceMode.Impulse);
-                }
-                AlwaysLookAt look = manager.damageNumber.GetObject().GetComponent<AlwaysLookAt>();
-                look.sourceOfPool = manager.damageNumber;
-                look.transform.position = manager.playerBody.position + new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(0f, 3f), UnityEngine.Random.Range(-1f, 1f));
-                look.transform.localScale = new Vector3(0.2445875f, 0.2445875f, 0.2445875f);
-                look.transform.GetChild(0).GetComponent<TextMeshPro>().text = Mathf.RoundToInt(damage).ToString();
-                look.transform.GetChild(0).GetComponent<TextMeshPro>().color = Color.red;
-                if (manager.readyToUltimate && !manager.onAir)
-                {
-                    manager.anim.SetTrigger("Hit");
-                    if (!manager.readyToSpecial)
+                    AlwaysLookAt look = manager.damageNumber.GetObject().GetComponent<AlwaysLookAt>();
+                    dodgeNumber = look.gameObject;
+                    look.sourceOfPool = manager.damageNumber;
+                    look.transform.position = manager.playerBody.position + new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(0f, 3f), UnityEngine.Random.Range(-1f, 1f));
+                    look.transform.localScale = new Vector3(0.2445875f, 0.2445875f, 0.2445875f);
+                    look.transform.GetChild(0).GetComponent<TextMeshPro>().text = "DODGE";
+                    look.transform.GetChild(0).GetComponent<TextMeshPro>().color = Color.cyan;
+                    look.transform.GetChild(0).GetComponent<TextEffect>().Refresh();
+                    StartCoroutine(DodgeNumberRefresh());
+                    if (slowFrameDamage != null)
                     {
-                        StopCoroutine(GiveStatus(listOfSpecial[specialSelected].status, listOfSpecial[specialSelected].timeBeforeApply));
-                        for (int i = 0; i < listOfSpecial[specialSelected].skillType.Length; i++)
+                        StopCoroutine(SlowFrameDodge());
+                    }
+                    slowFrameDamage = StartCoroutine(SlowFrameDodge());
+                }
+            } else
+            {
+                manager.readyToHurt = false;
+                damage /= defenseModifier;
+                if (Gamepad.current != null)
+                {
+                    Gamepad.current.SetMotorSpeeds(1f, 1f);
+                }
+                if (damage < 1)
+                {
+                    damage = 1;
+                }
+                currentHealth -= damage;
+                if (currentHealth <= 0)
+                {
+                    currentHealth = 0;
+                    manager.readyToAttack = false;
+                    manager.readyToDodge = false;
+                    manager.readyToSpecial = false;
+                    manager.readyToUltimate = false;
+                    manager.isDead = true;
+                    manager.rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+                    manager.playerBody.transform.LookAt(new Vector3(sourceOfDamage.position.x, manager.playerBody.transform.position.y, sourceOfDamage.position.z));
+                    if (!manager.onAir)
+                    {
+                        manager.rb.AddForce(manager.playerBody.forward * -10, ForceMode.Impulse);
+                    }
+                    AlwaysLookAt look = manager.damageNumber.GetObject().GetComponent<AlwaysLookAt>();
+                    look.sourceOfPool = manager.damageNumber;
+                    look.transform.position = manager.playerBody.position + new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(0f, 3f), UnityEngine.Random.Range(-1f, 1f));
+                    look.transform.localScale = new Vector3(0.2445875f, 0.2445875f, 0.2445875f);
+                    look.transform.GetChild(0).GetComponent<TextMeshPro>().text = "DEAD";
+                    look.transform.GetChild(0).GetComponent<TextMeshPro>().color = Color.red;
+                    look.transform.GetChild(0).GetComponent<TextEffect>().Refresh();
+                    manager.anim.SetTrigger("Dead");
+                    StopAllCoroutines();
+                    StartCoroutine(StartDead());
+                    // RUN DEATH SEQUENCE
+                }
+                else
+                {
+                    manager.rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+                    StopCoroutine(manager.movement.DodgeCooldown());
+                    manager.readyToDodge = false;
+                    manager.playerBody.transform.LookAt(new Vector3(sourceOfDamage.position.x, manager.playerBody.transform.position.y, sourceOfDamage.position.z));
+                    if (!manager.onAir)
+                    {
+                        manager.rb.AddForce(manager.playerBody.forward * -10, ForceMode.Impulse);
+                    }
+                    AlwaysLookAt look = manager.damageNumber.GetObject().GetComponent<AlwaysLookAt>();
+                    look.sourceOfPool = manager.damageNumber;
+                    look.transform.position = manager.playerBody.position + new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(0f, 3f), UnityEngine.Random.Range(-1f, 1f));
+                    look.transform.localScale = new Vector3(0.2445875f, 0.2445875f, 0.2445875f);
+                    look.transform.GetChild(0).GetComponent<TextMeshPro>().text = Mathf.RoundToInt(damage).ToString();
+                    look.transform.GetChild(0).GetComponent<TextMeshPro>().color = Color.red;
+                    look.transform.GetChild(0).GetComponent<TextEffect>().Refresh();
+                    if (manager.readyToUltimate && !manager.onAir)
+                    {
+                        manager.anim.SetTrigger("Hit");
+                        if (!manager.readyToSpecial)
                         {
-                            StopCoroutine(SpawnFireball(listOfSpecial[specialSelected], i));
+                            StopCoroutine(GiveStatus(listOfSpecial[specialSelected].status, listOfSpecial[specialSelected].timeBeforeApply));
+                            for (int i = 0; i < listOfSpecial[specialSelected].skillType.Length; i++)
+                            {
+                                StopCoroutine(SpawnFireball(listOfSpecial[specialSelected], i));
+                            }
                         }
                     }
+                    StartCoroutine(DamageCooldown());
+                    //PLAY HIT ANIMATION
                 }
-                StartCoroutine(DamageCooldown());
-                //PLAY HIT ANIMATION
             }
-        } else if (manager.invulnerability)
-        {
-            AlwaysLookAt look = manager.damageNumber.GetObject().GetComponent<AlwaysLookAt>();
-            look.sourceOfPool = manager.damageNumber;
-            look.transform.position = manager.playerBody.position + new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(0f, 3f), UnityEngine.Random.Range(-1f, 1f));
-            look.transform.localScale = new Vector3(0.2445875f, 0.2445875f, 0.2445875f);
-            look.transform.GetChild(0).GetComponent<TextMeshPro>().text = "DODGE";
-            look.transform.GetChild(0).GetComponent<TextMeshPro>().color = Color.cyan;
         }
+    }
+
+    IEnumerator DodgeNumberRefresh()
+    {
+        yield return new WaitForSeconds(2);
+        dodgeNumber = null;
+    }
+
+    IEnumerator SlowFrameDodge()
+    {
+        Time.timeScale = 0.5f;
+        yield return new WaitForSecondsRealtime(1f);
+        Time.timeScale = 1f;
     }
 
     IEnumerator StartDead()
@@ -945,7 +1028,10 @@ public class PlayerCombat : MonoBehaviour
             }
         }
         yield return new WaitForSeconds(1f);
-        Gamepad.current.SetMotorSpeeds(0f, 0f);
+        if (Gamepad.current != null)
+        {
+            Gamepad.current.SetMotorSpeeds(0f, 0f);
+        }
         manager.deathCanvas.SetActive(true);
         foreach (InputDevice device in manager.input.devices)
         {
