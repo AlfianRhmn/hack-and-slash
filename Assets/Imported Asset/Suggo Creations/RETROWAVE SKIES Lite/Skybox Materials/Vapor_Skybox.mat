@@ -110,8 +110,8 @@ Material:
     - _EnableFogOnTransparent: 1
     - _FogContrast: 30
     - _FogHeight: 1
-    - _FogPower: 1
-    - _HorizonHeight: -0.03
+    - _FogPower: 0
+    - _HorizonHeight: 0.24
     - _HorizonStrength: 1
     - _LinesMaskPower: 22.8
     - _LinesSpeed: 0.7
