@@ -1,9 +1,11 @@
+using SmallHedge.SoundManager;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
+    [Header("Projectile")]
     public int effectID; // 0 - none, 1 - quake
     public ObjectPooling damageNumber;
     public float duration;
@@ -11,10 +13,16 @@ public class Projectile : MonoBehaviour
     [UnityEngine.Range(0, 100f)]
     public float critChance = 50f;
     public float critDamage = 50f;
+    [Header("Display")]
+    public bool useSound;
+    public int soundIndex;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
+        if (useSound)
+        {
+            SoundManager.PlaySoundIndex(soundIndex);
+        }
     }
 
     // Update is called once per frame

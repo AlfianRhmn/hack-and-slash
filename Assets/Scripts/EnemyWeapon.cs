@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyWeapon : MonoBehaviour
@@ -23,13 +24,16 @@ public class EnemyWeapon : MonoBehaviour
             }
         }
 
+        HashSet<PlayerCombat> alreadyHit = new HashSet<PlayerCombat>();
+
         foreach (Collider hit in hits)
         {
             if (hit.CompareTag("Player"))
             {
                 PlayerCombat player = hit.GetComponent<PlayerCombat>();
-                if (player != null)
+                if (player != null && !alreadyHit.Contains(player))
                 {
+                    alreadyHit.Add(player);
                     player.TakeDamage(damage, mainBody);
                 }
             }

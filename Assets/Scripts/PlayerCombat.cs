@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Interactions;
 using UnityEngine.Rendering.Universal;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class PlayerCombat : MonoBehaviour
 {
@@ -36,6 +37,7 @@ public class PlayerCombat : MonoBehaviour
     public GameObject VFX_ModifierA;
     public GameObject VFX_ModifierB;
     public GameObject swordVFX;
+    public GameObject impactVFX;
     public TextMeshProUGUI debug;
     [Range(0f, 1f)]
     public float percentageManaRegen = 0.1f;
@@ -57,6 +59,8 @@ public class PlayerCombat : MonoBehaviour
     [HideInInspector] public bool pauseJuggleTimer = false;
     GameObject dodgeNumber;
     float peakY;
+    int parriedAttacks = 0;
+    float parryTimer;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -72,7 +76,7 @@ public class PlayerCombat : MonoBehaviour
 
     public void Respawn()
     {
-        UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState = CursorLockMode.Locked;
         manager.deathCanvas.SetActive(false);
         manager.input.SwitchCurrentActionMap("Player");
         manager.virtualDeathCam.SetActive(false);
@@ -113,7 +117,7 @@ public class PlayerCombat : MonoBehaviour
             SetupSpecial();
             SetupUltimate();
             EndAttack();
-            debug.text = timer.ToString();
+            debug.text = "last hit : " + timer.ToString() + "<br>player falling speed : " + (Mathf.Round(manager.rb.linearVelocity.y * 100) / 100) + "<br>timescale : " + Time.timeScale + "<br>parry timer : " + parryTimer + "<br>parried attacks : " + parriedAttacks;
             if (!pauseJuggleTimer)
             {
                 timer += Time.deltaTime;
@@ -275,6 +279,94 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
+    public void MoveInFrontOfEnemy(Transform enemy)
+    {
+        Vector3 targetPosition = enemy.position + enemy.forward * 1;
+        StartCoroutine(MoveToPosition(targetPosition, 0.2f));
+    }
+
+    private IEnumerator MoveToPosition(Vector3 target, float duration)
+    {
+        Vector3 start = transform.position;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            transform.position = Vector3.Lerp(start, target, elapsed / duration);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.position = target; // Ensure exact position at end
+    }
+
+    public void OnParry(InputAction.CallbackContext context)
+    {
+        if (context.performed && manager.readyToUltimate && manager.readyToSpecial && manager.readyToDodge && manager.readyToHurt && manager.enemyClose.Count > 0 && !manager.isParry && !manager.restrictParry)
+        {
+            parriedAttacks = 0;
+            manager.isParry = true;
+            EnemyBehaviour[] parry = FindParryable();
+            if (parry.Length > 0)
+            {
+                // try parrying
+                StartCoroutine(StartParrying(parry));
+
+            } else
+            {
+                manager.isParry = false;
+            }
+        }
+    }
+
+    IEnumerator StartParrying(EnemyBehaviour[] parry)
+    {
+        Transform closest = FindClosestFromList(parry);
+        manager.playerBody.LookAt(new Vector3(closest.position.x, transform.position.y, closest.position.z));
+        MoveInFrontOfEnemy(closest);
+        manager.anim.SetBool("Parrying", true);
+        int amountOfAttacks = closest.GetComponent<EnemyBehaviour>().currentMoveset.damageChecks;
+        parryTimer = 0;
+        while (parriedAttacks < amountOfAttacks)
+        {
+            // wait until all checks are finished
+            // parriedattacks increase on TakeDamage()
+            parryTimer += Time.deltaTime;
+            if (parryTimer > 1.2f)
+            {
+                break;
+            }
+            yield return new WaitForEndOfFrame();
+        }
+        yield return new WaitForSeconds(0.2f);
+        parryTimer = 0;
+        manager.anim.SetBool("Parrying", false);
+        StartCoroutine(StartInvincible());
+        yield return new WaitForSeconds(0.8f);
+        manager.virtualParryCam.SetActive(false);
+    }
+
+    IEnumerator StartInvincible()
+    {
+        gameObject.tag = "Untagged"; // THIS IS CHEAP WAY FOR INVINCIBLE WITHOUT VARIABLE
+        yield return new WaitForSeconds(1f);
+        gameObject.tag = "Player";
+        manager.isParry = false;
+    }
+
+    EnemyBehaviour[] FindParryable()
+    {
+        List<EnemyBehaviour> result = new List<EnemyBehaviour>();
+        for (int i = 0; i < manager.enemyClose.Count; i++)
+        {
+            if (Vector3.Distance(manager.enemyClose[i].transform.position, transform.position) < 8 && manager.enemyClose[i].isAttacking)
+            {
+                result.Add(manager.enemyClose[i]);
+            }
+        }
+        return result.ToArray();
+    }
+
     public void OnChangeSpecialPos(InputAction.CallbackContext context)
     {
         if (context.performed && !manager.isDead)
@@ -332,7 +424,7 @@ public class PlayerCombat : MonoBehaviour
         if (context.performed)
         {
             timer = 0;
-            if (manager.readyToSpecial && manager.readyToUltimate && manager.readyToDodge && !manager.isDead)
+            if (manager.readyToSpecial && manager.readyToUltimate && manager.readyToDodge && !manager.isDead && !manager.isParry)
             {
                 if (isModifierA)
                 {
@@ -376,7 +468,7 @@ public class PlayerCombat : MonoBehaviour
         if (context.performed)
         {
             timer = 0;
-            if (manager.readyToSpecial && manager.readyToUltimate && manager.readyToDodge && !manager.isDead)
+            if (manager.readyToSpecial && manager.readyToUltimate && manager.readyToDodge && !manager.isDead && !manager.isParry)
             {
                 if (isModifierA)
                 {
@@ -555,6 +647,7 @@ public class PlayerCombat : MonoBehaviour
         manager.virtualJuggleCam.SetActive(false);
         print("Juggle Canceled - Attack : " + juggleAttack + ", OnAir : " + manager.onAir + ", Timer : " + timer + " Enemy OnAir : " + CheckEnemyOnAir());
         manager.rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+        manager.rb.AddForce(Vector3.down * 200);
     }
 
     bool CheckEnemyOnAir()
@@ -605,7 +698,7 @@ public class PlayerCombat : MonoBehaviour
 
     public void OnSpecialAttack(InputAction.CallbackContext context)
     {
-        if (context.performed && manager.readyToSpecial && currentMana >= listOfSpecial[specialSelected].manaCost && manager.readyToDodge && manager.readyToUltimate && !manager.onAir && !manager.isDead)
+        if (context.performed && manager.readyToSpecial && currentMana >= listOfSpecial[specialSelected].manaCost && manager.readyToDodge && manager.readyToUltimate && !manager.onAir && !manager.isDead && !manager.isParry)
         {
             timeLastUsedSpecial = 0;
             currentMana -= listOfSpecial[specialSelected].manaCost;
@@ -677,7 +770,7 @@ public class PlayerCombat : MonoBehaviour
 
     public void OnUltimate(InputAction.CallbackContext context)
     {
-        if (context.performed && manager.readyToUltimate && ultimateProgress >= 100 && manager.readyToDodge && manager.readyToSpecial && manager.readyToAttack && !manager.isDead)
+        if (context.performed && manager.readyToUltimate && ultimateProgress >= 100 && manager.readyToDodge && manager.readyToSpecial && manager.readyToAttack && !manager.isDead && !manager.isParry)
         {
             manager.readyToUltimate = false;
             manager.ultCamera.SetActive(true);
@@ -797,7 +890,24 @@ public class PlayerCombat : MonoBehaviour
         transform.position = new Vector3(transform.position.x, startY, transform.position.z);
     }
 
-
+    public Transform FindClosestFromList(EnemyBehaviour[] list)
+    {
+        if (list.Length == 0)
+        {
+            return null;
+        }
+        float closestDistance = Mathf.Infinity;
+        int enemyIndex = 0;
+        foreach (EnemyBehaviour enemy in list)
+        {
+            if (Vector3.Distance(transform.position, enemy.transform.position) < closestDistance)
+            {
+                closestDistance = Vector3.Distance(transform.position, enemy.transform.position);
+                enemyIndex = manager.enemyList.IndexOf(enemy);
+            }
+        }
+        return list[enemyIndex].transform;
+    }
 
     public Transform FindClosestEnemy()
     {
@@ -924,8 +1034,17 @@ public class PlayerCombat : MonoBehaviour
                     }
                     slowFrameDamage = StartCoroutine(SlowFrameDodge());
                 }
-            } else
+            } 
+            else if (manager.isParry)
             {
+                parryTimer = 0;
+                manager.virtualParryCam.SetActive(true);
+                parriedAttacks++;
+                StartCoroutine(StartImpactVFX());
+            } 
+            else
+            {
+                manager.restrictParry = true;
                 manager.readyToHurt = false;
                 damage /= defenseModifier;
                 if (Gamepad.current != null)
@@ -937,6 +1056,7 @@ public class PlayerCombat : MonoBehaviour
                     damage = 1;
                 }
                 currentHealth -= damage;
+                manager.rb.linearVelocity = new Vector3(0, manager.rb.linearVelocity.y, 0);
                 if (currentHealth <= 0)
                 {
                     currentHealth = 0;
@@ -999,6 +1119,15 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
+    IEnumerator StartImpactVFX()
+    {
+        SoundManager.PlaySoundIndex(10);
+        GameObject obj = Instantiate(impactVFX, manager.weapon.transform, false);
+        obj.transform.localScale = Vector3.one * 3;
+        yield return new WaitForSeconds(1f);
+        Destroy(obj);
+    }
+
     IEnumerator DodgeNumberRefresh()
     {
         yield return new WaitForSeconds(2);
@@ -1007,8 +1136,27 @@ public class PlayerCombat : MonoBehaviour
 
     IEnumerator SlowFrameDodge()
     {
-        Time.timeScale = 0.5f;
-        yield return new WaitForSecondsRealtime(1f);
+        Time.timeScale = 0.1f;
+        if (manager.succesfulDodgeSettings.TryGet<ColorAdjustments>(out ColorAdjustments adjust))
+        {
+            adjust.saturation.value = 0;
+            for (int i = 0; i < 20; i++)
+            {
+                adjust.saturation.value -= 5;
+                yield return new WaitForEndOfFrame();
+            }
+        }
+        yield return new WaitForSecondsRealtime(0.6f);
+        if (adjust != null)
+        {
+            adjust.saturation.value = 0;
+            for (int i = 0; i < 20; i++)
+            {
+                adjust.saturation.value += 5;
+                yield return new WaitForEndOfFrame();
+            }
+            adjust.saturation.value = 0;
+        }
         Time.timeScale = 1f;
     }
 
@@ -1056,5 +1204,6 @@ public class PlayerCombat : MonoBehaviour
         {
             Gamepad.current.SetMotorSpeeds(0f, 0f);
         }
+        manager.restrictParry = false;
     }
 }

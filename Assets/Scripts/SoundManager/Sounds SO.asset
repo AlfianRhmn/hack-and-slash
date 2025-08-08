@@ -67,3 +67,13 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 21a80e69eb2ec3647a917c8af5230f66, type: 3}
     - {fileID: 8300000, guid: 1674318e3d132a644b4415e334dbf892, type: 3}
     - {fileID: 8300000, guid: f085dd77df0fa5c4db2c3b6e64dca846, type: 3}
+  - name: Footstep
+    volume: 1
+    mixer: {fileID: 0}
+    sounds:
+    - {fileID: 8300000, guid: 62c6d5d4e1f7fc049a739e6f6a96b545, type: 3}
+  - name: Footstep
+    volume: 1
+    mixer: {fileID: 0}
+    sounds:
+    - {fileID: 8300000, guid: da42d639fff7ef646a7ffc2f561a7360, type: 3}

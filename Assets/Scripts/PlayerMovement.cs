@@ -31,7 +31,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (manager.rb.linearDamping == 5 && manager.readyToAttack && manager.readyToSpecial && manager.readyToUltimate && !manager.onAir && manager.readyToDodge && !manager.isDead)
+        if (manager.rb.linearDamping == 5 && manager.readyToAttack && manager.readyToSpecial && manager.readyToUltimate && !manager.onAir && manager.readyToDodge && !manager.isDead && !manager.isParry)
         {
             manager.rb.AddForce(moveDir * currentSpeed, ForceMode.Force);
         }
@@ -44,7 +44,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnDodge(InputAction.CallbackContext context)
     {
-        if (context.performed && manager.readyToDodge && manager.readyToSpecial && manager.readyToUltimate && !manager.onAir && !manager.isDead)
+        if (context.performed && manager.readyToDodge && manager.readyToSpecial && manager.readyToUltimate && !manager.onAir && !manager.isDead && !manager.isParry)
         {
             manager.rb.useGravity = false;
             manager.playerCollision.isTrigger = true;
@@ -54,8 +54,8 @@ public class PlayerMovement : MonoBehaviour
             {
                 manager.anim.SetTrigger("Roll");
             }
-            StartCoroutine(DodgeCooldown());
             StartCoroutine(StartSnappy());
+            StartCoroutine(DodgeCooldown());
         }
     }
 
@@ -110,7 +110,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnLockOnTarget(InputAction.CallbackContext context)
     {
-        if (context.performed && manager.readyToUltimate && !manager.isDead)
+        if (context.performed && manager.readyToUltimate && !manager.isDead && !manager.isParry)
         {
             if (!isTargeting && manager.enemyClose.Count > 0)
             {
@@ -211,7 +211,7 @@ public class PlayerMovement : MonoBehaviour
                 manager.invulnerability = false;
             }
 
-            if (moveDirection != Vector2.zero && manager.readyToAttack && manager.readyToSpecial && manager.readyToDodge && !isTargeting && !manager.onAir && !manager.isDead)
+            if (moveDirection != Vector2.zero && manager.readyToAttack && manager.readyToSpecial && manager.readyToDodge && !isTargeting && !manager.onAir && !manager.isDead && !manager.isParry)
             {
                 Vector3 worldDirection = (camForward * moveDirection.y + camRight * moveDirection.x).normalized;
 
@@ -220,7 +220,7 @@ public class PlayerMovement : MonoBehaviour
 
                 Quaternion targetRotation = Quaternion.LookRotation(worldDirection);
                 manager.playerBody.rotation = Quaternion.RotateTowards(manager.playerBody.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-            } else if (moveDirection != Vector2.zero && manager.readyToDodge == false && allowSnappyRotation && !manager.isDead) 
+            } else if (moveDirection != Vector2.zero && manager.readyToDodge == false && allowSnappyRotation && !manager.isDead && !manager.isParry) 
             {
                 Vector3 worldDirection = (camForward * moveDirection.y + camRight * moveDirection.x).normalized;
 

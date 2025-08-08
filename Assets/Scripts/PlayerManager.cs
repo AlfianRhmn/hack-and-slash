@@ -29,8 +29,10 @@ public class PlayerManager : MonoBehaviour
     public GameObject virtualHardLockCam;
     public GameObject virtualDeathCam;
     public GameObject virtualJuggleCam;
+    public GameObject virtualParryCam;
     public Transform jugglePoint;
     public VolumeProfile deathVolumeSettings;
+    public VolumeProfile succesfulDodgeSettings;
 
     [Header("Weapon & Combat")]
     public Weapon weapon;
@@ -99,6 +101,8 @@ public class PlayerManager : MonoBehaviour
     public bool isDead = false;
     public bool readyToHurt = true;
     public bool invulnerability = false;
+    public bool restrictParry = false;
+    public bool isParry = false;
     public bool onAir = false;
 
     [Header("Enemy List & Lock-On")]
@@ -215,7 +219,7 @@ public class PlayerManager : MonoBehaviour
 
     public void PauseGame(InputAction.CallbackContext context)
     {
-        if (context.performed && !ultCanvas.gameObject.activeSelf && !isDead)
+        if (context.performed && !ultCanvas.gameObject.activeSelf && !isDead && (Time.timeScale == 1f || Time.timeScale == 0f))
         {
             PauseGame();
         }

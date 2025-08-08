@@ -42,6 +42,25 @@ namespace SmallHedge.SoundManager
                 instance.audioSource.PlayOneShot(randomClip, volume * soundList.volume);
             }
         }
+        public static void PlaySoundIndex(int index, AudioSource source = null, float volume = 1)
+        {
+            SoundList soundList = instance.SO.sounds[index];
+            AudioClip[] clips = soundList.sounds;
+            AudioClip randomClip = clips[UnityEngine.Random.Range(0, clips.Length)];
+
+            if (source)
+            {
+                source.outputAudioMixerGroup = soundList.mixer;
+                source.clip = randomClip;
+                source.volume = volume * soundList.volume;
+                source.Play();
+            }
+            else
+            {
+                instance.audioSource.outputAudioMixerGroup = soundList.mixer;
+                instance.audioSource.PlayOneShot(randomClip, volume * soundList.volume);
+            }
+        }
     }
 
     [Serializable]

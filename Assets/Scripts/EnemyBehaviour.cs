@@ -17,6 +17,7 @@ public class EnemyBehaviour : MonoBehaviour
     public State[] enemyState;
     public Animator anim;
     public EnemyWeapon weapon;
+    public GameObject warningFlash;
     private int currentState = 0;
     private NavMeshAgent agent;
     bool isChangingState = false;
@@ -30,7 +31,7 @@ public class EnemyBehaviour : MonoBehaviour
     [HideInInspector] public bool isBeingLaunched = false;
     [HideInInspector] public EnemySpawner source;
     private int airborneHitCount = 0;
-    EnemyMoveset currentMoveset;
+    [HideInInspector] public EnemyMoveset currentMoveset;
     [Header("User Interface")]
     public Slider healthBar;
     public Transform headOfModel;
@@ -60,7 +61,7 @@ public class EnemyBehaviour : MonoBehaviour
         {
             CheckEnemyState();
             HandleMovement();
-            if (Vector3.Distance(transform.position, target.position) < enemyState[currentState].distanceUntilAttack && !isAttacking && !isChangingState && hasNoticedPlayer && readyToAttack && !onAir)
+            if (Vector3.Distance(transform.position, target.position) < enemyState[currentState].distanceUntilAttack && !isAttacking && !isChangingState && hasNoticedPlayer && readyToAttack && !onAir && !PlayerManager.Instance.isDead)
             {
                 transform.LookAt(new Vector3(target.position.x, transform.position.y, target.position.z));
                 HandleAttack();
@@ -151,9 +152,13 @@ public class EnemyBehaviour : MonoBehaviour
         anim.runtimeAnimatorController = moveset.animOV;
         weapon.damage = moveset.damage;
         isAttacking = true;
+        Instantiate(warningFlash, headOfModel.position + transform.forward, Quaternion.identity);
         // masukin vfx ting! buat penanda serangan
         transform.LookAt(new Vector3(target.position.x, transform.position.y, target.position.z));
-        anim.SetTrigger("Attack");
+        if (!isChangingState)
+        {
+            anim.SetTrigger("Attack");
+        }
         yield return new WaitForSeconds(moveset.duration);
         currentMoveset = null;
         isAttacking = false;
@@ -247,7 +252,10 @@ public class EnemyBehaviour : MonoBehaviour
         }
         else
         {
-            anim.SetTrigger("Hit");
+            if (!isAttacking && !isChangingState)
+            {
+                anim.SetTrigger("Hit");
+            }
             if (agent != null && agent.isOnNavMesh)
             {
                 agent.isStopped = true;
@@ -368,9 +376,10 @@ public class EnemyBehaviour : MonoBehaviour
         }
 
         // Allow natural falling
+        StopCoroutine(ForceMoveUpward(5f));
+        rb.linearVelocity += Vector3.down * 200;
         rb.isKinematic = false;
         rb.useGravity = true;
-
         onAir = false;
         isBeingLaunched = false;
         launchRoutine = null;
@@ -396,7 +405,6 @@ public class EnemyBehaviour : MonoBehaviour
         // Snap back exactly to starting position
         transform.position = new Vector3(transform.position.x, startY, transform.position.z);
     }
-
 }
 
 [System.Serializable]

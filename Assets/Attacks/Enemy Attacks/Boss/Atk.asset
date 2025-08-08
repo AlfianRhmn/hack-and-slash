@@ -16,4 +16,5 @@ MonoBehaviour:
   animOV: {fileID: 22100000, guid: aa9145a075c4db74eb3295e290b53a88, type: 2}
   duration: 2.9
   damage: 10
+  damageChecks: 1
   probability: 50

@@ -78,6 +78,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Parry",
+                    "type": "Button",
+                    "id": "a99845d5-d4ed-4111-bdf5-9ee5254b0a29",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Tap",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Change Special - Negative",
                     "type": "Button",
                     "id": "8380a40e-6f47-4cb2-8987-134fd83516c1",
@@ -328,6 +337,28 @@
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "Dodge",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "37a1cbe1-4ba2-426d-b242-3bd243983e89",
+                    "path": "<Gamepad>/rightTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Parry",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8e76a65e-e758-4e6c-b948-c7aef3625b9b",
+                    "path": "<Keyboard>/v",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Parry",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
