@@ -1124,12 +1124,14 @@ MonoBehaviour:
     minCooldownPerAttack: 1
     maxCooldownPerAttack: 2
     painTolerance: 0.732
-  vfxPrefab: {fileID: 7053385775836331393, guid: 354b6251e950209409c75ab984acf000, type: 3}
   anim: {fileID: 2620721064916838146}
   weapon: {fileID: 8486801489699264292}
+  warningFlash: {fileID: 2354651296378599919, guid: 677a4ddd059f6654482b5d5fed5a8753, type: 3}
   isAttacking: 0
+  canBeParried: 0
   isBeingLaunched: 0
   source: {fileID: 0}
+  currentMoveset: {fileID: 0}
   healthBar: {fileID: 0}
   headOfModel: {fileID: 5912661799713299241}
 --- !u!54 &2723001644705240621

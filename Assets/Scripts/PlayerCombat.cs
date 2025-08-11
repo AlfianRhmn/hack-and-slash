@@ -34,13 +34,16 @@ public class PlayerCombat : MonoBehaviour
     public List<SkillSO> listOfSpecial;
     public UltimateSO ultimate;
     public float timeUntilManaRegen = 2;
+    [Range(0f, 1f)]
+    public float percentageManaRegen = 0.1f;
+    public float leniencyFrame = 0.05f;
+    public float parryCooldown = 1.5f;
+    public int weaponDurability = 4;
     public GameObject VFX_ModifierA;
     public GameObject VFX_ModifierB;
     public GameObject swordVFX;
     public GameObject impactVFX;
     public TextMeshProUGUI debug;
-    [Range(0f, 1f)]
-    public float percentageManaRegen = 0.1f;
     int specialSelected;
     float healthVelocity;
     float manaVelocity;
@@ -59,8 +62,12 @@ public class PlayerCombat : MonoBehaviour
     [HideInInspector] public bool pauseJuggleTimer = false;
     GameObject dodgeNumber;
     float peakY;
-    int parriedAttacks = 0;
+    int perfectParryDone = 0;
+    [HideInInspector] public int bufferParryDone = 0;
     float parryTimer;
+    EnemyBehaviour[] listOfBuffer;
+    EnemyBehaviour[] listOfParriable;
+    int currentParry;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -117,7 +124,7 @@ public class PlayerCombat : MonoBehaviour
             SetupSpecial();
             SetupUltimate();
             EndAttack();
-            debug.text = "last hit : " + timer.ToString() + "<br>player falling speed : " + (Mathf.Round(manager.rb.linearVelocity.y * 100) / 100) + "<br>timescale : " + Time.timeScale + "<br>parry timer : " + parryTimer + "<br>parried attacks : " + parriedAttacks;
+            debug.text = "last hit : " + timer.ToString() + "<br>player falling speed : " + (Mathf.Round(manager.rb.linearVelocity.y * 100) / 100) + "<br>timescale : " + Time.timeScale + "<br>parry timer : " + parryTimer + "<br>perfect parry : " + perfectParryDone + "<br>buffer parry : " + bufferParryDone + "<br>weapon durability : " + (weaponDurability - currentParry) + "/" + weaponDurability;
             if (!pauseJuggleTimer)
             {
                 timer += Time.deltaTime;
@@ -304,30 +311,69 @@ public class PlayerCombat : MonoBehaviour
     {
         if (context.performed && manager.readyToUltimate && manager.readyToSpecial && manager.readyToDodge && manager.readyToHurt && manager.enemyClose.Count > 0 && !manager.isParry && !manager.restrictParry)
         {
-            parriedAttacks = 0;
-            manager.isParry = true;
-            EnemyBehaviour[] parry = FindParryable();
-            if (parry.Length > 0)
+            listOfParriable = FindParryable();
+            if (listOfParriable.Length > 0)
             {
                 // try parrying
-                StartCoroutine(StartParrying(parry));
-
-            } else
+                print("PARRY SUCCESSFUL...");
+                perfectParryDone++;
+                Transform closest = FindClosestFromList(listOfParriable);
+                Parry(closest);
+            }
+            else
             {
-                manager.isParry = false;
+                listOfBuffer = FindAlmostAttack();
+                if (listOfBuffer.Length > 0)
+                {
+                    foreach (EnemyBehaviour subject in listOfBuffer)
+                    {
+                        if (!subject.bufferFrame)
+                        {
+                            StartCoroutine(subject.StartBuffer(leniencyFrame));
+                        }
+                    }
+                }
+                else
+                {
+                    StartCoroutine(ParryCooldown()); // prevent spamming
+                }
             }
         }
     }
 
-    IEnumerator StartParrying(EnemyBehaviour[] parry)
+    public void ResetAllBufferFrame()
     {
-        Transform closest = FindClosestFromList(parry);
+        foreach (EnemyBehaviour enemy in listOfBuffer)
+        {
+            StopCoroutine(enemy.StartBuffer(leniencyFrame));
+            enemy.bufferFrame = false;
+        }
+        listOfBuffer = null;
+    }
+
+    IEnumerator ParryCooldown()
+    {
+        manager.restrictParry = true;
+        yield return new WaitForSeconds(parryCooldown);
+        manager.restrictParry = false;
+    }
+
+    public void Parry(Transform closest)
+    {
+        if (manager.isParry) return;
+        manager.isParry = true;
+        StartCoroutine(StartParrying(closest));
+    }
+
+    IEnumerator StartParrying(Transform closest)
+    {
+        currentParry = 0;
         manager.playerBody.LookAt(new Vector3(closest.position.x, transform.position.y, closest.position.z));
         MoveInFrontOfEnemy(closest);
         manager.anim.SetBool("Parrying", true);
-        int amountOfAttacks = closest.GetComponent<EnemyBehaviour>().currentMoveset.damageChecks;
+        EnemyBehaviour enemy = closest.GetComponent<EnemyBehaviour>();
         parryTimer = 0;
-        while (parriedAttacks < amountOfAttacks)
+        while (AllEnemyDoneAttack() || currentParry < weaponDurability)
         {
             // wait until all checks are finished
             // parriedattacks increase on TakeDamage()
@@ -336,14 +382,50 @@ public class PlayerCombat : MonoBehaviour
             {
                 break;
             }
+            if (currentParry >= weaponDurability)
+            {
+                break;
+            }
             yield return new WaitForEndOfFrame();
         }
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.1f);
+        if (currentParry < weaponDurability)
+        {
+            StartCoroutine(StartInvincible());
+        } else
+        {
+            // play animation where player is repelled backward
+            // add vfx to show durability is broken
+            // add text where your weapon cant stand the attacks
+            // no invincibility added
+            print("WEAPON BROKEN THROUGH, PARRY STOPPED AND NO INVINCIBILITY GIVEN...");
+        }
+        listOfParriable = null;
         parryTimer = 0;
+        currentParry = 0;
+        manager.isParry = false;
         manager.anim.SetBool("Parrying", false);
-        StartCoroutine(StartInvincible());
-        yield return new WaitForSeconds(0.8f);
+        yield return new WaitForSeconds(0.4f);
         manager.virtualParryCam.SetActive(false);
+    }
+
+    public bool AllEnemyDoneAttack()
+    {
+        if (listOfParriable.Length > 0)
+        {
+            int i = 0;
+            foreach (EnemyBehaviour enemy in listOfParriable)
+            {
+                if (enemy.isAttacking == false)
+                {
+                    i++;
+                }
+            }
+            return i >= listOfParriable.Length;
+        } else
+        {
+            return true;
+        }
     }
 
     IEnumerator StartInvincible()
@@ -351,10 +433,22 @@ public class PlayerCombat : MonoBehaviour
         gameObject.tag = "Untagged"; // THIS IS CHEAP WAY FOR INVINCIBLE WITHOUT VARIABLE
         yield return new WaitForSeconds(1f);
         gameObject.tag = "Player";
-        manager.isParry = false;
     }
 
     EnemyBehaviour[] FindParryable()
+    {
+        List<EnemyBehaviour> result = new List<EnemyBehaviour>();
+        for (int i = 0; i < manager.enemyClose.Count; i++)
+        {
+            if (Vector3.Distance(manager.enemyClose[i].transform.position, transform.position) < 8 && manager.enemyClose[i].canBeParried)
+            {
+                result.Add(manager.enemyClose[i]);
+            }
+        }
+        return result.ToArray();
+    }
+
+    EnemyBehaviour[] FindAlmostAttack()
     {
         List<EnemyBehaviour> result = new List<EnemyBehaviour>();
         for (int i = 0; i < manager.enemyClose.Count; i++)
@@ -892,22 +986,29 @@ public class PlayerCombat : MonoBehaviour
 
     public Transform FindClosestFromList(EnemyBehaviour[] list)
     {
-        if (list.Length == 0)
+        if (list == null || list.Length == 0) return null;
+
+        float closestSqr = Mathf.Infinity;
+        int closestIndex = -1;
+        Vector3 pos = transform.position;
+
+        for (int i = 0; i < list.Length; i++)
         {
-            return null;
-        }
-        float closestDistance = Mathf.Infinity;
-        int enemyIndex = 0;
-        foreach (EnemyBehaviour enemy in list)
-        {
-            if (Vector3.Distance(transform.position, enemy.transform.position) < closestDistance)
+            var enemy = list[i];
+            if (enemy == null) continue; // skip dead/null entries
+
+            float sqr = (enemy.transform.position - pos).sqrMagnitude;
+            if (sqr < closestSqr)
             {
-                closestDistance = Vector3.Distance(transform.position, enemy.transform.position);
-                enemyIndex = manager.enemyList.IndexOf(enemy);
+                closestSqr = sqr;
+                closestIndex = i;
             }
         }
-        return list[enemyIndex].transform;
+
+        if (closestIndex == -1) return null;
+        return list[closestIndex].transform;
     }
+
 
     public Transform FindClosestEnemy()
     {
@@ -1030,7 +1131,11 @@ public class PlayerCombat : MonoBehaviour
                     StartCoroutine(DodgeNumberRefresh());
                     if (slowFrameDamage != null)
                     {
-                        StopCoroutine(SlowFrameDodge());
+                        StopCoroutine(slowFrameDamage);
+                        if (manager.succesfulDodgeSettings.TryGet(out ColorAdjustments adjust))
+                        {
+                            adjust.saturation.value = 0f; // back to normal immediately
+                        }
                     }
                     slowFrameDamage = StartCoroutine(SlowFrameDodge());
                 }
@@ -1038,9 +1143,20 @@ public class PlayerCombat : MonoBehaviour
             else if (manager.isParry)
             {
                 parryTimer = 0;
+                currentParry++;
                 manager.virtualParryCam.SetActive(true);
-                parriedAttacks++;
                 StartCoroutine(StartImpactVFX());
+                manager.playerBody.transform.LookAt(new Vector3(sourceOfDamage.position.x, manager.playerBody.transform.position.y, sourceOfDamage.position.z));
+                manager.anim.SetTrigger("AltParry");
+                if (slowFrameDamage != null)
+                {
+                    StopCoroutine(slowFrameDamage);
+                    if (manager.succesfulDodgeSettings.TryGet(out ColorAdjustments adjust))
+                    {
+                        adjust.saturation.value = 0f; // back to normal immediately
+                    }
+                }
+                slowFrameDamage = StartCoroutine(SlowFrameParry());
             } 
             else
             {
@@ -1137,26 +1253,70 @@ public class PlayerCombat : MonoBehaviour
     IEnumerator SlowFrameDodge()
     {
         Time.timeScale = 0.1f;
-        if (manager.succesfulDodgeSettings.TryGet<ColorAdjustments>(out ColorAdjustments adjust))
+
+        if (manager.succesfulDodgeSettings.TryGet(out ColorAdjustments adjust))
         {
-            adjust.saturation.value = 0;
-            for (int i = 0; i < 20; i++)
+            float startSat = adjust.saturation.value;
+            float graySat = -100f; // fully gray
+
+            // Fade to gray
+            float t = 0f;
+            while (t < 1f)
             {
-                adjust.saturation.value -= 5;
-                yield return new WaitForEndOfFrame();
+                t += Time.unscaledDeltaTime / 0.3f; // 0.3s fade time
+                adjust.saturation.value = Mathf.Lerp(startSat, graySat, t);
+                yield return null;
             }
+
+            yield return new WaitForSecondsRealtime(0.3f); // stay gray
+
+            // Fade back to normal
+            t = 0f;
+            while (t < 1f)
+            {
+                t += Time.unscaledDeltaTime / 0.3f; // same duration back
+                adjust.saturation.value = Mathf.Lerp(graySat, startSat, t);
+                yield return null;
+            }
+
+            adjust.saturation.value = startSat; // ensure exact reset
         }
-        yield return new WaitForSecondsRealtime(0.6f);
-        if (adjust != null)
+
+        Time.timeScale = 1f;
+    }
+
+    IEnumerator SlowFrameParry()
+    {
+        Time.timeScale = 0.5f;
+
+        if (manager.succesfulDodgeSettings.TryGet(out ColorAdjustments adjust))
         {
-            adjust.saturation.value = 0;
-            for (int i = 0; i < 20; i++)
+            float startSat = adjust.saturation.value;
+            float graySat = -100f; // fully gray
+
+            // Fade to gray
+            float t = 0f;
+            while (t < 1f)
             {
-                adjust.saturation.value += 5;
-                yield return new WaitForEndOfFrame();
+                t += Time.unscaledDeltaTime / 0.3f; // 0.3s fade time
+                adjust.saturation.value = Mathf.Lerp(startSat, graySat, t);
+                yield return null;
             }
-            adjust.saturation.value = 0;
+
+            yield return new WaitForSecondsRealtime(0.3f); // stay gray
+
+            // Fade back to normal
+            t = 0f;
+            while (t < 1f)
+            {
+                t += Time.unscaledDeltaTime / 0.3f; // same duration back
+                adjust.saturation.value = Mathf.Lerp(graySat, startSat, t);
+                yield return null;
+            }
+
+            adjust.saturation.value = startSat; // ensure exact reset
         }
+
         Time.timeScale = 1f;
     }
 

@@ -509,9 +509,13 @@ MonoBehaviour:
     painTolerance: 0
   anim: {fileID: 8348242735088087735}
   weapon: {fileID: 2407762738060288840}
+  warningFlash: {fileID: 2354651296378599919, guid: 677a4ddd059f6654482b5d5fed5a8753, type: 3}
   isAttacking: 0
+  canBeParried: 0
+  bufferFrame: 0
   isBeingLaunched: 0
   source: {fileID: 0}
+  currentMoveset: {fileID: 0}
   healthBar: {fileID: 2187102356415936017}
   headOfModel: {fileID: 144285828693152923}
 --- !u!54 &1034529913486879399

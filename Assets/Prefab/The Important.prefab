@@ -6821,6 +6821,7 @@ Transform:
   - {fileID: 9074221503409622027}
   - {fileID: 7789917790550982697}
   - {fileID: 8140519332819591175}
+  - {fileID: 363832617900040763}
   m_Father: {fileID: 6662481756227574361}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &3585599355551730607
@@ -29059,6 +29060,7 @@ GameObject:
   - component: {fileID: 3972367087612293524}
   - component: {fileID: 1795118364959848217}
   - component: {fileID: 7733327932398406119}
+  - component: {fileID: 3306847745423894292}
   m_Layer: 0
   m_Name: Parrying Camera
   m_TagString: Untagged
@@ -29101,9 +29103,9 @@ MonoBehaviour:
   m_StreamingVersion: 20241001
   m_LegacyPriority: 0
   Target:
-    TrackingTarget: {fileID: 6600835164234973403}
-    LookAtTarget: {fileID: 7316144507070298856}
-    CustomLookAtTarget: 0
+    TrackingTarget: {fileID: 363832617900040763}
+    LookAtTarget: {fileID: 6600835164234973403}
+    CustomLookAtTarget: 1
   Lens:
     FieldOfView: 40
     OrthographicSize: 10
@@ -29200,6 +29202,23 @@ MonoBehaviour:
     FrequencyGain: 1
     Duration: 1
     m_NoiseOffsets: {x: 0, y: 0, z: 0}
+--- !u!114 &3306847745423894292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4066983016802883588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 449ef5ebbe24720439ec31d15f7b6f3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Weight: 1
+  FocusTracking: 0
+  FocusTarget: {fileID: 0}
+  FocusOffset: 0
+  Profile: {fileID: 11400000, guid: 16eac8539aa884a48b5684bf2e7583ea, type: 2}
 --- !u!1 &4072111310233428400
 GameObject:
   m_ObjectHideFlags: 0
@@ -31496,15 +31515,18 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f6c4ddb9f1c37774e8b32b603fd69ae1, type: 2}
   ultimate: {fileID: 11400000, guid: a7b95c53812a2dd4ea8eed00483f547a, type: 2}
   timeUntilManaRegen: 2
+  percentageManaRegen: 0.1
+  leniencyFrame: 0.2
+  parryCooldown: 1.5
   VFX_ModifierA: {fileID: 993049142552578520}
   VFX_ModifierB: {fileID: 8517479143543865453}
   swordVFX: {fileID: 4290914039515574777}
   impactVFX: {fileID: 1758473627833946668, guid: 9b21333b068a5084ba09535839bee3c8, type: 3}
   debug: {fileID: 2894448986384438748}
-  percentageManaRegen: 0.1
   juggleAttack: 0
   timer: 0
   pauseJuggleTimer: 0
+  bufferParryDone: 0
 --- !u!114 &8884972360263174421
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -40662,7 +40684,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowDebugText: 0
   ShowCameraFrustum: 1
-  IgnoreTimeScale: 0
+  IgnoreTimeScale: 1
   WorldUpOverride: {fileID: 0}
   ChannelMask: -1
   UpdateMethod: 2
@@ -67124,6 +67146,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2468377849755526521}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &9075030088065997104
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 363832617900040763}
+  m_Layer: 0
+  m_Name: Parrying Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &363832617900040763
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9075030088065997104}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.962, y: 0.728, z: -1.034}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879761341135728299}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &9085981731090893945
 GameObject:

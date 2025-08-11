@@ -211,6 +211,11 @@ public class PlayerMovement : MonoBehaviour
                 manager.invulnerability = false;
             }
 
+            if (!manager.anim.GetCurrentAnimatorStateInfo(0).IsTag("Dodge"))
+            {
+                manager.invulnerability = false;
+            }
+
             if (moveDirection != Vector2.zero && manager.readyToAttack && manager.readyToSpecial && manager.readyToDodge && !isTargeting && !manager.onAir && !manager.isDead && !manager.isParry)
             {
                 Vector3 worldDirection = (camForward * moveDirection.y + camRight * moveDirection.x).normalized;
@@ -235,7 +240,7 @@ public class PlayerMovement : MonoBehaviour
                 manager.playerBody.LookAt(new Vector3(manager.currentLockOnTarget.position.x, manager.playerBody.position.y, manager.currentLockOnTarget.position.z));
             }
 
-            if (manager.anim != null && !manager.onAir)
+            if (manager.anim != null && !manager.onAir && !manager.isParry)
             {
                 Vector2 targetInput = new Vector2(moveDirection.x, moveDirection.y);
                 currentInput = Vector2.Lerp(currentInput, targetInput, Time.deltaTime * 5);

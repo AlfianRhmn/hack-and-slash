@@ -22,6 +22,8 @@ public class EnemyBehaviour : MonoBehaviour
     private NavMeshAgent agent;
     bool isChangingState = false;
     [HideInInspector] public bool isAttacking = false;
+    [HideInInspector] public bool canBeParried = false;
+    [HideInInspector] public bool bufferFrame = false;
     bool hasNoticedPlayer;
     bool readyToAttack = true;
     bool onAir = false;
@@ -183,9 +185,40 @@ public class EnemyBehaviour : MonoBehaviour
         }
     }
 
-    public void CheckHit()
+    public IEnumerator StartBuffer(float frame)
+    {
+        bufferFrame = true;
+        yield return new WaitForSeconds(frame);
+        bufferFrame = false;
+    }
+
+    public void CheckHit() //USED IN ANIMATION EVENT
     {
         weapon.DoHit();
+    }
+
+    public void ReadyToParry() //USED IN ANIMATION EVENT
+    {
+        canBeParried = true;
+        if (bufferFrame)
+        {
+            print("BUFFER TRIGGER");
+            PlayerManager.Instance.combat.bufferParryDone++;
+            PlayerManager.Instance.combat.ResetAllBufferFrame();
+            StopCoroutine(StartBuffer(PlayerManager.Instance.combat.leniencyFrame));
+            bufferFrame = false;
+            PlayerManager.Instance.combat.Parry(transform);
+        }
+    }
+
+    public void StopParry() // USED IN ANIMATION EVENT
+    {
+        canBeParried = false;
+        if (bufferFrame)
+        {
+            StopCoroutine(StartBuffer(PlayerManager.Instance.combat.leniencyFrame));
+            bufferFrame = false;
+        }
     }
 
     IEnumerator StartChangingState(int stateID)

@@ -299,7 +299,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   vfxPrefab: {fileID: 7053385775836331393, guid: 354b6251e950209409c75ab984acf000, type: 3}
-  parent: {fileID: 5523775573248742792, guid: d1f03337163b5394b80a910ec4390f50, type: 3}
 --- !u!1102 &-2507570121494980933
 AnimatorState:
   serializedVersion: 6
