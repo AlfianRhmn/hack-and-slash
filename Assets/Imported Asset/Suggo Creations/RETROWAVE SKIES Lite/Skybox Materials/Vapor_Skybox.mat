@@ -122,7 +122,7 @@ Material:
     - _QueueOffset: 0
     - _RenderQueueType: 1
     - _SrcBlend: 1
-    - _StarDensity: 15
+    - _StarDensity: 0
     - _StarSize: 100
     - _StencilRef: 0
     - _StencilRefDepth: 0
@@ -155,9 +155,9 @@ Material:
     - _Cubemap_Color: {r: 1, g: 1, b: 1, a: 0}
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
-    - _HorizonColor: {r: 0, g: 0.549629, b: 0.9150943, a: 1}
+    - _HorizonColor: {r: 0.5036026, g: 0.85137314, b: 0.98490566, a: 1}
     - _LinesColor: {r: 0, g: 1, b: 0.50381684, a: 1}
-    - _SkyColor: {r: 0, g: 1, b: 0.34965038, a: 1}
+    - _SkyColor: {r: 0, g: 1, b: 0.94968104, a: 1}
     - _StarColor: {r: 0.9056604, g: 0.9056604, b: 0.9056604, a: 0}
     - _SunColorOne: {r: 0.8, g: 0.95344543, b: 1, a: 1}
     - _SunColorTwo: {r: 0.79208773, g: 0.82883406, b: 0.83699995, a: 1}
