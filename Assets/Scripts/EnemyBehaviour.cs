@@ -28,6 +28,7 @@ public class EnemyBehaviour : MonoBehaviour
     bool readyToAttack = true;
     bool onAir = false;
     bool isDead = false;
+    bool invesible = false;
     Rigidbody rb;
     private Coroutine launchRoutine;
     [HideInInspector] public bool isBeingLaunched = false;
@@ -39,6 +40,7 @@ public class EnemyBehaviour : MonoBehaviour
     public Transform headOfModel;
     float currentVelocity;
     float peakY;
+    float timer;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -73,6 +75,30 @@ public class EnemyBehaviour : MonoBehaviour
         {
             agent.isStopped = true;
         }
+    }
+
+    IEnumerator Invisible()
+    {
+        timer -= Time.deltaTime;
+        if (timer <= 0)
+        {
+            invesible = false;
+        }
+        timer = 1f;
+        if (timer > 0)
+        {
+            invesible = true;
+        }
+        else
+        {
+            invesible = false;
+        }
+        yield return new WaitForSeconds (0.5f);
+        if (agent != null)
+        {
+            agent.isStopped = false;
+        }
+
     }
 
     void SetupUI()
@@ -250,28 +276,39 @@ public class EnemyBehaviour : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        currentHP -= damage;
-
-        if (onAir)
+        if (Random.Range(0f, 1f) <= enemyState[currentState].dodgeChance)
         {
-            StopCoroutine(ForceMoveUpward(5));
-            StopCoroutine(PlayerManager.Instance.combat.ForceMoveUpward(3f));
-            StartCoroutine(ForceMoveUpward(5));
-            StartCoroutine(PlayerManager.Instance.combat.ForceMoveUpward(3f));
-            airborneHitCount++;
+            // DODGE
+            // masukin efek yang menunjukkan musuh dodging
+            // seperti animasi, vfx, sound, dll.
+            anim.SetTrigger("Dodge");
+            StartCoroutine(Invisible());
         }
+        else
+        {
+            currentHP -= damage;
 
-        if (currentHP <= 0 && !isDead)
-        {
-            PlayerManager.Instance.enemyList.Remove(this);
-            StopAllCoroutines();
-            StartCoroutine(Dead());
-        }
-        else if (!isDead)
-        {
-            if (!isChangingState)
+            if (onAir)
             {
-                StartCoroutine(EnemyHit());
+                StopCoroutine(ForceMoveUpward(5));
+                StopCoroutine(PlayerManager.Instance.combat.ForceMoveUpward(3f));
+                StartCoroutine(ForceMoveUpward(5));
+                StartCoroutine(PlayerManager.Instance.combat.ForceMoveUpward(3f));
+                airborneHitCount++;
+            }
+
+            if (currentHP <= 0 && !isDead)
+            {
+                PlayerManager.Instance.enemyList.Remove(this);
+                StopAllCoroutines();
+                StartCoroutine(Dead());
+            }
+            else if (!isDead)
+            {
+                if (!isChangingState)
+                {
+                    StartCoroutine(EnemyHit());
+                }
             }
         }
     }
@@ -322,7 +359,8 @@ public class EnemyBehaviour : MonoBehaviour
         if (isBoss)
         {
             source.BossDeath();
-        } else
+        }
+        else
         {
             healthBar.gameObject.SetActive(false);
         }
@@ -454,4 +492,6 @@ public class State
     public float maxCooldownPerAttack; // cooldown setiap serangan - maksimal
     [Range(0f, 1f)]
     public float painTolerance; //random jika kena hit, akan nyerang dan tidak play animasi, 1 = 100% immune
+    [Range(0f, 1f)]
+    public float dodgeChance; //dodge chance
 }

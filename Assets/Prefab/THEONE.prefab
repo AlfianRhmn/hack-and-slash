@@ -1087,7 +1087,8 @@ MonoBehaviour:
     changingDuration: 2.9
     minCooldownPerAttack: 3
     maxCooldownPerAttack: 4
-    painTolerance: 0
+    painTolerance: 0.5
+    dodgeChance: 0.5
   - hpCondition: 0.8
     moveset:
     - {fileID: 11400000, guid: dc17def979c0c0f429601f161bfae834, type: 2}
@@ -1099,7 +1100,8 @@ MonoBehaviour:
     changingDuration: 2.9
     minCooldownPerAttack: 2
     maxCooldownPerAttack: 3
-    painTolerance: 0.221
+    painTolerance: 0.5
+    dodgeChance: 0.5
   - hpCondition: 0.5
     moveset:
     - {fileID: 11400000, guid: 23ef2b96609107749bd376dab4a35c7d, type: 2}
@@ -1112,6 +1114,7 @@ MonoBehaviour:
     minCooldownPerAttack: 2
     maxCooldownPerAttack: 3
     painTolerance: 0.547
+    dodgeChance: 0.5
   - hpCondition: 0.3
     moveset:
     - {fileID: 11400000, guid: b515a373a53c4324dabf1e8f1775dd8a, type: 2}
@@ -1124,11 +1127,13 @@ MonoBehaviour:
     minCooldownPerAttack: 1
     maxCooldownPerAttack: 2
     painTolerance: 0.732
+    dodgeChance: 0.6
   anim: {fileID: 2620721064916838146}
   weapon: {fileID: 8486801489699264292}
   warningFlash: {fileID: 2354651296378599919, guid: 677a4ddd059f6654482b5d5fed5a8753, type: 3}
   isAttacking: 0
   canBeParried: 0
+  bufferFrame: 0
   isBeingLaunched: 0
   source: {fileID: 0}
   currentMoveset: {fileID: 0}
