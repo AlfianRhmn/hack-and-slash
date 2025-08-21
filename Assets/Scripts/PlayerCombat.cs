@@ -621,9 +621,21 @@ public class PlayerCombat : MonoBehaviour
         CancelInvoke("EndCombo");
         if (lastMoveset != null)
         {
-            if (!lastMoveset.skipAnimation && !manager.readyToAttack)
+            if (comboCounter == 0)
             {
-                return;
+                if (!lastMoveset.skipAnimation && !manager.readyToAttack)
+                {
+                    return;
+                }
+            } else
+            {
+                if (!lastMoveset.skipAnimation && !manager.readyToAttack)
+                {
+                    return;
+                } else if (lastMoveset.skipAnimation && input == lastMoveset.comboList[comboCounter - 1].keyUsed && !manager.readyToAttack)
+                {
+                    return;
+                }
             }
         } else
         {
@@ -903,6 +915,7 @@ public class PlayerCombat : MonoBehaviour
         manager.rightLeg.damage = ultimate.damage * attackModifier;
         manager.rightLeg.critChance = critChance;
         manager.rightLeg.critDamage = critDamage;
+        yield return new WaitForSeconds(0.25f);
         yield return new WaitForSeconds(manager.anim.GetCurrentAnimatorStateInfo(0).length);
         manager.readyToUltimate = true;
     }
